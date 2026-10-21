@@ -50,3 +50,7 @@ dad/preview-*/
 dad/probe-*/
 dad/deck-1-*/
 dad/DAD-Convo Deck.html
+
+# --- local working notes (env facts, account id) — never commit ---
+MIGRATION-NOTES.local.md
+*.local.md

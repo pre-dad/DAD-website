@@ -1,5 +1,12 @@
 # DAD Website (dynamicaid.org) — Site Assessment
 
+> **Migration decisions (post-assessment):** Strategy = lift-and-shift onto Amazon
+> **Lightsail LAMP** (PHP 8 + SQLite, code unchanged) + **SES** for email. Region
+> **us-east-2**. DNS stays on **Cloudflare** (NOT Route 53) — DNS-only records to start.
+> Repo `CoachCoe/dad-main-website` is **private** (the §6 "public" note below is corrected
+> to private). `site.sqlite` turned out to already be local (2 submissions) — no IONOS SFTP
+> pull needed, but back it up off-laptop. CEO copy-editing deferred to a later follow-up.
+
 Read-only investigation of `/Users/shawncoe/Documents/dev/DAD/website/dad`. No files were
 modified, moved, or deleted; the PHP backend was not run and nothing was deployed. Secret
 values (config.php, any `.sqlite`, Stripe keys, IP salt) were never opened or printed —

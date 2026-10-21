@@ -47,3 +47,18 @@ const SITE_QUIET_DOMAINS               = ['example.com'];   // saved, but no ema
 
 // Extra origins allowed to post forms. The site's own host is always allowed.
 const SITE_ALLOWED_ORIGINS = ['https://dynamicaid.org', 'https://www.dynamicaid.org'];
+
+// Outbound email transport (optional)
+// Leave SITE_SMTP_HOST blank ('') to keep sending through PHP mail() exactly as before.
+// Set it to send through an SMTP relay instead (used on AWS with Amazon SES).
+//   - SITE_SMTP_HOST region MUST match where SES is set up (us-east-2), e.g. 'email-smtp.us-east-2.amazonaws.com'.
+//   - SITE_SMTP_USER / SITE_SMTP_PASS are the SES SMTP credentials generated in the SES console.
+//     They are DISTINCT from your AWS access keys: SES creates a separate SMTP username/password pair.
+//   - SITE_SMTP_PASS is a SECRET. It belongs ONLY in config.php on the server, NEVER in this sample
+//     file and NEVER in git. Leave it blank here.
+//   - Port 587 with SITE_SMTP_SECURE = 'tls' uses STARTTLS (the SES submission port).
+const SITE_SMTP_HOST   = '';      // e.g. 'email-smtp.us-east-2.amazonaws.com' (blank = use PHP mail())
+const SITE_SMTP_PORT   = 587;     // SES SMTP submission port (STARTTLS)
+const SITE_SMTP_USER   = '';      // SES SMTP username (from the SES console, NOT an AWS access key)
+const SITE_SMTP_PASS   = '';      // SES SMTP password — SECRET: set in server config.php only, never here/git
+const SITE_SMTP_SECURE = 'tls';   // 'tls' = STARTTLS on port 587

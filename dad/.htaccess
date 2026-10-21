@@ -13,6 +13,12 @@ RedirectMatch 301 ^/get-involved/?$ /movement/
   AddType application/javascript .js .mjs
 </IfModule>
 
+# The impact-ledger view ships as an extension-less file; force its content type
+# so Apache serves it as HTML (otherwise it may be sent as octet-stream/download).
+<Files "impactledger">
+  ForceType text/html
+</Files>
+
 # text assets ship ~75% smaller compressed (site.css 150KB -> ~30KB)
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript text/javascript application/json image/svg+xml application/xml
