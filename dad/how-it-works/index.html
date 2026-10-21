@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en" data-theme="dark" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How It Works | DAD</title>
+<meta name="description" content="We collect resources at scale. Then strategically deploy. And you watch it the whole way: fund, operate, prove, grow.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dynamicaid.org/how-it-works/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DAD · Dynamic Aid Delivery">
+<meta property="og:title" content="How It Works | DAD">
+<meta property="og:description" content="We collect resources at scale. Then strategically deploy. And you watch it the whole way: fund, operate, prove, grow.">
+<meta property="og:url" content="https://dynamicaid.org/how-it-works/">
+<meta property="og:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How It Works | DAD">
+<meta name="twitter:description" content="We collect resources at scale. Then strategically deploy. And you watch it the whole way: fund, operate, prove, grow.">
+<meta name="theme-color" content="#0E1E1E">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/site.css?v=c2c7328da2">
+<script>
+/* boot flags: runs before first paint */
+(function(){
+  var h=document.documentElement; h.classList.remove('no-js'); h.classList.add('js');
+  var rm=false; try{rm=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  if(rm) h.classList.add('reduced');
+  var seen=false; try{seen=sessionStorage.getItem('dad-pl')==='1';}catch(e){}
+  if(seen||rm) h.classList.add('no-pl');
+  /* the cookie chip's strip is reserved from the first paint, so nothing jumps when it slides in */
+  var cc=null; try{cc=localStorage.getItem('dad-consent');}catch(e){}
+  if(!cc) h.classList.add('has-cookie');
+  /* never leave content hidden if the app fails to boot */
+  setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
+})();
+</script>
+<script defer src="/vendor/gsap.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/SplitText.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/lenis.min.js?v=c2c7328da2"></script>
+<script type="module" src="/js/app.js?v=c2c7328da2"></script>
+<!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
+     home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
+     fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
+<link rel="modulepreload" href="/js/core/util.js?v=c2c7328da2">
+</head>
+<body data-page="how-it-works" data-mobile-cta="on">
+<a class="skip-link" href="#swap">Skip to content</a>
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__mark">
+    <svg viewBox="-43 -4 366 108" focusable="false">
+      <g class="pl-glyph"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
+      <g class="pl-glyph pl-g2"><path fill="#F8F9FA" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/></g>
+      <g class="pl-glyph pl-g3"><g transform="translate(280,0) scale(-1,1)"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g></g>
+      <g class="pl-bar pl-b1"><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g></g>
+      <g class="pl-bar pl-b2"><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></g>
+    </svg>
+  </div>
+  <div class="preloader__bar"><i></i></div>
+  <p class="preloader__tag">Aid, delivered.</p>
+</div>
+
+<div class="route-bar" id="route-bar" aria-hidden="true"><i></i></div>
+<div class="flood" id="flood" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true" tabindex="-1"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+    <nav class="nav__links" aria-label="Primary">
+      <a class="nav__link" href="/about/" data-nav><span class="nav__roll" data-text="About">About</span></a>
+      <a class="nav__link" href="/how-it-works/" data-nav aria-current="page"><span class="nav__roll" data-text="How It Works">How It Works</span></a>
+      <a class="nav__link" href="/programs/" data-nav><span class="nav__roll" data-text="Programs">Programs</span></a>
+      <a class="nav__link" href="/proof/" data-nav><span class="nav__roll" data-text="The Proof">The Proof</span></a>
+      <a class="nav__link" href="/team/" data-nav><span class="nav__roll" data-text="Team">Team</span></a>
+      <a class="nav__link" href="/movement/" data-nav><span class="nav__roll" data-text="The Movement">The Movement</span></a>
+    </nav>
+    <a class="btn btn--primary btn--sm nav__cta" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+    <button class="nav__burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span></span><span></span></button>
+  </div>
+  <div class="nav__progress" aria-hidden="true"><i></i></div>
+</header>
+<div class="menu is-dark" id="menu" role="dialog" aria-modal="true" aria-label="Site menu" inert>
+  <div class="menu__bg" aria-hidden="true"></div>
+  <div class="menu__inner">
+    <nav class="menu__links" aria-label="Menu">
+      <a class="menu__link" href="/about/" data-nav><span class="menu__idx">01</span><span class="menu__txt">About</span></a>
+      <a class="menu__link" href="/how-it-works/" data-nav aria-current="page"><span class="menu__idx">02</span><span class="menu__txt">How It Works</span></a>
+      <a class="menu__link" href="/programs/" data-nav><span class="menu__idx">03</span><span class="menu__txt">Programs</span></a>
+      <a class="menu__link" href="/proof/" data-nav><span class="menu__idx">04</span><span class="menu__txt">The Proof</span></a>
+      <a class="menu__link" href="/team/" data-nav><span class="menu__idx">05</span><span class="menu__txt">Team</span></a>
+      <a class="menu__link" href="/movement/" data-nav><span class="menu__idx">06</span><span class="menu__txt">The Movement</span></a>
+    </nav>
+    <div class="menu__cta"><a class="btn btn--primary btn--lg" href="/movement/"><span class="btn__label">Join the Movement</span></a></div>
+    <nav class="menu__foot" aria-label="More">
+      <a href="/building-in-public/">Building in Public</a><a href="/transparency/">Transparency</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a><a href="/movement/#careers">Careers</a>
+    </nav>
+    <p class="menu__tag">Aid, delivered.</p>
+  </div>
+</div>
+
+<main id="swap" data-page="how-it-works" data-module="/js/pages/how-it-works.js?v=c2c7328da2" data-scenes tabindex="-1">
+<!-- ============ HERO ============ -->
+<section class="section section--hero hw-hero" data-theme="dark" aria-labelledby="hw-title" data-scene data-scene-name="How it works">
+  <div class="dots dots--bg" data-dots="field" data-dots-color="paper" data-dots-density="0.8" aria-hidden="true"></div>
+  <span class="glow" style="--x:74%;--y:44%;--size:80vmax;--o:.75"></span>
+  <span class="glow glow--cyan" style="--x:12%;--y:90%;--size:50vmax;--o:.28;--t:30s"></span>
+  <div class="container">
+    <div class="hw-hero__grid">
+      <div class="hw-hero__copy">
+        <p class="eyebrow" data-reveal="fade">How it works</p>
+        <h1 class="h-display hw-hero__h" id="hw-title" data-reveal="split-lines">We collect resources at scale. <span class="hl">Then strategically deploy.</span></h1>
+        <p class="lede hw-hero__lede" data-reveal="up" data-delay=".5">And you watch it the whole way.</p>
+      </div>
+      <div class="hw-hero__coin"><div class="dollar-anchor dollar-anchor--hero" data-dollar="ring" data-dollar-shift="-.5,0" data-dollar-shift-media="(min-width: 960px)"></div></div>
+    </div>
+    <span class="ph-cue" aria-hidden="true"><i></i></span>
+  </div>
+</section>
+
+<!-- ============ THE LOOP (sticky stage: the coin changes state in the middle of the loop) ============ -->
+<section class="hw-loop" data-theme="light" aria-label="The loop" data-scene data-scene-steps="4" data-scene-name="The loop">
+  <div class="hw-loop__rail" aria-hidden="true">
+    <div class="container hw-loop__railgrid">
+      <div class="hw-loop__railcol">
+        <div class="dollar-anchor ph-stick" data-dollar="dollar" data-dollar-glide></div>
+        <div class="dollar-anchor ph-stick" data-dollar="galaxy"></div>
+        <div class="dollar-anchor ph-stick" data-dollar="shield"></div>
+        <div class="dollar-anchor ph-stick" data-dollar="network"></div>
+      </div>
+    </div>
+  </div>
+  <div class="hw-loop__stage" data-step="0">
+    <div class="container hw-loop__grid">
+      <div class="hw-loop__visual">
+        <div class="hw-loop__ring">
+          <div class="dots" data-dots="loop" aria-hidden="true"></div>
+          <svg class="hw-loop__prog" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="38.6" pathLength="100"></circle></svg>
+          <span class="hw-node hw-node--0" aria-hidden="true">Fund</span>
+          <span class="hw-node hw-node--1" aria-hidden="true">Operate</span>
+          <span class="hw-node hw-node--2" aria-hidden="true">Prove</span>
+          <span class="hw-node hw-node--3" aria-hidden="true">Grow</span>
+        </div>
+      </div>
+      <ol class="hw-steps" role="list">
+        <li class="hw-step is-active">
+          <h2 class="hw-step__title"><span class="hw-step__idx">01 ·</span> Fund.</h2>
+          <p class="hw-step__text">Donors give about a dollar a day. Partners bring capital. It all lands in program budgets.</p>
+        </li>
+        <li class="hw-step">
+          <h2 class="hw-step__title"><span class="hw-step__idx">02 ·</span> Operate.</h2>
+          <p class="hw-step__text">We design and run the programs ourselves. If someone's already cracked the problem, we bring them in and build it together.</p>
+        </li>
+        <li class="hw-step">
+          <h2 class="hw-step__title"><span class="hw-step__idx">03 ·</span> Prove.</h2>
+          <p class="hw-step__text">What it funded, what it delivered and what it cost. Recorded as it happens. Published as it happens. Like a living documentary.</p>
+        </li>
+        <li class="hw-step">
+          <h2 class="hw-step__title"><span class="hw-step__idx">04 ·</span> Grow.</h2>
+          <p class="hw-step__text">Proof does what promises can't. People see it work, bring their people, and fund more programs.</p>
+        </li>
+      </ol>
+      <div class="hw-loop__bar" aria-hidden="true"><i></i></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THREE WAYS THE MONEY MOVES ============ -->
+<section class="section hw-ways" data-theme="light" aria-label="Three ways the money moves" data-scene data-scene-name="Three ways">
+  <div class="container">
+    <div class="dollar-anchor ph-ghost" data-dollar="ambient"></div>
+    <div class="hw-lanes" data-stagger="clip" data-stagger-step=".14">
+      <article class="hw-lane c-red">
+        <svg class="hw-stream" viewBox="0 0 600 80" preserveAspectRatio="none" aria-hidden="true">
+          <path class="hw-stream__base" d="M0 54 C120 54 160 24 300 30 S500 52 600 40"></path>
+          <path class="hw-stream__flow" d="M0 54 C120 54 160 24 300 30 S500 52 600 40"></path>
+        </svg>
+        <div class="hw-lane__body">
+          <h3 class="hw-lane__title">HOME Initiatives.</h3>
+          <p class="hw-lane__text"><strong>Funded by donors.</strong> Programs DAD designs and owns, across food, health, opportunities and infrastructure.</p>
+        </div>
+      </article>
+      <article class="hw-lane c-cyan">
+        <svg class="hw-stream" viewBox="0 0 600 80" preserveAspectRatio="none" aria-hidden="true">
+          <path class="hw-stream__base" d="M0 26 C140 26 200 56 320 50 S500 28 600 40"></path>
+          <path class="hw-stream__flow" d="M0 26 C140 26 200 56 320 50 S500 28 600 40"></path>
+        </svg>
+        <div class="hw-lane__body">
+          <h3 class="hw-lane__title">Corporate Initiatives.</h3>
+          <p class="hw-lane__text"><strong>Funded by partners.</strong> Built with a brand from the ground up, or sponsored after the community votes for it. Either way, DAD runs it and the numbers are public.</p>
+        </div>
+      </article>
+      <article class="hw-lane c-gold">
+        <svg class="hw-stream" viewBox="0 0 600 80" preserveAspectRatio="none" aria-hidden="true">
+          <path class="hw-stream__base" d="M0 14 C150 14 200 40 330 40 L600 40"></path>
+          <path class="hw-stream__base" d="M0 66 C150 66 200 40 330 40"></path>
+          <path class="hw-stream__flow hw-stream__flow--red" d="M0 14 C150 14 200 40 330 40"></path>
+          <path class="hw-stream__flow hw-stream__flow--cyan" d="M0 66 C150 66 200 40 330 40"></path>
+          <path class="hw-stream__flow" d="M330 40 L600 40"></path>
+        </svg>
+        <div class="hw-lane__body">
+          <h3 class="hw-lane__title">Community Programs.</h3>
+          <p class="hw-lane__text"><strong>Funded by both.</strong> Run in cities by DAD Impact Teams and volunteers.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW WE CHOOSE WHAT TO FUND ============ -->
+<section class="section hw-choose" data-theme="light" aria-label="How we choose what to fund">
+  <div class="container">
+    <div class="hw-choose__grid">
+      <div class="hw-choose__visual">
+        <div class="island hw-choose__island">
+          <div class="dots" id="hw-choose-dots" data-dots="map" data-dots-color="paper" data-dots-arcs="off" data-dots-steps data-dots-trigger="#hw-choose-list" aria-hidden="true"></div>
+        </div>
+      </div>
+      <ol class="hw-choose__list" id="hw-choose-list" role="list">
+        <li class="hw-pick" data-dots-step="map" data-scene data-scene-name="See">
+          <h3 class="hw-pick__t">See.</h3>
+          <p class="hw-pick__d">We map need across all 3,144 counties in America, and trillions of data points.</p>
+        </li>
+        <li class="hw-pick" data-dots-step="opportunities" data-scene data-scene-name="Design">
+          <h3 class="hw-pick__t">Design.</h3>
+          <p class="hw-pick__d">Every initiative is built against real local conditions, with a published starting point so you can see what changed.</p>
+        </li>
+        <li class="hw-pick" data-dots-step="convene" data-scene data-scene-name="Convene">
+          <h3 class="hw-pick__t">Convene.</h3>
+          <p class="hw-pick__d">We bring in the professors, practitioners and field experts who've solved it before or know how.</p>
+        </li>
+        <li class="hw-pick" data-dots-step="loop" data-scene data-scene-name="Run">
+          <h3 class="hw-pick__t">Run.</h3>
+          <p class="hw-pick__d">We operate it ourselves, and the community gets a vote on what comes next.</p>
+        </li>
+      </ol>
+    </div>
+    <div class="hw-choose__end scene-flex" data-scene data-scene-name="No closed room">
+      <p class="h-l ph-read hw-choose__close" data-read>No quarterly committee. <span class="hl">No closed room.</span></p>
+      <div class="dollar-anchor ph-ghost" data-dollar="ambient"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHAT YOU'LL SEE AS A DONOR ============ -->
+<section class="section hw-see" data-theme="light" aria-label="What you'll see as a donor" data-scene data-scene-media="(min-width: 960px)" data-scene-name="What you'll see">
+  <div class="container">
+    <div class="dollar-anchor hw-see__park" data-dollar="ambient"></div>
+    <div class="hw-see__grid">
+      <div class="scene-m hw-see__list" data-scene data-scene-media="(max-width: 959px)" data-scene-name="What you'll see">
+      <ol class="hw-feed" role="list">
+        <li class="hw-feed__row">
+          <span class="hw-feed__dot" aria-hidden="true"></span>
+          <div><h3 class="hw-feed__t">Follow the money.</h3><p class="hw-feed__d">Which program your dollar went into, and what that program funded next.</p></div>
+        </li>
+        <li class="hw-feed__row">
+          <span class="hw-feed__dot" aria-hidden="true"></span>
+          <div><h3 class="hw-feed__t">Watch it land.</h3><p class="hw-feed__d">Goals, milestones, delivery updates and verified outcomes.</p></div>
+        </li>
+        <li class="hw-feed__row">
+          <span class="hw-feed__dot" aria-hidden="true"></span>
+          <div><h3 class="hw-feed__t">Bring people.</h3><p class="hw-feed__d">Your own invite link. Watch your network grow, and what it funds.</p></div>
+        </li>
+        <li class="hw-feed__row">
+          <span class="hw-feed__dot" aria-hidden="true"></span>
+          <div>
+            <h3 class="hw-feed__t">Keep your streak.</h3><p class="hw-feed__d">Months in a row, milestones and recognition for showing up.</p>
+            <span class="hw-streak" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
+        </li>
+        <li class="hw-feed__row">
+          <span class="hw-feed__dot" aria-hidden="true"></span>
+          <div><h3 class="hw-feed__t">Cancel any time.</h3><p class="hw-feed__d">Two clicks. No phone call. No guilt trip.</p></div>
+        </li>
+      </ol>
+      </div>
+      <div class="scene-m hw-phone" data-scene data-scene-media="(max-width: 959px)" data-scene-name="The donor app">
+        <p class="sr-only">Example screen from the DAD donor app: a daily giving streak, what today's dollar funded, badges and an upcoming volunteer event.</p>
+        <!-- Donor app screen (from the funder deck, deck/src/phones/donor.html), in an iPhone frame. Decorative example. -->
+<div class="hw-phone__fit"><div class="hw-iph" aria-hidden="true" inert><div class="hw-scr">
+<div class="hw-di"></div><div class="hw-sb"><span>9:41</span><span style="display:flex;gap:6px;align-items:center"><svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#0E1E1E"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#0E1E1E"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#0E1E1E"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#0E1E1E"/></svg><svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0zM3.4 6.8a6.5 6.5 0 0 1 9.2 0l-1.4 1.4a4.5 4.5 0 0 0-6.4 0zM1.2 4.6a9.6 9.6 0 0 1 13.6 0l-1.4 1.4a7.6 7.6 0 0 0-10.8 0z" fill="#0E1E1E"/></svg><svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#0E1E1E" opacity=".45"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#0E1E1E"/><rect x="25" y="4.5" width="1.6" height="4" rx=".8" fill="#0E1E1E" opacity=".45"/></svg></span></div><div style="width:390px;height:844px;box-sizing:border-box;background:#F4F6F6;overflow:hidden;position:relative;display:flex;flex-direction:column">
+
+  <!-- app bar -->
+  <div style="flex:0 0 auto;padding:52px 20px 12px;background:#F4F6F6;display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:8px">
+      <img loading="lazy" decoding="async" src="/assets/logos/dad-wordmark.webp" alt="DAD" style="height:17px;width:auto;display:block"><span style="display:inline-block;width:3px;height:15px;border-radius:2px;background:#FF4A22"></span><span class="mono" style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#6B7C7C">Donor</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="width:44px;height:44px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3D4F4F" stroke-width="2" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+      </span>
+      <div style="width:36px;height:36px;border-radius:50%;background:#0E1E1E;color:#F8F9FA;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px">MC</div>
+    </div>
+  </div>
+
+  <!-- scroll body -->
+  <div style="flex:1 1 auto;overflow:hidden;padding:0 20px">
+
+    <div style="font-size:27px;font-weight:700;line-height:1.15;margin-bottom:4px">Good morning,<br>Margaret.</div>
+    <p style="margin:0 0 16px;font-size:13px;color:#5A6B6B">Your dollar went to work at 6:00 AM.</p>
+
+    <!-- streak -->
+    <section style="background:#0E1E1E;border-radius:20px;padding:20px;color:#F8F9FA;margin-bottom:14px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div class="mono" style="font-size:9.5px;letter-spacing:0.24em;text-transform:uppercase;color:#FF8C6B;margin-bottom:8px">Daily streak</div>
+          <div style="display:flex;align-items:baseline;gap:7px">
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:50px;line-height:1;letter-spacing:-0.04em;color:#FF6A3D">1,095</span>
+            <span style="font-size:14px;font-weight:600;color:#B9C6C6">days</span>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="mono" style="font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:#8FA3A3;margin-bottom:5px">Next</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:#FFB800">1,460</div>
+          <div style="font-size:11px;color:#8FA3A3;margin-top:2px">365 to go</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:3.5px">
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#2E4444;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#FF4A22;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#FF4A22;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#FF4A22;display:inline-block"></span>
+        
+          <span style="flex:1 1 0;height:20px;border-radius:2px;background:#FF4A22;display:inline-block"></span>
+        
+      </div>
+      <div class="mono" style="font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:#6E8080;margin-top:9px">Top 2% nationally · last 30 days</div>
+    </section>
+
+    <!-- today -->
+    <section style="background:#FFFFFF;border:1px solid #E3E9E9;border-radius:20px;padding:18px;margin-bottom:14px">
+      <div class="mono" style="font-size:9.5px;letter-spacing:0.22em;text-transform:uppercase;color:#C23A18;margin-bottom:8px">Today your $1 funded</div>
+      <div style="font-size:19px;font-weight:700;margin-bottom:12px">South Side Food Initiative</div>
+      <div style="display:flex;justify-content:space-between;gap:8px">
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px">412</div>
+          <div class="mono" style="font-size:8.5px;letter-spacing:0.12em;text-transform:uppercase;color:#6B7C7C;margin-top:3px">Deliveries</div>
+        </div>
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;color:#1C7268">96%</div>
+          <div class="mono" style="font-size:8.5px;letter-spacing:0.12em;text-transform:uppercase;color:#6B7C7C;margin-top:3px">On time</div>
+        </div>
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px">$18.40</div>
+          <div class="mono" style="font-size:8.5px;letter-spacing:0.12em;text-transform:uppercase;color:#6B7C7C;margin-top:3px">Per delivery</div>
+        </div>
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px">1,840</div>
+          <div class="mono" style="font-size:8.5px;letter-spacing:0.12em;text-transform:uppercase;color:#6B7C7C;margin-top:3px">Households</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- badges -->
+    <section style="margin-bottom:14px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:15px;font-weight:700">Badges</div>
+        <span class="mono" style="font-size:10px;letter-spacing:0.12em;color:#6B7C7C">9 of 24</span>
+      </div>
+      <div style="display:flex;gap:10px">
+        
+          <div style="flex:1 1 0;text-align:center">
+            <div style="width:100%;aspect-ratio:1;border-radius:14px;background:#FFF4F0;border:1px solid #FFD9CE;display:flex;align-items:center;justify-content:center;margin-bottom:5px">
+              <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#C23A18">F</span>
+            </div>
+            <div style="font-size:8.5px;line-height:1.25;color:#5A6B6B;font-weight:500">Founding</div>
+          </div>
+        
+          <div style="flex:1 1 0;text-align:center">
+            <div style="width:100%;aspect-ratio:1;border-radius:14px;background:#FFF8E6;border:1px solid #FFE4A3;display:flex;align-items:center;justify-content:center;margin-bottom:5px">
+              <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#7A5A00">1K</span>
+            </div>
+            <div style="font-size:8.5px;line-height:1.25;color:#5A6B6B;font-weight:500">1,000 Days</div>
+          </div>
+        
+          <div style="flex:1 1 0;text-align:center">
+            <div style="width:100%;aspect-ratio:1;border-radius:14px;background:#E6F5F3;border:1px solid #BFE6E1;display:flex;align-items:center;justify-content:center;margin-bottom:5px">
+              <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#1C7268">12</span>
+            </div>
+            <div style="font-size:8.5px;line-height:1.25;color:#5A6B6B;font-weight:500">Brought 12</div>
+          </div>
+        
+          <div style="flex:1 1 0;text-align:center">
+            <div style="width:100%;aspect-ratio:1;border-radius:14px;background:#E6F5F3;border:1px solid #BFE6E1;display:flex;align-items:center;justify-content:center;margin-bottom:5px">
+              <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#1C7268">V</span>
+            </div>
+            <div style="font-size:8.5px;line-height:1.25;color:#5A6B6B;font-weight:500">Volunteer</div>
+          </div>
+        
+          <div style="flex:1 1 0;text-align:center">
+            <div style="width:100%;aspect-ratio:1;border-radius:14px;background:#FFF4F0;border:1px solid #FFD9CE;display:flex;align-items:center;justify-content:center;margin-bottom:5px">
+              <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#C23A18">CHI</span>
+            </div>
+            <div style="font-size:8.5px;line-height:1.25;color:#5A6B6B;font-weight:500">Top 50</div>
+          </div>
+        
+      </div>
+    </section>
+
+    <!-- invite -->
+    <section style="border:1px solid #FFD9CE;background:#FFF4F0;border-radius:20px;padding:18px">
+      <div class="mono" style="font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#C23A18;margin-bottom:6px">Sat 18 Oct · 9:00 AM</div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:3px">Volunteer: South Side Food Run</div>
+      <div style="font-size:12px;color:#5A6B6B;margin-bottom:14px">Englewood Distribution · 24 spots left</div>
+      <span style="width:100%;min-height:44px;border-radius:12px;border:none;background:#FF4A22;color:#FFFFFF;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer">Reserve my spot</span>
+    </section>
+
+  </div>
+
+  <!-- tab bar -->
+  <nav style="flex:0 0 auto;display:flex;background:#FFFFFF;border-top:1px solid #E3E9E9;padding:8px 8px 22px">
+    
+      <a style="flex:1 1 0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#FF4A22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"></path></svg>
+        <span style="font-size:10px;font-weight:600;color:#FF4A22">Impact</span>
+      </a>
+    
+      <a style="flex:1 1 0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#8A9A9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"></path></svg>
+        <span style="font-size:10px;font-weight:600;color:#8A9A9A">Programs</span>
+      </a>
+    
+      <a style="flex:1 1 0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#8A9A9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v4M16 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"></path></svg>
+        <span style="font-size:10px;font-weight:600;color:#8A9A9A">Events</span>
+      </a>
+    
+      <a style="flex:1 1 0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#8A9A9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0M22 20v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"></path></svg>
+        <span style="font-size:10px;font-weight:600;color:#8A9A9A">Network</span>
+      </a>
+    
+  </nav>
+
+</div>
+</div></div></div>
+        <p class="hw-phone__note">Example screen</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE DIFFERENCE ============ -->
+<section class="section hw-diff" data-theme="light" aria-labelledby="hw-diff-h" data-scene data-scene-name="The difference">
+  <div class="container">
+    <div class="dollar-anchor ph-ghost" data-dollar="ambient"></div>
+    <div class="section-head">
+      <h2 class="h-xl hw-diff__h" id="hw-diff-h" data-reveal="split-lines">The difference isn't effort. <span class="hl">It's architecture.</span></h2>
+    </div>
+    <table class="compare-table hw-table">
+      <thead><tr><th scope="col"><span class="sr-only">Topic</span></th><th scope="col">The old way</th><th scope="col" class="is-dad">DAD</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Funding</th><td data-label="The old way">A few big gifts, the donor sets the direction</td><td class="is-dad" data-label="DAD">Millions of small gifts, evidence sets the direction</td></tr>
+        <tr><th scope="row">Reporting</th><td data-label="The old way">Once a year, written by the charity</td><td class="is-dad" data-label="DAD">Continuous, published as it happens</td></tr>
+        <tr><th scope="row">Verification</th><td data-label="The old way">Expensive, sampled, after the fact</td><td class="is-dad" data-label="DAD">Built into the work</td></tr>
+        <tr><th scope="row">Overhead</th><td data-label="The old way">Grows with the organization</td><td class="is-dad" data-label="DAD">AI-native from day one, so it doesn't</td></tr>
+        <tr><th scope="row">You</th><td data-label="The old way">Give, then silence</td><td class="is-dad" data-label="DAD">Give, then watch</td></tr>
+        <tr><th scope="row">Success</th><td data-label="The old way">The program keeps running</td><td class="is-dad" data-label="DAD">The need ends</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ WHERE AI FITS ============ -->
+<section class="section hw-ai" data-theme="light" aria-label="Where AI fits">
+  <div class="container">
+    <div class="hw-ai__intro scene-flex" data-scene data-scene-name="Where AI fits">
+    <p class="h-l ph-read hw-ai__lead" data-read>Nobody gives to a charity because it uses AI. They give because they believe it'll help more people. <span class="hl">AI is how we get there. It's never the reason to care.</span></p>
+    </div>
+    <div class="hw-ai__body scene-flex" data-scene data-scene-media="(min-width: 720px)" data-scene-name="AI and people">
+    <div class="hw-ai__cols">
+      <div class="scene-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="What AI does">
+      <div class="hw-ai__col hw-ai__col--ai">
+        <h3 class="hw-ai__h"><span class="hw-ai__chip" aria-hidden="true"></span>What AI does here</h3>
+        <ul class="hw-ai__list" data-stagger="left" data-stagger-step=".1">
+          <li>Makes checking cheap enough to run on every outcome, not a sample.</li>
+          <li>Matches need to resources without a committee or a quarter's delay.</li>
+          <li>Removes the paperwork layer that normally eats the donation.</li>
+          <li>Turns reporting into a byproduct of the work, instead of a document someone writes.</li>
+        </ul>
+      </div>
+      </div>
+      <div class="hw-ai__seam" aria-hidden="true" data-progress data-progress-start="top 70%" data-progress-end="bottom 60%"><i></i></div>
+      <div class="scene-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="What stays human">
+      <div class="hw-ai__col hw-ai__col--human">
+        <div class="dollar-anchor" data-dollar="ambient" data-dollar-media="(max-width: 719px)" style="width:0;height:0;aspect-ratio:auto;margin:0" aria-hidden="true"></div>
+        <h3 class="hw-ai__h"><span class="hw-ai__chip" aria-hidden="true"></span>What stays human</h3>
+        <ul class="hw-ai__list" data-stagger="up" data-stagger-step=".1">
+          <li>Strategy, ethics, safeguarding and every decision that matters.</li>
+          <li>Relationships with members, partners, creators and volunteers.</li>
+          <li>Judgment in the field, where context beats data.</li>
+          <li>Accountability. A model can't be accountable. A person can.</li>
+        </ul>
+      </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CLOSE: by design + CTAs ============ -->
+<section class="section cta-band hw-close" data-theme="dark" aria-label="By design" data-scene data-scene-name="By design">
+  <span class="glow" style="--x:50%;--y:42%;--size:90vmax;--o:.6"></span>
+  <span class="glow glow--cyan" style="--x:78%;--y:84%;--size:46vmax;--o:.22;--t:28s"></span>
+  <div class="container cta-band__inner">
+    <div class="dollar-anchor cta-logo" data-dollar="logo" data-dollar-size="companion" data-dollar-align="center"></div>
+    <p class="h-m hw-close__note" data-reveal="up"><em class="hw-close__lab">By design:</em> no AI agent goes live without <span class="hw-u">a named human owner</span>, <span class="hw-u">a written scope</span>, <span class="hw-u">an escalation path</span> and <span class="hw-u">a kill switch</span>.</p>
+    <div class="btn-row center" data-reveal="up" data-delay=".2">
+      <a class="btn btn--primary btn--lg" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+      <a class="btn btn--link" href="/proof/"><span class="btn__label">See the proof standard</span></a>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="footer is-dark" id="footer" data-theme="dark">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a class="footer__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+        <p class="footer__tag">DAD · Aid, delivered.</p>
+      </div>
+      <nav class="footer__nav" aria-label="Footer">
+        <a href="/about/">About</a>
+        <a href="/how-it-works/">How It Works</a>
+        <a href="/programs/">Programs</a>
+        <a href="/proof/">The Proof</a>
+        <a href="/team/">Team</a>
+        <a href="/building-in-public/">Building in Public</a>
+        <a href="/transparency/">Transparency</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/contact/">Contact</a>
+        <a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a>
+        <a href="/movement/#careers">Careers</a>
+      </nav>
+    </div>
+    <div class="footer__mark" aria-hidden="true"><div class="dollar-anchor dollar-anchor--fill" data-dollar="logo" data-dollar-size="fill"></div></div>
+    <p class="footer__big" aria-hidden="true" data-reveal="split-chars">Aid, delivered.</p>
+    <div class="footer__legal">
+      <p>Dynamic Aid Delivery, INC. is a Delaware non-stock corporation.</p>
+      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a></p>
+    </div>
+  </div>
+</footer>
+
+<a class="btn btn--primary mobile-cta" href="/movement/" id="mobile-cta"><span class="btn__label">Join the Movement</span></a>
+<div class="cookie is-dark" id="cookie" role="region" aria-label="Cookie notice" hidden>
+  <p class="cookie__text">We use basic analytics to see what's working. No ads. No selling.</p>
+  <div class="cookie__actions">
+    <button class="btn btn--primary btn--sm" type="button" data-consent="accept"><span class="btn__label">Accept</span></button>
+    <button class="btn btn--ghost btn--sm" type="button" data-consent="decline"><span class="btn__label">Decline</span></button>
+  </div>
+</div>
+
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
+<div class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

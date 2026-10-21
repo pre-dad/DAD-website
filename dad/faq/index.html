@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en" data-theme="dark" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FAQ | DAD</title>
+<meta name="description" content="Questions. Straight answers. When you can give, what it costs, where the money goes, and how to check us.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dynamicaid.org/faq/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DAD · Dynamic Aid Delivery">
+<meta property="og:title" content="FAQ | DAD">
+<meta property="og:description" content="Questions. Straight answers. When you can give, what it costs, where the money goes, and how to check us.">
+<meta property="og:url" content="https://dynamicaid.org/faq/">
+<meta property="og:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FAQ | DAD">
+<meta name="twitter:description" content="Questions. Straight answers. When you can give, what it costs, where the money goes, and how to check us.">
+<meta name="theme-color" content="#0E1E1E">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/site.css?v=c2c7328da2">
+<script>
+/* boot flags: runs before first paint */
+(function(){
+  var h=document.documentElement; h.classList.remove('no-js'); h.classList.add('js');
+  var rm=false; try{rm=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  if(rm) h.classList.add('reduced');
+  var seen=false; try{seen=sessionStorage.getItem('dad-pl')==='1';}catch(e){}
+  if(seen||rm) h.classList.add('no-pl');
+  /* the cookie chip's strip is reserved from the first paint, so nothing jumps when it slides in */
+  var cc=null; try{cc=localStorage.getItem('dad-consent');}catch(e){}
+  if(!cc) h.classList.add('has-cookie');
+  /* never leave content hidden if the app fails to boot */
+  setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
+})();
+</script>
+<script defer src="/vendor/gsap.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/SplitText.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/lenis.min.js?v=c2c7328da2"></script>
+<script type="module" src="/js/app.js?v=c2c7328da2"></script>
+<!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
+     home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
+     fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
+<link rel="modulepreload" href="/js/core/util.js?v=c2c7328da2">
+</head>
+<body data-page="faq" data-mobile-cta="on">
+<a class="skip-link" href="#swap">Skip to content</a>
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__mark">
+    <svg viewBox="-43 -4 366 108" focusable="false">
+      <g class="pl-glyph"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
+      <g class="pl-glyph pl-g2"><path fill="#F8F9FA" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/></g>
+      <g class="pl-glyph pl-g3"><g transform="translate(280,0) scale(-1,1)"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g></g>
+      <g class="pl-bar pl-b1"><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g></g>
+      <g class="pl-bar pl-b2"><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></g>
+    </svg>
+  </div>
+  <div class="preloader__bar"><i></i></div>
+  <p class="preloader__tag">Aid, delivered.</p>
+</div>
+
+<div class="route-bar" id="route-bar" aria-hidden="true"><i></i></div>
+<div class="flood" id="flood" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true" tabindex="-1"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+    <nav class="nav__links" aria-label="Primary">
+      <a class="nav__link" href="/about/" data-nav><span class="nav__roll" data-text="About">About</span></a>
+      <a class="nav__link" href="/how-it-works/" data-nav><span class="nav__roll" data-text="How It Works">How It Works</span></a>
+      <a class="nav__link" href="/programs/" data-nav><span class="nav__roll" data-text="Programs">Programs</span></a>
+      <a class="nav__link" href="/proof/" data-nav><span class="nav__roll" data-text="The Proof">The Proof</span></a>
+      <a class="nav__link" href="/team/" data-nav><span class="nav__roll" data-text="Team">Team</span></a>
+      <a class="nav__link" href="/movement/" data-nav><span class="nav__roll" data-text="The Movement">The Movement</span></a>
+    </nav>
+    <a class="btn btn--primary btn--sm nav__cta" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+    <button class="nav__burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span></span><span></span></button>
+  </div>
+  <div class="nav__progress" aria-hidden="true"><i></i></div>
+</header>
+<div class="menu is-dark" id="menu" role="dialog" aria-modal="true" aria-label="Site menu" inert>
+  <div class="menu__bg" aria-hidden="true"></div>
+  <div class="menu__inner">
+    <nav class="menu__links" aria-label="Menu">
+      <a class="menu__link" href="/about/" data-nav><span class="menu__idx">01</span><span class="menu__txt">About</span></a>
+      <a class="menu__link" href="/how-it-works/" data-nav><span class="menu__idx">02</span><span class="menu__txt">How It Works</span></a>
+      <a class="menu__link" href="/programs/" data-nav><span class="menu__idx">03</span><span class="menu__txt">Programs</span></a>
+      <a class="menu__link" href="/proof/" data-nav><span class="menu__idx">04</span><span class="menu__txt">The Proof</span></a>
+      <a class="menu__link" href="/team/" data-nav><span class="menu__idx">05</span><span class="menu__txt">Team</span></a>
+      <a class="menu__link" href="/movement/" data-nav><span class="menu__idx">06</span><span class="menu__txt">The Movement</span></a>
+    </nav>
+    <div class="menu__cta"><a class="btn btn--primary btn--lg" href="/movement/"><span class="btn__label">Join the Movement</span></a></div>
+    <nav class="menu__foot" aria-label="More">
+      <a href="/building-in-public/">Building in Public</a><a href="/transparency/">Transparency</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a><a href="/movement/#careers">Careers</a>
+    </nav>
+    <p class="menu__tag">Aid, delivered.</p>
+  </div>
+</div>
+
+<main id="swap" data-page="faq" data-module="" tabindex="-1">
+<!-- HERO: ink, compact. The headline splits in; the coin spins beside it. -->
+<section class="section pg-hero faq-hero" data-theme="dark">
+  <span class="glow" style="--x:78%;--y:40%;--size:70vmax;--o:.6"></span>
+  <div class="dots dots--bg" data-dots="field" data-dots-color="paper" data-dots-density="0.7" aria-hidden="true"></div>
+  <div class="container">
+    <div class="split split--wide-text">
+      <div class="stack stack-l">
+        <p class="eyebrow" data-reveal="fade">FAQ</p>
+        <h1 class="h-display" data-reveal="split-lines">Questions. Straight answers.</h1>
+      </div>
+      <div class="dollar-anchor pg-hero__coin" data-dollar="spin"></div>
+    </div>
+  </div>
+</section>
+
+<!-- QUESTIONS: floods to paper. Sticky trust shield on desktop; accordion staggers in. -->
+<section class="section faq-sec" data-theme="light">
+  <div class="dollar-anchor dollar-anchor--s gi-hide-anchor" data-dollar="ambient"></div>
+  <div class="container">
+    <div class="faq-layout">
+      <aside class="faq-aside" aria-hidden="true">
+        <div class="dots faq-aside__art" data-dots="shield" data-dots-color="teal"></div>
+      </aside>
+      <div class="faq" data-stagger="up" data-stagger-step="0.06">
+        <details class="faq__item"><summary class="faq__q"><span><span class="faq__num" aria-hidden="true">01</span>When can I give?</span><span class="faq__icon" aria-hidden="true"></span></summary><div class="faq__a"><p>Right now. Pick a monthly gift on the <a href="/give/">Give</a> page. Give, or join the app waitlist, before January 2027 and you're a Founding Donor for good.</p></div></details>
+        <details class="faq__item"><summary class="faq__q"><span><span class="faq__num" aria-hidden="true">02</span>Why $30 a month and not $365 a year?</span><span class="faq__icon" aria-hidden="true"></span></summary><div class="faq__a"><p>A dollar a day is how it feels. $30 a month is what we charge. That's $360 a year, five dollars less than a dollar every day. We'd rather tell you that than round it in our favor.</p></div></details>
+        <details class="faq__item"><summary class="faq__q"><span><span class="faq__num" aria-hidden="true">03</span>Is my gift tax-deductible?</span><span class="faq__icon" aria-hidden="true"></span></summary><div class="faq__a"><p>Not guaranteed yet, and we won't pretend otherwise. Our 501(c)(3) application is in progress. If the IRS recognizes us, exemption is expected to apply back to our formation date (Sept. 28, 2026), so gifts made now would be tax-deductible to the extent allowed by law. Until the IRS decides, we can't promise it. See <a href="/transparency/">Transparency</a> for the latest.</p></div></details>
+        <details class="faq__item"><summary class="faq__q"><span><span class="faq__num" aria-hidden="true">04</span>Does my money go to a person?</span><span class="faq__icon" aria-hidden="true"></span></summary><div class="faq__a"><p>No. Never. It goes into a program that DAD runs, or co-runs with a partner. Members don't receive cash from DAD.</p></div></details>
+        <details class="faq__item"><summary class="faq__q"><span><span class="faq__num" aria-hidden="true">05</span>Can I choose exactly where my dollar goes?</span><span class="faq__icon" aria-hidden="true"></span></summary><div class="faq__a"><p>You can watch exactly where it goes. Where the money is needed most is decided by evidence, experts and in the future a community vote.</p></div></details>
+        <details class="faq__item"><summary class="faq__q"><span><span class="faq__num" aria-hidden="true">06</span>What does it cost to run DAD?</span><span class="faq__icon" aria-hidden="true"></span></summary><div class="faq__a"><p>Not zero. Nobody's is. We'll publish the exact split between what reached programs and what it cost to run us, and you can check it.</p></div></details>
+        <details class="faq__item"><summary class="faq__q"><span><span class="faq__num" aria-hidden="true">07</span>Do you use AI?</span><span class="faq__icon" aria-hidden="true"></span></summary><div class="faq__a"><p>Everywhere it makes the dollar go further: checking, matching, reporting. Never for decisions about people, and never as a person. Every AI system has a human who owns it.</p></div></details>
+        <details class="faq__item"><summary class="faq__q"><span><span class="faq__num" aria-hidden="true">08</span>Who decides which programs get funded?</span><span class="faq__icon" aria-hidden="true"></span></summary><div class="faq__a"><p>County-level data, and field experts. Not a closed committee.</p></div></details>
+        <details class="faq__item"><summary class="faq__q"><span><span class="faq__num" aria-hidden="true">09</span>How is DAD funded right now?</span><span class="faq__icon" aria-hidden="true"></span></summary><div class="faq__a"><p>A founding group of funders is paying to build the platform and the organization, so donor money can go to programs.</p></div></details>
+        <details class="faq__item"><summary class="faq__q"><span><span class="faq__num" aria-hidden="true">10</span>Can I cancel?</span><span class="faq__icon" aria-hidden="true"></span></summary><div class="faq__a"><p>Any time, in two clicks. <a href="https://billing.stripe.com/p/login/7sY00lb0h9Jq2jGdnO8EM00" rel="noopener">Manage your gift</a> with the email you gave with. No phone call. No guilt trip.</p></div></details>
+        <details class="faq__item"><summary class="faq__q"><span><span class="faq__num" aria-hidden="true">11</span>How do I know you're not another one of those charities?</span><span class="faq__icon" aria-hidden="true"></span></summary><div class="faq__a"><p>You don't. Not yet. That's why every dollar will be on a public ledger. Don't trust us. Watch us.</p></div></details>
+        <details class="faq__item"><summary class="faq__q"><span><span class="faq__num" aria-hidden="true">12</span>I need support. Can DAD help?</span><span class="faq__icon" aria-hidden="true"></span></summary><div class="faq__a"><p>Our first programs open in June 2027. Leave your details on <a href="/movement/#support">Get Involved</a> and we'll tell you when one opens near you.</p></div></details>
+        <details class="faq__item"><summary class="faq__q"><span><span class="faq__num" aria-hidden="true">13</span>What does DAD stand for?</span><span class="faq__icon" aria-hidden="true"></span></summary><div class="faq__a"><p>Dynamic Aid Delivery.</p></div></details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSE: ink CTA band with the waitlist; coin rests by the form. -->
+<section class="section cta-band" data-theme="dark">
+  <span class="glow" style="--x:50%;--y:60%;--size:90vmax;--o:.6"></span>
+  <div class="container cta-band__inner">
+    <div class="dollar-anchor dollar-anchor--s" data-dollar="ambient"></div>
+    <h2 class="h-l measure" data-reveal="split-lines">Our measure of success isn't how big DAD gets. It's how much less the world needs it.</h2>
+    <p class="lede" data-reveal="up">Built for everyone who stopped believing giving works. Come watch us prove you wrong.</p>
+    <form class="form form--inline cta-band__form" data-form="founding" action="/api/submit.php" method="post" data-reveal="up">
+      <div class="form__row">
+        <div class="field"><input class="field__input" name="first_name" type="text" autocomplete="given-name" placeholder=" " required><label class="field__label">First name</label></div>
+        <div class="field"><input class="field__input" name="email" type="email" autocomplete="email" inputmode="email" placeholder=" " required><label class="field__label">Email</label></div>
+        <button class="btn btn--primary" type="submit" data-magnetic><span class="btn__label">Join the Waitlist</span></button>
+      </div>
+      <p class="form__note">Ready now? <a href="/give/">Donate now</a>. Not yet? Join the waitlist before January and you're still a Founding Donor. One email a month, max. Unsubscribe any time.</p>
+    </form>
+  </div>
+</section>
+
+</main>
+<footer class="footer is-dark" id="footer" data-theme="dark">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a class="footer__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+        <p class="footer__tag">DAD · Aid, delivered.</p>
+      </div>
+      <nav class="footer__nav" aria-label="Footer">
+        <a href="/about/">About</a>
+        <a href="/how-it-works/">How It Works</a>
+        <a href="/programs/">Programs</a>
+        <a href="/proof/">The Proof</a>
+        <a href="/team/">Team</a>
+        <a href="/building-in-public/">Building in Public</a>
+        <a href="/transparency/">Transparency</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/contact/">Contact</a>
+        <a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a>
+        <a href="/movement/#careers">Careers</a>
+      </nav>
+    </div>
+    <div class="footer__mark" aria-hidden="true"><div class="dollar-anchor dollar-anchor--fill" data-dollar="logo" data-dollar-size="fill"></div></div>
+    <p class="footer__big" aria-hidden="true" data-reveal="split-chars">Aid, delivered.</p>
+    <div class="footer__legal">
+      <p>Dynamic Aid Delivery, INC. is a Delaware non-stock corporation.</p>
+      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a></p>
+    </div>
+  </div>
+</footer>
+
+<a class="btn btn--primary mobile-cta" href="/movement/" id="mobile-cta"><span class="btn__label">Join the Movement</span></a>
+<div class="cookie is-dark" id="cookie" role="region" aria-label="Cookie notice" hidden>
+  <p class="cookie__text">We use basic analytics to see what's working. No ads. No selling.</p>
+  <div class="cookie__actions">
+    <button class="btn btn--primary btn--sm" type="button" data-consent="accept"><span class="btn__label">Accept</span></button>
+    <button class="btn btn--ghost btn--sm" type="button" data-consent="decline"><span class="btn__label">Decline</span></button>
+  </div>
+</div>
+
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
+<div class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

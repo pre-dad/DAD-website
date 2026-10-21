@@ -1,0 +1,305 @@
+/* =====================================================================
+   SCENES: one viewport per scroll (src/js/core/scenes.js)
+   main[data-scenes] gets .has-scenes; every active [data-scene] gets
+   .is-scene and is sized to exactly one small-viewport height (100svh),
+   with its content composed to fit. Overflowing scenes become .is-scene-tall
+   and scroll freely inside, so nothing is ever cut off at a scene edge.
+   ===================================================================== */
+/* no pre-scene frame: until the runtime boots (it binds the scenes in the same
+   task) a scene page's content stays unpainted, so it never jumps from the
+   plain layout into the scene layout. The no-JS / failed-boot fallbacks show it. */
+html.js:not(.is-booted):not(.reveal-all) main[data-scenes] { visibility: hidden; }
+
+main.has-scenes {
+  /* viewport-aware type: big headlines shrink on short screens instead of
+     pushing content past the scene edge */
+  --fs-display: clamp(42px, min(7.4vw + 6px, 12.5svh), 150px);
+  --fs-xl: clamp(38px, min(6.2vw + 10px, 10.5svh), 112px);
+  --fs-l: clamp(30px, min(4vw + 12px, 7.4svh), 76px);
+  --fs-m: clamp(23px, min(1.9vw + 15px, 4.8svh), 44px);
+  --fs-lede: clamp(17px, min(.62vw + 14px, 2.7svh), 24px);
+  --scene-pt: calc(var(--nav-h) + clamp(8px, 2.6svh, 36px));
+  --scene-pb: clamp(24px, 5svh, 64px);
+}
+@media (max-width: 719px) {
+  /* phones: every scene fits one screen (100svh), so the scale is set by
+     the screen's height as much as its width */
+  main.has-scenes {
+    --fs-display: clamp(34px, min(11vw, 7.2svh), 64px);
+    --fs-xl: clamp(31px, min(9.6vw, 6.2svh), 56px);
+    --fs-l: clamp(26px, min(7.8vw, 4.9svh), 44px);
+    --fs-m: clamp(20px, min(5.8vw, 3.5svh), 30px);
+    --fs-s: clamp(18px, min(5vw, 3svh), 24px);
+    --fs-lede: clamp(15.5px, min(4.3vw, 2.25svh), 19px);
+    --fs-body: clamp(15px, min(4vw, 2.1svh), 17px);
+    --scene-pt: calc(64px + clamp(6px, 1.6svh, 18px));
+    --scene-pb: clamp(18px, 3svh, 32px);
+  }
+  main.has-scenes .section-head { margin-bottom: clamp(14px, 2.6svh, 28px); gap: clamp(8px, 1.6svh, 16px); }
+  main.has-scenes .eyebrow { margin-bottom: clamp(10px, 1.6svh, 18px); }
+  main.has-scenes .dollar-anchor--hero { --da-w: clamp(110px, 23svh, 220px); }
+  /* ledger illustration: two cells a line, so four programs fit one screen */
+  main.has-scenes .ledger-card__row { padding-block: 11px; gap: 6px 16px; align-items: start; }
+  main.has-scenes .ledger-card__row > :last-child { grid-column: auto; }
+  main.has-scenes .ledger-card__row > [data-label]::before { margin-bottom: 5px; }
+  /* reserve the sticky "Become a Founding Donor" bar: it never sits on content */
+  body[data-mobile-cta="on"] main.has-scenes { --scene-pb: calc(66px + env(safe-area-inset-bottom)); }
+}
+
+/* desktop: scenes read editorially, not as fine print */
+@media (min-width: 1024px) {
+  main.has-scenes {
+    --fs-body: clamp(18px, .3vw + 15.6px, 20px);
+    --fs-small: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  main.has-scenes .form__note { font-size: 15.5px; color: var(--fg-mut); }
+  main.has-scenes .person__bio { font-size: clamp(16.5px, .25vw + 14px, 18px); }
+  main.has-scenes .source-note { font-size: 12.5px; }
+  /* timelines: a date you can read, a line with weight */
+  main.has-scenes .timeline__when { font-size: clamp(13px, .2vw + 11px, 15px); }
+  main.has-scenes .timeline__what { font-size: clamp(20px, .9vw + 12px, 28px); line-height: 1.3; max-width: 18ch; }
+}
+
+/* the logo ticker inside a scene: a label you can read, logos with presence */
+main.has-scenes .ticker { --lu: clamp(.8px, .06vw + .56px, 1.42px); }
+main.has-scenes .ticker__label { font-size: clamp(12px, .3vw + 10px, 15px); color: var(--fg-mut); }
+
+/* A mobile-only sub-scene: on wider screens the wrapper has no box at all
+   (display: contents), so the desktop layout is untouched; on phones it is
+   its own 100svh scene. Usage: the parent scene gets
+   data-scene-media="(min-width: 720px)", each part is wrapped in
+   <div class="scene-m" data-scene data-scene-media="(max-width: 719px)">. */
+.scene-m { display: contents; }
+main.has-scenes .scene-m.is-scene {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--scene-m-gap, clamp(14px, 2.6svh, 28px));
+}
+
+/* A horizontal swipe row inside one scene (phones): door cards, team
+   columns. Vertical swipes still move scenes; sideways swipes scroll it. */
+@media (max-width: 719px) {
+  .swipe-m {
+    display: grid;
+    grid-template-columns: none !important;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--swipe-w, 84%);
+    gap: 14px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+    scroll-padding-inline: var(--gutter);
+    padding-block: 4px;
+  }
+  .swipe-m::-webkit-scrollbar { display: none; }
+  .swipe-m > * { scroll-snap-align: start; }
+  .swipe-m--3 { grid-template-rows: repeat(3, auto); grid-auto-columns: var(--swipe-w, 88%); row-gap: clamp(14px, 2.4svh, 24px); }
+  .swipe-m--3 > * { scroll-snap-align: none; }
+  .swipe-m--3 > :nth-child(3n+1) { scroll-snap-align: start; }
+  .swipe-m.team-grid--lead .person__av { --sz: clamp(64px, 10svh, 88px); }
+  .swipe-m.team-grid .person { gap: 14px; }
+  .swipe-m.team-grid .person__title { margin: 4px 0 6px; }
+  .swipe-m.team-grid .person__bio { font-size: 14.5px; line-height: 1.45; }
+  .swipe-m__hint { display: flex; gap: 6px; justify-content: center; margin-top: 12px; }
+  .swipe-m__hint i { width: 6px; height: 6px; border-radius: 3px; background: var(--line-strong); }
+  .swipe-m__hint i { transition: width .4s var(--ease), background-color .4s; }
+  .swipe-m__hint i.is-on { width: 18px; background: var(--accent); }
+}
+@media (min-width: 720px) { .swipe-m__hint { display: none; } }
+
+/* sections that hold scenes stop adding their own padding */
+main.has-scenes .section { padding-block: 0; }
+main.has-scenes .section-head { margin-bottom: clamp(18px, 3.6svh, 52px); gap: clamp(10px, 1.8svh, 24px); }
+
+main.has-scenes .is-scene {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-top: var(--scene-pt);
+  padding-bottom: var(--scene-pb);
+  box-sizing: border-box;
+}
+main.has-scenes section.is-scene,
+main.has-scenes .is-scene.scene-flex {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+/* a pinned / sticky sequence manages its own height */
+main.has-scenes .is-scene.is-scene-stepped,
+main.has-scenes .is-scene[data-scene-steps]:not([data-scene-steps-media]) { padding: 0; display: block; }
+/* headlines: never an orphan word, never wider than they read well */
+main.has-scenes :is(h1, h2, h3, .h-display, .h-xl, .h-l, .h-m, .h-s) { text-wrap: balance; }
+main.has-scenes .lede, main.has-scenes .body { text-wrap: pretty; }
+
+/* touch: at a scene boundary the swipe is ours (no native pan, no rubber band) */
+html.scenes-on { overscroll-behavior-y: none; }
+html.scene-snap, html.scene-snap body { touch-action: pan-x pinch-zoom; }
+
+/* ---------------------------------------------------------------------
+   Chapter rail (desktop) + slim scene rail (touch / small screens)
+   --------------------------------------------------------------------- */
+.scene-rail, .scene-mrail { display: none; }
+.scene-rail {
+  position: fixed;
+  right: clamp(8px, 1.1vw, 20px);
+  top: 50%;
+  z-index: 50;
+  transform: translateY(-50%);
+}
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  html.scenes-on .scene-rail { display: block; }
+}
+@media not all and (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  html.has-scenes .scene-mrail { display: flex; }
+}
+.scene-rail ol { list-style: none; margin: 0; padding: 6px 0; display: grid; gap: 0; }
+.scene-rail__dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 20px;
+  border-radius: 6px;
+}
+.scene-rail__dot::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--fg);
+  opacity: .28;
+  transition: height .7s var(--ease), opacity .4s, background-color .4s;
+}
+.scene-rail__dot:hover::before { opacity: .7; }
+.scene-rail__dot[aria-current]::before { height: 16px; opacity: 1; background: var(--accent); }
+.scene-rail__label {
+  position: absolute;
+  right: 32px;
+  top: 50%;
+  padding: 7px 11px 6px;
+  border-radius: var(--r-pill);
+  background: var(--nav-bg);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 0 0 1px var(--line-c);
+  font: 500 11.5px/1 var(--f-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--fg);
+  opacity: 0;
+  transform: translate(8px, -50%);
+  pointer-events: none;
+  transition: opacity .35s, transform .5s var(--ease);
+}
+.scene-rail__dot:hover .scene-rail__label,
+.scene-rail__dot:focus-visible .scene-rail__label { opacity: 1; transform: translate(0, -50%); }
+.scene-rail__dot:focus-visible { outline-offset: 0; }
+
+/* touch / small screens: ONE thin line on the right edge (scenes.js paints it).
+   Purely visual (aria-hidden, no taps). The line fills orange from its top down to
+   where the reader is (--sp, 0..1); in the unfilled rest a glowing pulse runs from
+   the current position to the foot of the line (--pa -> --pb), flashes twice there,
+   then starts again: "there's more below". At the very end of the page the pulse
+   rests. Only transform and opacity move. The line sits 5-7px from the edge; text
+   starts at the 16px gutter, so it never covers a word. */
+.scene-mrail {
+  position: fixed;
+  right: max(5px, env(safe-area-inset-right));
+  top: 50%;
+  z-index: 50;
+  width: 2px;
+  height: min(42svh, 360px);
+  margin-top: calc(min(42svh, 360px) / -2);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--fg) 13%, transparent);
+  pointer-events: none;
+  transition: opacity .4s;
+}
+.scene-mrail__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--red);
+  transform-origin: 50% 0;
+  transform: scaleY(var(--sp, 0));
+  transition: transform .9s var(--ease);
+}
+.scene-mrail__pulse {
+  position: absolute;
+  left: 1px;
+  top: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  transition: opacity .35s;
+}
+/* the travelling streak: a fading tail with a bright head at the pulse's origin */
+.scene-mrail__pulse i {
+  position: absolute;
+  left: -1px;
+  bottom: 0;
+  width: 2px;
+  height: 34px;
+  border-radius: 2px;
+  background: linear-gradient(rgba(255, 74, 34, 0), rgba(255, 106, 69, .9) 70%, #FFD3C4);
+  opacity: 0;
+}
+.scene-mrail__pulse::after {
+  content: "";
+  position: absolute;
+  left: -3.5px;
+  top: -4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #FFE1D6;
+  box-shadow: 0 0 6px 2px rgba(255, 74, 34, .95), 0 0 16px 5px rgba(255, 74, 34, .5);
+  opacity: 0;
+}
+.scene-mrail.is-run .scene-mrail__pulse { opacity: 1; animation: mrailRun 3.4s infinite; }
+.scene-mrail.is-run .scene-mrail__pulse i { animation: mrailTail 3.4s infinite; }
+.scene-mrail.is-run .scene-mrail__pulse::after { animation: mrailHead 3.4s infinite; }
+/* gliding between scenes, or nothing left below: the pulse rests */
+html.is-scene-moving .scene-mrail .scene-mrail__pulse,
+.scene-mrail.is-end .scene-mrail__pulse { opacity: 0; }
+@keyframes mrailRun {
+  0% { transform: translate3d(0, var(--pa, 0px), 0); animation-timing-function: cubic-bezier(.5, 0, .3, 1); }
+  50%, 100% { transform: translate3d(0, var(--pb, 0px), 0); }
+}
+@keyframes mrailTail {
+  0% { opacity: 0; }
+  8%, 44% { opacity: 1; }
+  52%, 100% { opacity: 0; }
+}
+@keyframes mrailHead {
+  0% { opacity: 0; transform: scale(.5); }
+  8%, 48% { opacity: .95; transform: scale(1); }
+  /* two clear flashes at the foot of the line */
+  56% { opacity: 1; transform: scale(2.1); }
+  63% { opacity: .2; transform: scale(.9); }
+  70% { opacity: 1; transform: scale(2.1); }
+  78% { opacity: .2; transform: scale(.9); }
+  88%, 100% { opacity: 0; transform: scale(.6); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-mrail__fill { transition: none; }
+  .scene-mrail__pulse { display: none; }
+}
+html.menu-open .scene-rail, html.menu-open .scene-mrail { opacity: 0; pointer-events: none; }
+
+/* the footer is the last scene: a full screen, never a sliver of the scene above */
+html.has-scenes .footer { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; }
+/* phone browsers that hide their toolbar show up to 100lvh: keep that extra strip at the
+   top of the footer empty, so its logo never peeks in under the last scene */
+@media (max-width: 719px) {
+  html.has-scenes .footer { padding-top: calc(clamp(72px, 9vw, 128px) + 100lvh - 100svh); }
+}

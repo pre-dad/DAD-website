@@ -1,0 +1,2 @@
+# Helpers are included by the endpoints, never requested directly.
+Require all denied

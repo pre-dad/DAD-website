@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en" data-theme="dark" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>About | DAD</title>
+<meta name="description" content="DAD stands for Dynamic Aid Delivery. We're a non-profit that funds, runs and proves its own programs, in public, as it happens.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dynamicaid.org/about/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DAD · Dynamic Aid Delivery">
+<meta property="og:title" content="About | DAD">
+<meta property="og:description" content="DAD stands for Dynamic Aid Delivery. We're a non-profit that funds, runs and proves its own programs, in public, as it happens.">
+<meta property="og:url" content="https://dynamicaid.org/about/">
+<meta property="og:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="About | DAD">
+<meta name="twitter:description" content="DAD stands for Dynamic Aid Delivery. We're a non-profit that funds, runs and proves its own programs, in public, as it happens.">
+<meta name="theme-color" content="#0E1E1E">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/site.css?v=c2c7328da2">
+<script>
+/* boot flags: runs before first paint */
+(function(){
+  var h=document.documentElement; h.classList.remove('no-js'); h.classList.add('js');
+  var rm=false; try{rm=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  if(rm) h.classList.add('reduced');
+  var seen=false; try{seen=sessionStorage.getItem('dad-pl')==='1';}catch(e){}
+  if(seen||rm) h.classList.add('no-pl');
+  /* the cookie chip's strip is reserved from the first paint, so nothing jumps when it slides in */
+  var cc=null; try{cc=localStorage.getItem('dad-consent');}catch(e){}
+  if(!cc) h.classList.add('has-cookie');
+  /* never leave content hidden if the app fails to boot */
+  setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
+})();
+</script>
+<script defer src="/vendor/gsap.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/SplitText.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/lenis.min.js?v=c2c7328da2"></script>
+<script type="module" src="/js/app.js?v=c2c7328da2"></script>
+<!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
+     home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
+     fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
+<link rel="modulepreload" href="/js/core/util.js?v=c2c7328da2">
+</head>
+<body data-page="about" data-mobile-cta="on">
+<a class="skip-link" href="#swap">Skip to content</a>
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__mark">
+    <svg viewBox="-43 -4 366 108" focusable="false">
+      <g class="pl-glyph"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
+      <g class="pl-glyph pl-g2"><path fill="#F8F9FA" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/></g>
+      <g class="pl-glyph pl-g3"><g transform="translate(280,0) scale(-1,1)"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g></g>
+      <g class="pl-bar pl-b1"><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g></g>
+      <g class="pl-bar pl-b2"><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></g>
+    </svg>
+  </div>
+  <div class="preloader__bar"><i></i></div>
+  <p class="preloader__tag">Aid, delivered.</p>
+</div>
+
+<div class="route-bar" id="route-bar" aria-hidden="true"><i></i></div>
+<div class="flood" id="flood" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true" tabindex="-1"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+    <nav class="nav__links" aria-label="Primary">
+      <a class="nav__link" href="/about/" data-nav aria-current="page"><span class="nav__roll" data-text="About">About</span></a>
+      <a class="nav__link" href="/how-it-works/" data-nav><span class="nav__roll" data-text="How It Works">How It Works</span></a>
+      <a class="nav__link" href="/programs/" data-nav><span class="nav__roll" data-text="Programs">Programs</span></a>
+      <a class="nav__link" href="/proof/" data-nav><span class="nav__roll" data-text="The Proof">The Proof</span></a>
+      <a class="nav__link" href="/team/" data-nav><span class="nav__roll" data-text="Team">Team</span></a>
+      <a class="nav__link" href="/movement/" data-nav><span class="nav__roll" data-text="The Movement">The Movement</span></a>
+    </nav>
+    <a class="btn btn--primary btn--sm nav__cta" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+    <button class="nav__burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span></span><span></span></button>
+  </div>
+  <div class="nav__progress" aria-hidden="true"><i></i></div>
+</header>
+<div class="menu is-dark" id="menu" role="dialog" aria-modal="true" aria-label="Site menu" inert>
+  <div class="menu__bg" aria-hidden="true"></div>
+  <div class="menu__inner">
+    <nav class="menu__links" aria-label="Menu">
+      <a class="menu__link" href="/about/" data-nav aria-current="page"><span class="menu__idx">01</span><span class="menu__txt">About</span></a>
+      <a class="menu__link" href="/how-it-works/" data-nav><span class="menu__idx">02</span><span class="menu__txt">How It Works</span></a>
+      <a class="menu__link" href="/programs/" data-nav><span class="menu__idx">03</span><span class="menu__txt">Programs</span></a>
+      <a class="menu__link" href="/proof/" data-nav><span class="menu__idx">04</span><span class="menu__txt">The Proof</span></a>
+      <a class="menu__link" href="/team/" data-nav><span class="menu__idx">05</span><span class="menu__txt">Team</span></a>
+      <a class="menu__link" href="/movement/" data-nav><span class="menu__idx">06</span><span class="menu__txt">The Movement</span></a>
+    </nav>
+    <div class="menu__cta"><a class="btn btn--primary btn--lg" href="/movement/"><span class="btn__label">Join the Movement</span></a></div>
+    <nav class="menu__foot" aria-label="More">
+      <a href="/building-in-public/">Building in Public</a><a href="/transparency/">Transparency</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a><a href="/movement/#careers">Careers</a>
+    </nav>
+    <p class="menu__tag">Aid, delivered.</p>
+  </div>
+</div>
+
+<main id="swap" data-page="about" data-module="/js/pages/about.js?v=c2c7328da2" data-scenes tabindex="-1">
+<style>
+/* ---------- ABOUT (page-scoped) ---------- */
+[data-page="about"] .ab-hero__field { position: absolute; inset: 0; width: auto; aspect-ratio: auto; z-index: 0; opacity: .5; pointer-events: none; -webkit-mask-image: radial-gradient(ellipse at 72% 48%, #000 14%, transparent 70%); mask-image: radial-gradient(ellipse at 72% 48%, #000 14%, transparent 70%); }
+[data-page="about"] .ab-hero h1 { max-width: 11.5em; }
+[data-page="about"] .ab-hero .lede { max-width: 30em; }
+[data-page="about"] .ab-hero__visual { display: grid; place-items: center; }
+[data-page="about"] .ab-scroll { display: inline-flex; align-items: center; gap: 14px; }
+[data-page="about"] .ab-scroll::after { content: ""; width: 1px; height: 44px; background: linear-gradient(var(--fg-faint), transparent); transform-origin: top; animation: ab-cue 2.4s var(--ease) infinite; }
+@keyframes ab-cue { 0% { transform: scaleY(0); } 55% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
+html.reduced [data-page="about"] .ab-scroll::after { animation: none; }
+
+/* founder letter */
+[data-page="about"] .ab-letter__grid { display: grid; gap: clamp(28px, 4vw, 48px); }
+@media (min-width: 1000px) {
+  [data-page="about"] .ab-letter__grid { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); column-gap: clamp(48px, 6vw, 112px); }
+  [data-page="about"] .ab-letter__rail { position: sticky; top: calc(var(--nav-h) + 48px); align-self: start; }
+}
+[data-page="about"] .ab-letter__rail h2 { max-width: 8em; }
+[data-page="about"] .ab-letter__meter { display: none; }
+@media (min-width: 1000px) {
+  [data-page="about"] .ab-letter__meter { display: block; position: relative; margin-top: 32px; width: 2px; height: clamp(80px, 16vh, 180px); background: var(--line-c); border-radius: 2px; overflow: hidden; }
+  [data-page="about"] .ab-letter__meter::after { content: ""; position: absolute; inset: 0; background: var(--accent); transform-origin: top; transform: scaleY(var(--p, 0)); }
+}
+[data-page="about"] .letter { max-width: 760px; }
+[data-page="about"] .letter__body p { color: var(--fg); font-size: clamp(19px, .62vw + 15.5px, 24px); line-height: 1.6; }
+[data-page="about"] .letter__body .letter__part:first-child p { font-size: clamp(21px, 1vw + 15px, 29px); line-height: 1.48; letter-spacing: -.012em; }
+[data-page="about"] .letter__body .letter__part + .letter__part p { margin-top: 1.25em; }
+[data-page="about"] .letter__body .rw { will-change: opacity; }
+[data-page="about"] .letter__close { font-size: clamp(40px, 5.4vw + 8px, 92px); line-height: .98; letter-spacing: -.04em; margin-top: clamp(48px, 6vw, 88px); }
+[data-page="about"] .ab-sign { display: flex; align-items: center; gap: clamp(18px, 2.4vw, 28px); margin-top: clamp(32px, 4vw, 48px); padding-top: clamp(24px, 3vw, 32px); border-top: 1px solid var(--line-c); }
+[data-page="about"] .ab-sign .person__av { --sz: clamp(72px, 4vw + 52px, 92px); --arc: var(--red); --arc2: var(--gold); --t1: 9s; --t2: 14s; }
+[data-page="about"] .ab-sign .letter__name { display: block; }
+[data-page="about"] .ab-letter__coin { --da-w: clamp(84px, 22vw, 112px); margin: 0; flex: none; }
+@media (max-width: 999px) { [data-page="about"] .ab-letter__rail { display: flex; align-items: center; justify-content: space-between; gap: 20px; } }
+@media (min-width: 1000px) { [data-page="about"] .ab-letter__coin { --da-w: clamp(140px, 12vw, 190px); margin: clamp(32px, 4vh, 56px) 0 0; } }
+
+/* what we are / are not */
+[data-page="about"] .ab-are { display: grid; gap: clamp(48px, 6vw, 80px); }
+@media (min-width: 960px) { [data-page="about"] .ab-are { grid-template-columns: 1fr 1fr; column-gap: clamp(48px, 6vw, 112px); } }
+[data-page="about"] .ab-are__col { position: relative; }
+[data-page="about"] .ab-are__mark { display: grid; place-items: center; width: clamp(64px, 5vw + 36px, 104px); height: clamp(64px, 5vw + 36px, 104px); border-radius: 50%; margin-bottom: clamp(20px, 2.4vw, 32px); box-shadow: inset 0 0 0 1px var(--line-strong); }
+[data-page="about"] .ab-are__mark i { width: 46%; height: 46%; background: var(--c); -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+[data-page="about"] .ab-are__mark--ok { --c: var(--ok); --m: var(--i-check); }
+[data-page="about"] .ab-are__mark--no { --c: var(--accent); --m: var(--i-x); }
+[data-page="about"] .ab-are .list-check li, [data-page="about"] .ab-are .list-x li { font: 500 clamp(20px, .9vw + 14px, 28px)/1.22 var(--f-disp); letter-spacing: -.02em; color: var(--fg); }
+[data-page="about"] .ab-are .list-x li > span { color: var(--fg-mut); }
+
+/* the plan */
+[data-page="about"] .ab-plan { list-style: none; margin: 0; padding: 0; position: relative; display: grid; counter-reset: none; }
+@media (min-width: 900px) { [data-page="about"] .ab-plan { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* the rule runs per step, from just past each numeral to the next one, so nothing sits behind a numeral
+   (they used to carry an opaque var(--bg) box that flashed as paper rectangles while the theme changed) */
+[data-page="about"] .ab-plan { --cg: clamp(24px, 3vw, 48px); --rg: clamp(36px, 5vw, 56px); gap: var(--rg); }
+[data-page="about"] .ab-plan > li:nth-child(1) { --pi: 0; }
+[data-page="about"] .ab-plan > li:nth-child(2) { --pi: 1; }
+@media (min-width: 900px) {
+  [data-page="about"] .ab-plan { column-gap: var(--cg); }
+  [data-page="about"] .ab-plan > li { container-type: inline-size; }
+  [data-page="about"] .ab-plan > li:not(:last-child) > .ab-plan__n::before,
+  [data-page="about"] .ab-plan > li:not(:last-child) > .ab-plan__n::after { content: ""; position: absolute; left: calc(100% + .04em); top: 50%; margin-top: -1px; height: 2px; width: calc(100cqw - 100% + var(--cg) - .16em); pointer-events: none; background: var(--line-c); }
+  [data-page="about"] .ab-plan > li:not(:last-child) > .ab-plan__n::after { background: var(--accent); transform-origin: left; transform: scaleX(clamp(0, calc(var(--p, 0) * 2 - var(--pi)), 1)); }
+}
+@media (max-width: 899px) {
+  [data-page="about"] .ab-plan > li { padding-left: calc(var(--n-size) * .9); }
+  [data-page="about"] .ab-plan > li:not(:last-child)::before,
+  [data-page="about"] .ab-plan > li:not(:last-child)::after { content: ""; position: absolute; left: calc(var(--n-size) * .2 - 1px); top: calc(var(--n-size) * .64 + 10px); bottom: calc(10px - var(--rg)); width: 2px; pointer-events: none; background: var(--line-c); }
+  [data-page="about"] .ab-plan > li:not(:last-child)::after { background: var(--accent); transform-origin: top; transform: scaleY(clamp(0, calc(var(--p, 0) * 2 - var(--pi)), 1)); }
+}
+[data-page="about"] .ab-plan { --n-size: clamp(76px, 9vw + 20px, 168px); }
+[data-page="about"] .ab-plan > li { position: relative; }
+[data-page="about"] .ab-plan__n { display: inline-block; position: relative; z-index: 1; font: 700 var(--n-size)/1 var(--f-disp); letter-spacing: -.06em; color: var(--accent); padding-right: .14em; }
+@media (max-width: 899px) { [data-page="about"] .ab-plan__n { position: absolute; left: 0; top: -.06em; font-size: calc(var(--n-size) * .64); padding: 0 0 .08em; } }
+[data-page="about"] .ab-plan__dot { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+[data-page="about"] .ab-plan__t { display: block; margin-top: clamp(12px, 1.6vw, 24px); font: 700 var(--fs-m)/1.04 var(--f-disp); letter-spacing: -.03em; color: var(--fg); max-width: 9em; text-wrap: balance; }
+@media (max-width: 899px) { [data-page="about"] .ab-plan__t { margin-top: 6px; } }
+[data-page="about"] .ab-vision { position: relative; margin-top: clamp(64px, 8vw, 128px); display: grid; gap: 16px; }
+[data-page="about"] .ab-vision p { font: 500 var(--fs-l)/1.04 var(--f-disp); letter-spacing: -.03em; color: var(--fg-faint); max-width: 16em; text-wrap: balance; }
+[data-page="about"] .ab-vision p strong { color: var(--fg); font-weight: 700; }
+
+/* the long game (ink close) */
+[data-page="about"] .ab-close .cta-band__inner { gap: clamp(28px, 3.4vw, 44px); }
+[data-page="about"] .ab-close__coin { --da-w: clamp(90px, 12svh, 130px); }
+[data-page="about"] .ab-close .lede { max-width: 30em; color: var(--fg-mut); }
+[data-page="about"] .ab-close h2 { max-width: 17em; }
+
+/* ---- SCENES (shared rules in scenes.css) ---- */
+/* the letter: one paragraph per scene; the rail (title + resting drop) holds still beside it */
+[data-page="about"].has-scenes .ab-letter { padding-block: 0; }
+[data-page="about"].has-scenes .letter__body .letter__part p { margin-top: 0; }
+[data-page="about"].has-scenes .letter__part--close .letter__close { margin-top: 0; }
+@media (min-width: 1000px) {
+  [data-page="about"].has-scenes .letter { max-width: 820px; }
+  [data-page="about"].has-scenes .letter__body p { font-size: clamp(20px, .9vw + 14px, 28px); line-height: 1.55; }
+  [data-page="about"].has-scenes .letter__body .letter__part:first-child p { font-size: clamp(22px, 1.3vw + 12px, 34px); line-height: 1.42; }
+  [data-page="about"].has-scenes .ab-letter__rail { top: calc(50svh - 160px); }
+  [data-page="about"].has-scenes .ab-letter__grid { align-items: start; }
+}
+@media (max-width: 999px) {
+  [data-page="about"].has-scenes .ab-letter__grid { position: relative; display: block; }
+  [data-page="about"].has-scenes .ab-letter__rail { position: absolute; left: 0; right: 0; top: var(--scene-pt); z-index: 1; }
+  [data-page="about"].has-scenes .letter__part:first-child { padding-top: calc(var(--scene-pt) + clamp(96px, 16svh, 130px)); }
+  [data-page="about"].has-scenes .ab-letter__coin { --da-w: clamp(64px, 11svh, 100px); }
+}
+@media (max-width: 719px) {
+  [data-page="about"].has-scenes .letter__body p { font-size: clamp(15.5px, min(4.3vw, 2.3svh), 18px); line-height: 1.52; }
+  [data-page="about"].has-scenes .letter__body .letter__part:first-child p { font-size: clamp(16.5px, min(4.8vw, 2.5svh), 20px); line-height: 1.45; }
+  [data-page="about"].has-scenes .ab-are { gap: clamp(16px, 3svh, 28px); }
+  [data-page="about"].has-scenes .ab-are__mark { width: 56px; height: 56px; margin-bottom: 14px; }
+  [data-page="about"].has-scenes .ab-are .list-check li, [data-page="about"].has-scenes .ab-are .list-x li { font-size: clamp(19px, min(5.6vw, 3svh), 24px); }
+}
+[data-page="about"].has-scenes .ab-are__mark { width: clamp(52px, min(5vw + 36px, 10svh), 104px); height: clamp(52px, min(5vw + 36px, 10svh), 104px); }
+[data-page="about"].has-scenes .ab-are .list-check li, [data-page="about"].has-scenes .ab-are .list-x li { font-size: clamp(18px, min(.9vw + 14px, 3.2svh), 28px); }
+[data-page="about"].has-scenes .ab-plan { --n-size: clamp(64px, min(9vw + 20px, 17svh), 168px); }
+[data-page="about"].has-scenes .ab-vision { margin-top: clamp(32px, 7svh, 96px); }
+[data-page="about"].has-scenes .ab-close__coin { --da-w: clamp(84px, 12svh, 130px); }
+</style>
+
+<!-- 1 · HERO -->
+<section class="section section--hero ab-hero" data-theme="dark" id="top" data-scene data-scene-name="About DAD">
+  <span class="glow" style="--x:76%;--y:44%;--size:78vmax;--o:.7"></span>
+  <span class="glow glow--gold" style="--x:8%;--y:100%;--size:46vmax;--o:.22;--t:30s"></span>
+  <div class="dots ab-hero__field" data-dots="field" data-dots-color="paper" data-dots-density="0.75" aria-hidden="true"></div>
+  <div class="container">
+    <div class="split split--wide-text">
+      <div class="stack stack-l">
+        <p class="eyebrow" data-reveal="fade">About DAD</p>
+        <h1 class="h-display" data-reveal="split-lines">Built for people who <span class="hl">stopped believing.</span></h1>
+        <p class="lede" data-reveal="up" data-delay=".35">DAD stands for Dynamic Aid Delivery. We're a non-profit that funds, runs and proves its own programs, in public, as it happens. The most efficient charity to ever exist.</p>
+        <a class="ab-scroll mono-label" href="#letter" data-reveal="fade" data-delay=".7">A letter from our founder</a>
+      </div>
+      <div class="split__visual ab-hero__visual">
+        <div class="dollar-anchor dollar-anchor--hero" data-dollar="spin" data-dollar-align="center"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · A LETTER FROM OUR FOUNDER -->
+<section class="section ab-letter" data-theme="light" id="letter">
+  <div class="container">
+    <div class="ab-letter__grid" data-progress data-progress-start="top 70%" data-progress-end="bottom 75%">
+      <div class="ab-letter__rail">
+        <h2 class="h-m" data-reveal="split-lines">A letter from our founder</h2>
+        <div class="dollar-anchor ab-letter__coin" data-dollar="ambient" data-dollar-align="center"></div>
+        <div class="ab-letter__meter" aria-hidden="true"></div>
+      </div>
+      <article class="letter" aria-labelledby="letter-h">
+        <span id="letter-h" class="sr-only">A letter from our founder</span>
+        <div class="letter__body" data-readalong>
+          <div class="letter__part scene-flex" data-scene data-scene-name="The letter">
+            <p>Growing up poor, I watched my grandmother and our neighbors struggle while resources and help were hard to come by, non-existent, or barely enough. As a single father since the age of 16, I have seen firsthand what accessing resources is like. There are good charities and good people out there; however, people are still in need. I've lost everything before and been homeless with a child. I've been to food banks and seen the low-quality food provided, and I've spoken to others about how slow or broken these systems are. I know firsthand that we can do better!</p>
+          </div>
+          <div class="letter__part scene-flex" data-scene data-scene-name="Building companies">
+            <p>I've also spent the last decade building companies. Closing contracts, opening offices, hiring teams. In business, you always know where the money went. It's on a screen. Somebody's accountable for every line.</p>
+          </div>
+          <div class="letter__part scene-flex" data-scene data-scene-name="Then I looked at giving">
+            <p>Then I looked at giving. Americans handed over $617 billion last year, more than ever. And year after year, fewer people are giving. Not because they stopped caring. Because they stopped believing it worked. I was one of them. I know what efficiency looks like, and just how much work can be done in a week. I know what can be accomplished, and now I know that the system is broken and the need for DAD is bigger than ever.</p>
+            <p>Every area of human suffering increases year over year. The problem isn't generosity. It's delivery. The machinery between your dollar and the work was built before the internet, and the machinery is where the money goes.</p>
+          </div>
+          <div class="letter__part scene-flex" data-scene data-scene-name="What we're building">
+            <p>So we're building the version that should have existed all along. A non-profit that runs its own programs, tracks every dollar to what it did, and puts it in public where anyone can check. No glossy annual report. No "trust us." Just the record, and massive execution.</p>
+          </div>
+        </div>
+        <div class="letter__part letter__part--close scene-flex" data-scene data-scene-name="Watch us">
+        <p class="letter__close" data-reveal="split-lines">You don't have to take our word for it. <span class="hl">Watch us. Join us.</span></p>
+        <footer class="ab-sign" data-reveal="up">
+          <div class="person__av" aria-hidden="true"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/chris-watley.webp" alt="" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div>
+          <cite class="letter__name">Chris Watley, Founder &amp; CEO</cite>
+        </footer>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · WHAT WE ARE / WHAT WE'RE NOT -->
+<section class="section ab-are-sec" data-theme="light" id="what-we-are" data-scene data-scene-media="(min-width: 720px)" data-scene-name="What we are">
+  <div class="container">
+    <div class="dollar-anchor dollar-anchor--s" data-dollar="ambient" style="position:absolute;right:var(--gutter);top:var(--scene-pt, 0px)" aria-hidden="true"></div>
+    <div class="ab-are">
+      <div class="scene-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="What we are">
+      <div class="ab-are__col">
+        <div class="ab-are__mark ab-are__mark--ok" data-reveal="scale" aria-hidden="true"><i></i></div>
+        <h2 class="sr-only">What we are</h2>
+        <ul class="list-check" data-stagger="left" data-stagger-step=".12">
+          <li>A better operating model for how generosity becomes results</li>
+          <li>The owner and operator of the programs your money funds</li>
+          <li>An organization that funds, runs, verifies and publishes in one motion</li>
+          <li>A model we intend to hand to the whole sector once it's proven</li>
+        </ul>
+      </div>
+      </div>
+      <div class="scene-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="What we're not">
+      <div class="ab-are__col">
+        <div class="ab-are__mark ab-are__mark--no" data-reveal="scale" data-delay=".2" aria-hidden="true"><i></i></div>
+        <h2 class="sr-only">What we're not</h2>
+        <ul class="list-x list-x--strike" data-stagger="up" data-stagger-step=".14">
+          <li><span>Another charity fighting over the same donations</span></li>
+          <li><span>A middleman that passes your money on and disappears</span></li>
+          <li><span>An app that sends cash to individuals</span></li>
+          <li><span>A replacement for organizations with decades of field expertise. We bring them in.</span></li>
+          <li><span>Pretending technology fixes everything</span></li>
+        </ul>
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · THE PLAN -->
+<section class="section ab-plan-sec" data-theme="light" id="plan" data-scene data-scene-name="The plan">
+  <div class="container">
+    <h2 class="sr-only">The plan</h2>
+    <ol class="ab-plan" data-progress data-progress-start="top 78%" data-progress-end="bottom 60%" data-stagger="up" data-stagger-step=".18">
+      <li><span class="ab-plan__n">1</span><span class="ab-plan__dot"> · </span><strong class="ab-plan__t">Build the system.</strong></li>
+      <li><span class="ab-plan__n">2</span><span class="ab-plan__dot"> · </span><strong class="ab-plan__t">Prove it through focused initiatives.</strong></li>
+      <li><span class="ab-plan__n">3</span><span class="ab-plan__dot"> · </span><strong class="ab-plan__t">Scale what works.</strong></li>
+    </ol>
+    <div class="ab-vision">
+      <div class="dollar-anchor dollar-anchor--s" data-dollar="ambient" style="position:absolute;left:50%;margin-left:-60px" aria-hidden="true"></div>
+      <p data-reveal="split-lines">The vision can be enormous. <strong>The first steps have to be achievable.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · THE LONG GAME (ink close) -->
+<section class="section cta-band ab-close" data-theme="dark" id="long-game" data-scene data-scene-name="The long game">
+  <span class="glow" style="--x:50%;--y:38%;--size:86vmax;--o:.55"></span>
+  <span class="glow glow--gold" style="--x:50%;--y:30%;--size:34vmax;--o:.35;--t:18s"></span>
+  <div class="container cta-band__inner">
+    <div class="dollar-anchor ab-close__coin" data-dollar="logo" data-dollar-size="companion" data-dollar-align="center"></div>
+    <p class="lede" data-reveal="up">Once it works, we hand it over. Open source. An operating system for modern giving, open to every organization that wants it.</p>
+    <h2 class="h-l" data-reveal="split-lines">Our measure of success isn't how big DAD gets. It's how much less the world needs it.</h2>
+    <div class="btn-row center" data-reveal="up" data-delay=".25">
+      <a class="btn btn--ghost btn--lg btn--arrow" href="/team/"><span class="btn__label">Meet the team</span></a>
+      <a class="btn btn--primary btn--lg" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="footer is-dark" id="footer" data-theme="dark">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a class="footer__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+        <p class="footer__tag">DAD · Aid, delivered.</p>
+      </div>
+      <nav class="footer__nav" aria-label="Footer">
+        <a href="/about/">About</a>
+        <a href="/how-it-works/">How It Works</a>
+        <a href="/programs/">Programs</a>
+        <a href="/proof/">The Proof</a>
+        <a href="/team/">Team</a>
+        <a href="/building-in-public/">Building in Public</a>
+        <a href="/transparency/">Transparency</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/contact/">Contact</a>
+        <a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a>
+        <a href="/movement/#careers">Careers</a>
+      </nav>
+    </div>
+    <div class="footer__mark" aria-hidden="true"><div class="dollar-anchor dollar-anchor--fill" data-dollar="logo" data-dollar-size="fill"></div></div>
+    <p class="footer__big" aria-hidden="true" data-reveal="split-chars">Aid, delivered.</p>
+    <div class="footer__legal">
+      <p>Dynamic Aid Delivery, INC. is a Delaware non-stock corporation.</p>
+      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a></p>
+    </div>
+  </div>
+</footer>
+
+<a class="btn btn--primary mobile-cta" href="/movement/" id="mobile-cta"><span class="btn__label">Join the Movement</span></a>
+<div class="cookie is-dark" id="cookie" role="region" aria-label="Cookie notice" hidden>
+  <p class="cookie__text">We use basic analytics to see what's working. No ads. No selling.</p>
+  <div class="cookie__actions">
+    <button class="btn btn--primary btn--sm" type="button" data-consent="accept"><span class="btn__label">Accept</span></button>
+    <button class="btn btn--ghost btn--sm" type="button" data-consent="decline"><span class="btn__label">Decline</span></button>
+  </div>
+</div>
+
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
+<div class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

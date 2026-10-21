@@ -1,0 +1,27 @@
+# --- compression -----------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# --- caching ---------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType application/json      "access plus 1 hour"
+  ExpiresByType text/css              "access plus 1 week"
+  ExpiresByType application/javascript "access plus 1 week"
+  ExpiresByType font/woff2            "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "no-referrer"
+</IfModule>
+
+DirectoryIndex index.html
+
+# --- password protection ---------------------------------------------------
+# Turn this on from your host's control panel, NOT by editing this file.
+# In IONOS: Hosting -> your package -> Directory Protection -> protect the
+# folder you uploaded to. It writes the password file for you.

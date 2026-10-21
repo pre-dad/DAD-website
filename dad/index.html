@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="en" data-theme="dark" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DAD | Charity is broken. So we built...</title>
+<meta name="description" content="The world's most efficient and transparent non-profit to ever exist, where every dollar is tracked to what it did. Live. In public.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dynamicaid.org/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DAD · Dynamic Aid Delivery">
+<meta property="og:title" content="DAD | Charity is broken. So we built...">
+<meta property="og:description" content="The world's most efficient and transparent non-profit to ever exist, where every dollar is tracked to what it did. Live. In public.">
+<meta property="og:url" content="https://dynamicaid.org/">
+<meta property="og:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="DAD | Charity is broken. So we built...">
+<meta name="twitter:description" content="The world's most efficient and transparent non-profit to ever exist, where every dollar is tracked to what it did. Live. In public.">
+<meta name="theme-color" content="#0E1E1E">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/site.css?v=c2c7328da2">
+<script>
+/* boot flags: runs before first paint */
+(function(){
+  var h=document.documentElement; h.classList.remove('no-js'); h.classList.add('js');
+  var rm=false; try{rm=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  if(rm) h.classList.add('reduced');
+  var seen=false; try{seen=sessionStorage.getItem('dad-pl')==='1';}catch(e){}
+  if(seen||rm) h.classList.add('no-pl');
+  /* the cookie chip's strip is reserved from the first paint, so nothing jumps when it slides in */
+  var cc=null; try{cc=localStorage.getItem('dad-consent');}catch(e){}
+  if(!cc) h.classList.add('has-cookie');
+  /* never leave content hidden if the app fails to boot */
+  setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
+})();
+</script>
+<script defer src="/vendor/gsap.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/SplitText.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/lenis.min.js?v=c2c7328da2"></script>
+<script type="module" src="/js/app.js?v=c2c7328da2"></script>
+<!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
+     home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
+     fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
+<link rel="modulepreload" href="/js/core/util.js?v=c2c7328da2">
+</head>
+<body data-page="index" data-mobile-cta="on">
+<a class="skip-link" href="#swap">Skip to content</a>
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__mark">
+    <svg viewBox="-43 -4 366 108" focusable="false">
+      <g class="pl-glyph"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
+      <g class="pl-glyph pl-g2"><path fill="#F8F9FA" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/></g>
+      <g class="pl-glyph pl-g3"><g transform="translate(280,0) scale(-1,1)"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g></g>
+      <g class="pl-bar pl-b1"><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g></g>
+      <g class="pl-bar pl-b2"><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></g>
+    </svg>
+  </div>
+  <div class="preloader__bar"><i></i></div>
+  <p class="preloader__tag">Aid, delivered.</p>
+</div>
+
+<div class="route-bar" id="route-bar" aria-hidden="true"><i></i></div>
+<div class="flood" id="flood" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true" tabindex="-1"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+    <nav class="nav__links" aria-label="Primary">
+      <a class="nav__link" href="/about/" data-nav><span class="nav__roll" data-text="About">About</span></a>
+      <a class="nav__link" href="/how-it-works/" data-nav><span class="nav__roll" data-text="How It Works">How It Works</span></a>
+      <a class="nav__link" href="/programs/" data-nav><span class="nav__roll" data-text="Programs">Programs</span></a>
+      <a class="nav__link" href="/proof/" data-nav><span class="nav__roll" data-text="The Proof">The Proof</span></a>
+      <a class="nav__link" href="/team/" data-nav><span class="nav__roll" data-text="Team">Team</span></a>
+      <a class="nav__link" href="/movement/" data-nav><span class="nav__roll" data-text="The Movement">The Movement</span></a>
+    </nav>
+    <a class="btn btn--primary btn--sm nav__cta" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+    <button class="nav__burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span></span><span></span></button>
+  </div>
+  <div class="nav__progress" aria-hidden="true"><i></i></div>
+</header>
+<div class="menu is-dark" id="menu" role="dialog" aria-modal="true" aria-label="Site menu" inert>
+  <div class="menu__bg" aria-hidden="true"></div>
+  <div class="menu__inner">
+    <nav class="menu__links" aria-label="Menu">
+      <a class="menu__link" href="/about/" data-nav><span class="menu__idx">01</span><span class="menu__txt">About</span></a>
+      <a class="menu__link" href="/how-it-works/" data-nav><span class="menu__idx">02</span><span class="menu__txt">How It Works</span></a>
+      <a class="menu__link" href="/programs/" data-nav><span class="menu__idx">03</span><span class="menu__txt">Programs</span></a>
+      <a class="menu__link" href="/proof/" data-nav><span class="menu__idx">04</span><span class="menu__txt">The Proof</span></a>
+      <a class="menu__link" href="/team/" data-nav><span class="menu__idx">05</span><span class="menu__txt">Team</span></a>
+      <a class="menu__link" href="/movement/" data-nav><span class="menu__idx">06</span><span class="menu__txt">The Movement</span></a>
+    </nav>
+    <div class="menu__cta"><a class="btn btn--primary btn--lg" href="/movement/"><span class="btn__label">Join the Movement</span></a></div>
+    <nav class="menu__foot" aria-label="More">
+      <a href="/building-in-public/">Building in Public</a><a href="/transparency/">Transparency</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a><a href="/movement/#careers">Careers</a>
+    </nav>
+    <p class="menu__tag">Aid, delivered.</p>
+  </div>
+</div>
+
+<main id="swap" data-page="index" data-module="/js/pages/home.js?v=c2c7328da2" data-scenes tabindex="-1">
+<!-- HOME: "Follow one dollar". Page CSS lives in the <style> block below (scoped to [data-page="index"]);
+     choreography (pins, flood, strikes, slams, strip) lives in src/js/pages/home.js. -->
+<style>
+/* ===================================================================
+   HOME. Scoped to main[data-page="index"].
+   =================================================================== */
+[data-page="index"] { --hm-gap: clamp(28px, 5vw, 80px); }
+
+/* ---------- 1 · HERO ---------- */
+[data-page="index"] .hm-hero { overflow: hidden; overflow: clip; }
+[data-page="index"] .hm-hero__field { opacity: .42; -webkit-mask-image: radial-gradient(ellipse 70% 65% at 70% 50%, #000 10%, transparent 75%); mask-image: radial-gradient(ellipse 70% 65% at 70% 50%, #000 10%, transparent 75%); }
+[data-page="index"] .hm-hero__grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr); }
+[data-page="index"] .hm-hero__h { font-size: clamp(44px, 8.2vw + 4px, 134px); line-height: .93; letter-spacing: -.045em; margin: 0; }
+[data-page="index"] .hm-hero__h .hl { color: var(--red); }
+[data-page="index"] .hm-hero__body { display: grid; gap: clamp(24px, 2.6vw, 36px); margin-top: clamp(26px, 3vw, 44px); }
+[data-page="index"] .hm-hero__body .lede { max-width: 31em; }
+[data-page="index"] .hm-hero__tag { display: inline-flex; align-items: center; gap: 12px; letter-spacing: .34em; }
+[data-page="index"] .hm-hero__tag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--red); box-shadow: 0 0 14px 2px rgba(255, 74, 34, .55); animation: pulse 2.4s var(--ease) infinite; }
+[data-page="index"] .hm-hero__coin { position: relative; }
+[data-page="index"] .hm-hero__coin .dollar-anchor { --da-w: clamp(220px, 58vw, 340px); }
+@media (max-width: 959px) {
+  /* phones/tablets: headline, line and CTA up top; the drop sits bottom-centre, the glow under it */
+  [data-page="index"] .hm-hero { justify-content: flex-start; padding-top: calc(var(--nav-h) + 8px); }
+  [data-page="index"] .hm-hero__grid { flex: 1 1 auto; display: flex; flex-direction: column; }
+  [data-page="index"] .hm-hero__coin { order: 1; flex: 1 1 auto; display: grid; place-items: end center; min-height: clamp(110px, 20svh, 300px); margin-top: clamp(10px, 2svh, 24px); }
+  [data-page="index"] .hm-hero__coin .dollar-anchor { --da-w: clamp(120px, min(23svh, 50vw), 300px); margin: 0 auto; }
+  [data-page="index"] .hm-hero > .glow:not(.glow--gold) { --x: 50% !important; --y: 88% !important; --size: 92vmax !important; --o: .6 !important; }
+  [data-page="index"] .hm-hero__field { -webkit-mask-image: radial-gradient(ellipse 85% 42% at 50% 88%, #000 10%, transparent 75%); mask-image: radial-gradient(ellipse 85% 42% at 50% 88%, #000 10%, transparent 75%); }
+}
+@media (min-width: 960px) {
+  [data-page="index"] .hm-hero__grid { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); grid-template-rows: auto auto 1fr; }
+  [data-page="index"] .hm-hero__eyebrow { grid-column: 1 / -1; }
+  [data-page="index"] .hm-hero__h { grid-column: 1 / -1; grid-row: 2; position: relative; z-index: 1; }
+  [data-page="index"] .hm-hero__body { grid-column: 1; grid-row: 3; }
+  [data-page="index"] .hm-hero__coin { grid-column: 2; grid-row: 2 / 4; align-self: end; justify-self: end; margin-right: 0; margin-bottom: -2vw; }
+  [data-page="index"] .hm-hero__coin .dollar-anchor { --da-w: clamp(300px, 33vw, 520px); }
+}
+/* scroll cue: a drop of light falling down a thread */
+[data-page="index"] .hm-cue { position: absolute; left: 50%; bottom: clamp(18px, 3vh, 34px); z-index: 1; width: 1px; height: 64px; margin-left: -.5px; background: linear-gradient(var(--line-strong), transparent); overflow: hidden; pointer-events: none; }
+[data-page="index"] .hm-cue::after { content: ""; position: absolute; left: -1.5px; top: -10px; width: 4px; height: 10px; border-radius: 4px; background: var(--red); box-shadow: 0 0 10px rgba(255, 74, 34, .9); animation: hmCue 2.2s var(--ease-io) infinite; }
+@keyframes hmCue { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(76px); opacity: 0; } }
+@media (max-width: 959px) { [data-page="index"] .hm-cue { display: none; } }
+
+/* ---------- 2 · PROBLEM ---------- */
+[data-page="index"] .hm-problem { padding-top: 0; }
+[data-page="index"] .hm-count { position: relative; }
+[data-page="index"] .hm-count__inner { position: relative; z-index: 1; padding-top: var(--section-y); }
+[data-page="index"] .hm-count__num { font: 600 1em/1 var(--f-mono); letter-spacing: -.06em; color: var(--fg); white-space: nowrap; font-variant-numeric: tabular-nums; margin-left: -.04em; }
+[data-page="index"] .hm-count__cap { margin-top: clamp(16px, 2vw, 26px); font-size: clamp(19px, min(.9vw + 13px, 3.4svh), 30px); line-height: 1.3; color: var(--fg-mut); }
+@media (max-width: 719px) { [data-page="index"] .hm-count__cap { font-size: clamp(17.5px, min(5vw, 2.7svh), 21px); } }
+[data-page="index"] .hm-count__b { margin-top: clamp(64px, 9vw, 120px); display: grid; gap: clamp(18px, 2vw, 28px); }
+[data-page="index"] .hm-count__stop { max-width: 14ch; }
+[data-page="index"] .hm-fall { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2em .5em; font-size: var(--fs-lede); color: var(--fg-mut); }
+[data-page="index"] .hm-fall__num { position: relative; display: inline-block; font: 700 clamp(64px, 9vw, 150px)/.9 var(--f-disp); letter-spacing: -.05em; color: var(--red); }
+[data-page="index"] .hm-fall__num::after { content: ""; position: absolute; left: 50%; bottom: 100%; width: 1px; height: 1.1em; background: linear-gradient(transparent, rgba(255, 74, 34, .7)); transform-origin: bottom; transform: scaleY(var(--trail, 0)); }
+[data-page="index"] .hm-count__nw { position: relative; display: inline-block; max-width: 100%; font-size: min(9.2vw, 136px); }
+/* the eyebrow is inline-flex: on its own line here, not sitting on the number's baseline */
+[data-page="index"] .hm-count__a > .eyebrow { display: flex; width: max-content; }
+/* the "!": right after the last digit, centred on the digits, ~1.15x their height (drop radius .425em) */
+[data-page="index"] .hm-count__ex { position: absolute; left: 100%; top: 50%; --da-w: .85em; margin: 0 0 0 -.125em; transform: translateY(-50%); }
+[data-page="index"] .hm-count__nw.is-wrap .hm-count__ex { position: relative; left: auto; top: auto; display: block; margin: .06em 0 0 auto; transform: none; }
+[data-page="index"] .hm-count__b { position: relative; }
+[data-page="index"] .hm-count__an { position: absolute; right: 0; bottom: 100%; --da-w: 76px; margin: 0 0 4px; }
+/* phones/tablets: the annoyed face sits right of "And millions of people stopped giving." (clear space) */
+[data-page="index"] .hm-count__an-m { position: absolute; right: 0; top: 0; --da-w: clamp(84px, 26vw, 128px); margin: 0; }
+/* phones: a bigger "!" after the last digit, standing on the baseline and rising into the empty space
+   above, so it reads clearly and stays clear of the "Given by Americans" line */
+@media (max-width: 719px) {
+  [data-page="index"] .hm-count__ex,
+  [data-page="index"] .hm-count__nw.is-wrap .hm-count__ex { position: absolute; left: 100%; top: -.52em; display: block; --da-w: 1.4em; margin: 0 0 0 -.12em; transform: none; }
+}
+@media (min-width: 960px) and (pointer: fine) {
+  [data-page="index"].hm-pinning .hm-count { height: 100vh; }
+  [data-page="index"].hm-pinning .hm-count__inner { height: 100vh; padding-top: 0; display: flex; flex-direction: column; justify-content: center; }
+  [data-page="index"].hm-pinning .hm-count__a { transform-origin: 0 0; }
+  [data-page="index"].hm-pinning .hm-count__b { position: absolute; left: var(--gutter); right: var(--gutter); top: 37%; margin-top: 0; }
+  [data-page="index"].hm-pinning .hm-count__nw { font-size: min(8.3vw, 122px); }
+  [data-page="index"] .hm-count__an { right: clamp(190px, 15%, 300px); bottom: auto; top: 50%; --da-w: 2px; margin: 0; transform: translateY(-50%); }
+}
+[data-page="index"] .hm-trust { max-width: 17ch; margin-top: clamp(80px, 10vw, 160px); }
+[data-page="index"] .hm-trust-sec .container { position: relative; }
+[data-page="index"] .hm-trust__drop { --da-w: clamp(120px, min(42vw, 30svh), 260px); margin: clamp(20px, 4svh, 48px) auto 0; }
+@media (min-width: 960px) { [data-page="index"] .hm-trust__drop { position: absolute; right: clamp(190px, 15%, 300px); top: 50%; --da-w: 2px; margin: 0; } }
+[data-page="index"] .hm-gen-sec { position: relative; }
+[data-page="index"] .hm-gen__drop { position: absolute; right: calc(var(--gutter) + 6vw); top: 50%; --da-w: 2px; margin: 0; }
+[data-page="index"] .hm-facts { margin-top: clamp(80px, 10vw, 150px); display: grid; gap: clamp(24px, 4vw, 64px); grid-template-columns: minmax(0, 1fr); align-items: center; }
+[data-page="index"] .hm-facts__lead { font: 600 var(--fs-s)/1.3 var(--f-disp); color: var(--fg); letter-spacing: -.01em; }
+[data-page="index"] .hm-facts__list { display: grid; gap: clamp(36px, 4vw, 56px); margin-top: clamp(32px, 4vw, 56px); }
+[data-page="index"] .hm-fact { position: relative; padding-top: clamp(20px, 2vw, 28px); border-top: 1px solid var(--line-c); transform-origin: 0 50%; }
+[data-page="index"] .hm-fact::before { content: ""; position: absolute; left: 0; top: -1px; width: 100%; height: 1px; background: var(--red); transform-origin: left; transform: scaleX(var(--hit, 0)); box-shadow: 0 0 18px rgba(255, 74, 34, .8); }
+[data-page="index"] .hm-fact__num { font: 700 clamp(46px, 6vw + 8px, 112px)/.95 var(--f-disp); letter-spacing: -.045em; color: var(--fg); }
+[data-page="index"] .hm-fact:nth-child(2) .hm-fact__num { color: var(--red); }
+[data-page="index"] .hm-fact__cap { margin-top: 14px; font-size: var(--fs-lede); line-height: 1.4; color: var(--fg-mut); max-width: 26em; }
+[data-page="index"] .hm-facts__close { margin-top: clamp(40px, 5vw, 72px); font: 600 var(--fs-m)/1.12 var(--f-disp); letter-spacing: -.025em; color: var(--fg); max-width: 22ch; transform-origin: 0 50%; }
+[data-page="index"] .hm-facts__visual { position: relative; display: grid; justify-items: center; }
+[data-page="index"] .hm-facts__visual .dollar-anchor { --da-w: clamp(220px, 62vw, 460px); }
+@media (min-width: 960px) {
+  [data-page="index"] .hm-facts { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); }
+}
+[data-page="index"] .hm-gen { margin-top: clamp(120px, 16vw, 260px); }
+[data-page="index"] .hm-gen .h-xl { max-width: 13ch; }
+[data-page="index"] .hm-gen .btn--link { margin-top: clamp(24px, 3vw, 40px); }
+
+/* ---------- 3 · THE TURN ---------- */
+[data-page="index"] .hm-turn { position: relative; z-index: 1; }
+/* the turn is exactly one screen: the stage is the scene (no scene padding), the headline dead centre */
+[data-page="index"].has-scenes .hm-turn.is-scene { padding: 0; display: block; }
+[data-page="index"] .hm-turn__stage { position: relative; height: 100vh; height: 100svh; display: grid; place-items: center; overflow: hidden; overflow: clip; }
+[data-page="index"] .hm-turn__coin { position: absolute; left: 50%; top: 78%; --da-w: min(26svh, 40vw); margin: 0; transform: translate(-50%, -50%); }
+[data-page="index"] .hm-turn__h { position: relative; z-index: 1; align-self: center; margin: 0 0 16svh; padding-inline: var(--gutter); text-align: center; font: 700 clamp(50px, 9.4vw, 168px)/.92 var(--f-disp); letter-spacing: -.05em; color: var(--fg); text-wrap: balance; }
+[data-page="index"] .hm-turn__h .sw-mask { padding-bottom: .1em; margin-bottom: -.1em; }
+[data-page="index"] .hm-turn__ring { position: absolute; left: 50%; top: 80%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(255, 184, 0, .55); opacity: 0; pointer-events: none; }
+@media (max-width: 719px) { [data-page="index"] .hm-turn__h { margin-bottom: 18svh; } }
+html.js [data-page="index"] .hm-turn__h:not(.is-split) { opacity: 0; }
+html.reduced [data-page="index"] .hm-turn__h, html.reveal-all [data-page="index"] .hm-turn__h { opacity: 1; }
+
+/* ---------- 4 · FOLLOW THE DOLLAR ---------- */
+[data-page="index"] .hm-follow .section-head { max-width: 1040px; }
+[data-page="index"] .hm-follow .h-xl { font-size: clamp(48px, 7.6vw + 4px, 132px); }
+[data-page="index"] .hm-flow { position: relative; --cols: minmax(0, 1fr); }
+[data-page="index"] .hm-steps { list-style: none; margin: 0; padding: 0; position: relative; }
+[data-page="index"] .hm-step, [data-page="index"] .hm-loop { position: relative; display: grid; grid-template-columns: var(--cols); column-gap: var(--hm-gap); align-items: center; }
+[data-page="index"] .hm-step { --step-pl: clamp(36px, 4vw, 56px); padding: clamp(28px, 4vw, 48px) 0 clamp(28px, 4vw, 48px) var(--step-pl); }
+[data-page="index"] .hm-step__num { display: block; font: 500 var(--fs-mono)/1 var(--f-mono); letter-spacing: .22em; color: var(--accent-text); margin-bottom: 18px; }
+[data-page="index"] .hm-step__title { font: 700 clamp(44px, 5.4vw + 6px, 96px)/.95 var(--f-disp); letter-spacing: -.045em; color: var(--fg); }
+[data-page="index"] .hm-step__body { margin-top: clamp(16px, 2vw, 24px); font-size: var(--fs-lede); line-height: 1.45; color: var(--fg-mut); max-width: 25em; }
+[data-page="index"] .hm-step__text { position: relative; }
+[data-page="index"] .hm-step__dot { position: absolute; left: calc(-1 * var(--step-pl) + 0px); top: 2px; width: 13px; height: 13px; border-radius: 50%; background: var(--bg); box-shadow: inset 0 0 0 1.5px var(--accent); z-index: 1; transition: background-color .5s, transform .6s var(--ease-back); }
+[data-page="index"] .hm-step.is-active .hm-step__dot { background: var(--accent); transform: scale(1.25); }
+[data-page="index"] .hm-steps::before, [data-page="index"] .hm-steps::after { content: ""; position: absolute; left: 6px; top: 50px; bottom: 50px; width: 1px; background: var(--line-c); }
+[data-page="index"] .hm-steps::after { background: var(--accent); transform-origin: top; transform: scaleY(var(--p, 0)); }
+[data-page="index"] .hm-step__visual { display: grid; justify-items: center; margin-top: 20px; }
+[data-page="index"] .hm-step__visual .dollar-anchor { --da-w: clamp(220px, 64vw, 420px); }
+[data-page="index"] .hm-amb { position: absolute; left: 50%; top: 50%; width: 2px; height: 2px; margin: 0; }
+[data-page="index"] .hm-now, [data-page="index"] .hm-ledger .scene-flex { position: relative; }
+[data-page="index"] .hm-loop { margin-top: clamp(24px, 4vw, 56px); }
+[data-page="index"] .hm-loop__line { font-size: clamp(26px, 2.2vw + 14px, 46px); line-height: 1.18; letter-spacing: -.02em; max-width: 16ch; }
+[data-page="index"] .hm-loop__line span { display: block; }
+[data-page="index"] .hm-loop__line span:nth-child(odd) { color: var(--fg); }
+[data-page="index"] .hm-loop__line span:nth-child(even) { color: var(--fg-mut); }
+[data-page="index"] .hm-loop .btn--link { margin-top: clamp(24px, 3vw, 36px); }
+@media (min-width: 960px) {
+  [data-page="index"] .hm-flow { --cols: minmax(0, .95fr) minmax(0, 1.05fr); }
+  [data-page="index"] .hm-step { --step-pl: clamp(40px, 4vw, 64px); min-height: 74vh; }
+  [data-page="index"] .hm-step > .hm-step__text { grid-column: 1; }
+  [data-page="index"] .hm-step__visual { grid-column: 2; grid-row: 1; margin-top: 0; }
+  [data-page="index"] .hm-step__visual .dollar-anchor { --da-w: clamp(280px, 30vw, 460px); }
+  [data-page="index"] .hm-loop { min-height: 80vh; padding-left: clamp(40px, 4vw, 64px); }
+  [data-page="index"] .hm-loop > div:first-child { grid-column: 1; }
+  [data-page="index"] .hm-step__text { transition: opacity .7s var(--ease), transform .9s var(--ease); }
+  html.js:not(.reduced) [data-page="index"] .hm-step:not(.is-active) .hm-step__text { opacity: .22; transform: translateX(-10px); }
+}
+
+/* ---------- 5 · THE LEDGER ---------- */
+[data-page="index"] .hm-ledger .h-xl { font-size: clamp(44px, 6.6vw + 4px, 116px); }
+[data-page="index"] .hm-ledger__notes { margin-top: clamp(56px, 7vw, 110px); align-items: start; }
+[data-page="index"] .hm-ledger__notes .h-s { font-size: clamp(22px, 1.2vw + 15px, 34px); line-height: 1.2; max-width: 22ch; }
+[data-page="index"] .hm-ledger__notes .callout p { font-size: var(--fs-body); line-height: 1.6; }
+[data-page="index"] .hm-ledger .btn--link { margin-top: clamp(28px, 3vw, 44px); }
+
+/* ---------- 6 · WHERE IT GOES ---------- */
+[data-page="index"] .hm-programs__head { position: relative; max-width: 1200px; margin-bottom: clamp(56px, 7vw, 110px); }
+[data-page="index"] .hm-mission { font-size: clamp(48px, 8.6vw + 2px, 150px); max-width: 11ch; }
+[data-page="index"] .hm-mission .hl { color: var(--accent); }
+[data-page="index"] .hm-programs__head .lede { margin-top: clamp(20px, 2.4vw, 32px); }
+[data-page="index"] .hm-programs__hide { position: absolute; right: 0; bottom: var(--scene-pb, 0px); --da-w: 72px; margin: 0; }
+[data-page="index"] .hm-prog { --pad: clamp(22px, 2.2vw, 34px); padding-top: calc(var(--pad) + 4px); gap: 10px; }
+[data-page="index"] .hm-prog { translate: 0 var(--fy, 0px); rotate: var(--fr, 0deg); }
+[data-page="index"] .hm-prog::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--c); }
+[data-page="index"] .hm-prog .dots { --ar: 1; margin: 0 calc(var(--pad) * -.4) 12px; width: calc(100% + var(--pad) * .8); }
+[data-page="index"] .hm-prog .card__title { font-size: clamp(26px, 1.4vw + 16px, 36px); letter-spacing: -.03em; }
+[data-page="index"] .hm-prog p { font-size: var(--fs-body); line-height: 1.5; }
+[data-page="index"] .hm-prog__tag { font: 500 var(--fs-mono-s)/1 var(--f-mono); letter-spacing: .2em; text-transform: uppercase; color: var(--fg-faint); display: flex; align-items: center; gap: 8px; }
+[data-page="index"] .hm-prog__tag::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--c); }
+[data-page="index"] .hm-programs__grid { perspective: 1400px; }
+[data-page="index"] .hm-programs__how { margin-top: clamp(56px, 7vw, 110px); max-width: 40em; font-size: clamp(20px, .8vw + 15px, 28px); line-height: 1.4; }
+[data-page="index"] .hm-programs__how .hm-num { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- 7 · THE PEOPLE ---------- */
+[data-page="index"] .hm-people .section-head { margin-bottom: clamp(40px, 5vw, 72px); }
+[data-page="index"] .hm-people__orbit { position: absolute; right: 0; top: 0; --da-w: 86px; margin: 0; }
+@media (min-width: 720px) { [data-page="index"] .hm-people__orbit { --da-w: min(30svh, 42vw); } }
+[data-page="index"] .hm-people__more { margin-top: clamp(28px, 3vw, 44px); }
+
+/* ---------- 8 · WHERE WE ARE ---------- */
+[data-page="index"] .hm-now .h-l { max-width: 16ch; margin-bottom: clamp(48px, 6vw, 96px); }
+[data-page="index"] .hm-timeline { --p: 0; }
+[data-page="index"] .hm-timeline::after { content: ""; position: absolute; left: 6px; top: 10px; bottom: 10px; width: 1px; background: linear-gradient(var(--red), var(--gold)); transform-origin: top; transform: scaleY(var(--p)); }
+[data-page="index"] .hm-timeline .timeline__when { font-size: clamp(13px, .3vw + 11px, 15px); }
+[data-page="index"] .hm-timeline .timeline__what { font-size: var(--fs-lede); line-height: 1.4; color: var(--fg-mut); max-width: 22ch; }
+[data-page="index"] .hm-timeline .is-now .timeline__what { color: var(--fg); }
+@media (min-width: 960px) {
+  [data-page="index"] .hm-timeline::after { left: 0; right: 0; top: 6px; bottom: auto; width: auto; height: 1px; background: linear-gradient(90deg, var(--red), var(--gold)); transform-origin: left; transform: scaleX(var(--p)); }
+}
+[data-page="index"] .hm-now .btn--link { margin-top: clamp(40px, 5vw, 72px); }
+
+/* ---------- 9 · CLOSE ---------- */
+[data-page="index"] .hm-close .h-l { max-width: 20ch; margin-inline: auto; }
+[data-page="index"] .hm-close__join { width: min(100%, 1060px); display: grid; gap: clamp(8px, 2vw, 28px); justify-items: center; margin-top: clamp(8px, 2vw, 24px); }
+[data-page="index"] .hm-close__coin { --da-w: clamp(120px, 34vw, 170px); margin: 0; }
+[data-page="index"] .hm-close__logo { --da-w: clamp(96px, 14svh, 140px); margin: 0 auto; }
+@media (min-width: 720px) {
+  [data-page="index"].has-scenes .hm-close__logo { --da-w: clamp(80px, 10svh, 120px); }
+  [data-page="index"].has-scenes .hm-close .cta-band__inner { gap: clamp(12px, 2svh, 26px); }
+  [data-page="index"].has-scenes .hm-close .h-l { font-size: clamp(30px, min(3.2vw + 10px, 6.2svh), 64px); }
+}
+
+@media (min-width: 720px) { [data-page="index"] .hm-close__coin { display: none; } }
+[data-page="index"] .hm-close__join .cta-band__form { margin-top: 0; }
+@media (min-width: 960px) {
+  [data-page="index"] .hm-close__join { width: min(100%, 940px); grid-template-columns: minmax(0, 1fr); align-items: center; justify-items: stretch; }
+}
+
+/* ===================================================================
+   SCENES (one viewport per scroll). Each block below is one scene and is
+   composed to fit 100svh; see src/css/scenes.css for the shared rules.
+   =================================================================== */
+[data-page="index"].has-scenes .hm-hero__h { font-size: clamp(42px, min(8.2vw + 4px, 13.4svh), 134px); }
+@media (max-width: 959px) {
+  [data-page="index"].has-scenes .hm-hero { justify-content: flex-start; }
+  [data-page="index"].has-scenes .hm-hero__body { margin-top: clamp(16px, 2.6svh, 28px); gap: clamp(16px, 2.6svh, 28px); }
+}
+/* the counter: pinned with two stops on desktop, a plain scene on phones */
+[data-page="index"].has-scenes .hm-count__inner { min-height: 100svh; padding-top: var(--scene-pt); padding-bottom: var(--scene-pb); display: flex; flex-direction: column; justify-content: center; }
+[data-page="index"].has-scenes .hm-count__b { margin-top: clamp(32px, 6svh, 72px); }
+[data-page="index"].has-scenes .hm-fall__num { font-size: clamp(56px, min(9vw, 15svh), 150px); }
+[data-page="index"].has-scenes .hm-trust { margin-top: 0; max-width: 17ch; }
+[data-page="index"].has-scenes .hm-facts { margin-top: 0; }
+[data-page="index"].has-scenes .hm-facts__list { margin-top: clamp(18px, 3svh, 40px); gap: clamp(18px, 3svh, 44px); }
+[data-page="index"].has-scenes .hm-fact__num { font-size: clamp(38px, min(5vw + 6px, 9svh), 96px); }
+[data-page="index"].has-scenes .hm-fact__cap { margin-top: 8px; }
+[data-page="index"].has-scenes .hm-facts__close { margin-top: clamp(20px, 3.4svh, 48px); }
+[data-page="index"].has-scenes .hm-facts__visual .dollar-anchor { --da-w: clamp(150px, min(30vw, 34svh), 420px); }
+/* desktop: the evidence block set smaller so it reads comfortably beside the angry face */
+@media (min-width: 960px) {
+  [data-page="index"].has-scenes .hm-facts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  [data-page="index"].has-scenes .hm-facts > div:first-child { max-width: 600px; }
+  [data-page="index"].has-scenes .hm-facts__lead { font-size: clamp(18px, min(.5vw + 13px, 3svh), 23px); }
+  [data-page="index"].has-scenes .hm-facts__list { gap: clamp(16px, 2.8svh, 34px); }
+  [data-page="index"].has-scenes .hm-fact { padding-top: clamp(12px, 1.8svh, 20px); }
+  [data-page="index"].has-scenes .hm-fact__num { font-size: clamp(34px, min(3.2vw + 6px, 7svh), 64px); }
+  [data-page="index"].has-scenes .hm-fact__cap { font-size: clamp(17px, min(.45vw + 12.5px, 2.5svh), 20px); }
+  [data-page="index"].has-scenes .hm-facts__close { font-size: clamp(20px, min(.9vw + 12px, 3.4svh), 29px); max-width: 25ch; }
+}
+@media (max-width: 959px) {
+  [data-page="index"].has-scenes .hm-facts__visual .dollar-anchor { --da-w: clamp(90px, 13svh, 170px); margin-bottom: 14px; }
+  [data-page="index"].has-scenes .hm-facts { gap: 8px; }
+  [data-page="index"].has-scenes .hm-facts__visual { order: -1; }
+}
+[data-page="index"].has-scenes .hm-gen { margin-top: 0; }
+[data-page="index"].has-scenes .hm-follow__intro .section-head { margin-bottom: 0; }
+[data-page="index"].has-scenes .hm-follow .h-xl { font-size: clamp(46px, min(7.6vw + 4px, 14svh), 132px); }
+[data-page="index"].has-scenes .hm-step,
+[data-page="index"].has-scenes .hm-loop { align-content: center; }
+[data-page="index"].has-scenes .hm-step__title { font-size: clamp(40px, min(5.4vw + 6px, 10svh), 96px); }
+[data-page="index"].has-scenes .hm-step__visual .dollar-anchor { --da-w: clamp(150px, min(30vw, 46svh), 460px); }
+@media (max-width: 959px) {
+  [data-page="index"].has-scenes .hm-step__visual .dollar-anchor { --da-w: clamp(140px, 28svh, 280px); }
+}
+[data-page="index"].has-scenes .hm-loop { margin-top: 0; }
+[data-page="index"].has-scenes .hm-ledger .h-xl { font-size: clamp(42px, min(6.6vw + 4px, 12svh), 116px); }
+[data-page="index"].has-scenes .hm-ledger .section-head { margin-bottom: 0; }
+/* the island + card must fit one screen: the map is sized by height */
+[data-page="index"].has-scenes .hm-ledger__notes { margin-top: 0; }
+[data-page="index"].has-scenes .hm-programs__head { margin-bottom: 0; }
+[data-page="index"].has-scenes .hm-mission { font-size: clamp(44px, min(8.6vw + 2px, 15svh), 150px); }
+[data-page="index"].has-scenes .hm-programs__how { margin-top: clamp(24px, 4svh, 56px); }
+[data-page="index"].has-scenes .hm-prog .dots { width: min(calc(100% + var(--pad) * .8), 26svh); margin-inline: auto; }
+/* people: intro + ticker, then the leadership grid (same component as /team/) */
+[data-page="index"] .hm-people .section-head { margin-bottom: clamp(28px, 6svh, 72px); }
+[data-page="index"] .hm-people__orbit { top: var(--scene-pt, 0px); }
+/* the orbit always gets clear space at feature size: its own row above the heading (720-959px),
+   its own column beside heading + lede (960px+); phones keep the small one top-right */
+@media (min-width: 720px) {
+  [data-page="index"] .hm-people .section-head > .hm-people__orbit { position: relative; top: auto; right: auto; order: -1; justify-self: end; --da-w: min(36svh, 50vw); margin: 0; }
+}
+@media (min-width: 960px) {
+  [data-page="index"] .hm-people .section-head--split { align-items: center; }
+  [data-page="index"] .hm-people .section-head--split > .h-l { grid-column: 1; grid-row: 1; align-self: end; }
+  [data-page="index"] .hm-people .section-head--split > .lede { grid-column: 1; grid-row: 2; align-self: start; max-width: 46ch; }
+  [data-page="index"] .hm-people .section-head > .hm-people__orbit { grid-column: 2; grid-row: 1 / span 2; justify-self: center; align-self: center; --da-w: min(36svh, 46vw); }
+}
+[data-page="index"] .hm-team .team-grid { row-gap: clamp(26px, 4svh, 56px); }
+[data-page="index"] .hm-people__more { margin-top: clamp(24px, 4svh, 44px); align-self: flex-start; }
+[data-page="index"].has-scenes .hm-now .h-l { margin-bottom: clamp(28px, 6svh, 80px); }
+[data-page="index"].has-scenes .hm-now .btn--link { margin-top: clamp(28px, 5svh, 64px); align-self: flex-start; }
+[data-page="index"].has-scenes .hm-close .cta-band__inner { gap: clamp(16px, 2.6svh, 32px); }
+@media (max-width: 959px) { [data-page="index"].has-scenes .hm-close__coin { --da-w: clamp(90px, 16svh, 170px); } }
+
+/* "Nobody gets 100%": the line set large, the caveat beside it */
+@media (min-width: 960px) {
+  [data-page="index"].has-scenes .hm-ledger__notes { grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr); align-items: end; column-gap: clamp(40px, 5vw, 96px); }
+  [data-page="index"].has-scenes .hm-ledger__notes .h-s { font-size: clamp(34px, min(3vw + 10px, 7.4svh), 64px); line-height: 1.06; letter-spacing: -.03em; max-width: 17ch; }
+  [data-page="index"].has-scenes .hm-ledger__notes .callout p { font-size: var(--fs-lede); line-height: 1.5; }
+  [data-page="index"].has-scenes .hm-timeline .timeline__what { max-width: 16ch; }
+}
+/* desktop: the hero drop sits beside the copy, never under the headline */
+@media (min-width: 960px) {
+  [data-page="index"].has-scenes .hm-hero__coin { grid-row: 3; align-self: center; margin-bottom: 0; }
+  [data-page="index"].has-scenes .hm-hero__coin .dollar-anchor { --da-w: clamp(240px, min(26vw, 36svh), 420px); }
+}
+/* "Follow one dollar": the drop rests in the frame, below-right of the headline */
+[data-page="index"] .hm-follow__intro { position: relative; }
+[data-page="index"] .hm-follow__coin { --da-w: clamp(110px, min(19svh, 40vw), 170px); margin: 0 auto clamp(16px, 3.4svh, 32px); }
+@media (min-width: 960px) {
+  [data-page="index"] .hm-follow__coin { position: absolute; right: 0; bottom: calc(var(--scene-pb, 48px) + 2svh); --da-w: clamp(220px, min(22vw, 34svh), 340px); margin: 0; }
+}
+
+/* ---------- phones: every scene fits one screen ---------- */
+@media (max-width: 719px) {
+  [data-page="index"].has-scenes .hm-hero__h { font-size: clamp(38px, min(11.4vw, 7svh), 64px); }
+  [data-page="index"].has-scenes .hm-fact__num { font-size: clamp(32px, min(9.4vw, 5.6svh), 52px); }
+  [data-page="index"].has-scenes .hm-facts__list { gap: clamp(12px, 2.2svh, 24px); margin-top: clamp(12px, 2svh, 22px); }
+  [data-page="index"].has-scenes .hm-fact { padding-top: clamp(10px, 1.6svh, 18px); }
+  [data-page="index"].has-scenes .hm-facts__close { margin-top: clamp(12px, 2.2svh, 24px); }
+  [data-page="index"].has-scenes .hm-step__title { font-size: clamp(38px, min(11vw, 7svh), 60px); }
+  [data-page="index"] .hm-step__title { width: fit-content; }
+  [data-page="index"] .hm-step > .hm-step__text { grid-area: 1 / 1; }
+  /* the ledger: the map, then the card, each its own scene */
+  /* programs: a 2 x 2 of compact cards, then the method on its own */
+  [data-page="index"].has-scenes .hm-programs__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  [data-page="index"].has-scenes .hm-prog { --pad: 16px; gap: 6px; }
+  [data-page="index"].has-scenes .hm-prog .dots { width: min(100%, 13svh); margin: 0 auto 4px; }
+  [data-page="index"].has-scenes .hm-prog .card__title { font-size: clamp(19px, 5.4vw, 24px); }
+  [data-page="index"].has-scenes .hm-prog p { font-size: 14.5px; line-height: 1.42; }
+  [data-page="index"].has-scenes .hm-programs__how { margin-top: 0; font-size: clamp(22px, min(6.4vw, 3.6svh), 30px); line-height: 1.3; color: var(--fg); }
+  /* the people: up top, the static logo panel under the line; then leadership three a screen */
+  [data-page="index"].has-scenes .hm-people__intro.is-scene { justify-content: flex-start; }
+  [data-page="index"] .hm-people .section-head > .h-l { padding-right: 96px; }
+  [data-page="index"].has-scenes .hm-people .section-head { margin-bottom: clamp(16px, 3svh, 28px); }
+  [data-page="index"].has-scenes .hm-team-m .hm-people__more { margin-top: clamp(16px, 3svh, 28px); }
+  [data-page="index"].has-scenes .hm-people__more { margin-top: clamp(10px, 2svh, 22px); }
+  [data-page="index"].has-scenes .hm-now .h-l { margin-bottom: clamp(20px, 4svh, 40px); }
+  [data-page="index"].has-scenes .hm-timeline { gap: clamp(16px, 3svh, 30px); }
+  /* close: the promise, then the form */
+  [data-page="index"].has-scenes .hm-close .scene-m.is-scene { align-items: center; text-align: center; }
+  [data-page="index"].has-scenes .hm-close__join { margin-top: 0; }
+}
+[data-page="index"] .hm-gov-sec .container { min-height: 100%; display: flex; align-items: center; }
+[data-page="index"] .hm-gov { max-width: 980px; }
+[data-page="index"] .hm-gov-sec .container { position: relative; }
+[data-page="index"] .hm-gov__drop { position: absolute; right: clamp(16px, 4vw, 48px); bottom: 12%; width: clamp(110px, 14vw, 200px); aspect-ratio: 1; }
+@media (max-width: 767px) {
+  [data-page="index"].has-scenes .hm-gov-sec.is-scene { justify-content: flex-start; }
+  [data-page="index"] .hm-gov-sec .container { flex: 1 1 auto; flex-direction: column; align-items: stretch; min-height: 0; }
+  [data-page="index"] .hm-gov { margin-top: clamp(4px, 2svh, 24px); }
+  [data-page="index"] .hm-gov__drop { position: relative; right: auto; top: auto; bottom: auto; width: clamp(110px, min(34vw, 21svh), 170px); margin: auto; }
+}
+[data-page="index"] .hm-gov__text { text-wrap: balance; }
+/* "It isn't just charities": a whole-block reveal, not split-lines. SplitText's line split
+   (inline-block words, balanced wrap) breaks the lines a little differently from the plain
+   paragraph on iOS, so when the split reverted ~2s in, the block re-wrapped and jumped.
+   A block fade-up keeps the final layout from the first frame. A touch smaller on phones. */
+@media (max-width: 767px) { [data-page="index"] .hm-gov__text { font-size: clamp(23px, min(7vw, 4.4svh), 34px); line-height: 1.06; } }
+[data-page="index"] .hm-facts__ny { margin: 6px 0 10px; }
+@media (max-height: 780px) and (max-width: 767px) { [data-page="index"] .hm-facts__ny { margin: 0 0 4px; } [data-page="index"].has-scenes .hm-facts__list { gap: 10px; } [data-page="index"] .hm-facts__lead { margin-bottom: 4px; } [data-page="index"] .hm-fact__num { font-size: clamp(26px, 8vw, 34px) !important; } [data-page="index"] .hm-facts__close { font-size: 18px !important; } }
+@media (min-width: 1024px) { [data-page="index"] .person__bio { line-height: 1.45; } [data-page="index"] .team-grid { row-gap: clamp(16px, 2.2vh, 28px); } }
+@media (max-width: 719px) { [data-page="index"] .hm-people .section-head { display: flex; flex-direction: column; } [data-page="index"] .hm-people .section-head > .hm-people__orbit { position: relative; top: auto; right: auto; order: -1; align-self: center; --da-w: clamp(84px, 22svh, 140px); margin: 0 0 clamp(8px, 2svh, 18px); } }
+@media (max-width: 719px) and (max-height: 780px) { [data-page="index"] .hm-people .section-head > .hm-people__orbit { --da-w: 64px; margin-bottom: 4px; } [data-page="index"] .hm-people .lede { font-size: 15px; line-height: 1.45; } [data-page="index"] .hm-people .logo-panel__grid li { height: 28px; } [data-page="index"] .hm-people .logo-panel { padding-block: 14px; gap: 10px; } }
+
+/* ---------- layout round (2026-10-11) ---------- */
+/* hero on phones: the copy sits a little lower, one calmer CTA, room to breathe */
+@media (max-width: 719px) {
+  [data-page="index"].has-scenes .hm-hero { padding-top: calc(var(--nav-h) + clamp(18px, 4.6svh, 44px)); }
+  [data-page="index"].has-scenes .hm-hero__body { margin-top: clamp(18px, 3svh, 30px); gap: clamp(20px, 3.4svh, 32px); }
+  [data-page="index"] .hm-hero .btn--lg { --h: 52px; font-size: 15.5px; padding: 0 1.75em; }
+  [data-page="index"] .hm-hero__tag { margin-top: -4px; }
+}
+/* programs: bigger illustrations */
+[data-page="index"].has-scenes .hm-prog .dots { width: min(calc(100% + var(--pad) * .8), 31svh); }
+@media (max-width: 719px) {
+  [data-page="index"].has-scenes .hm-prog .dots { width: min(100%, 16.5svh); margin: -4px auto 2px; }
+}
+/* "No guessing" (phones): the county map rests behind and above the line, like "Tell me when" */
+[data-page="index"] .hm-guess__map { display: none; }
+@media (max-width: 719px) {
+  [data-page="index"] .hm-guess__map { display: block; width: calc(100% + 24px); margin: 0 -12px clamp(-64px, -7svh, -36px); opacity: .55; pointer-events: none; }
+  [data-page="index"] .hm-guess__map + .hm-programs__how { position: relative; z-index: 1; }
+}
+/* ---- liquid round (Oct 11): drop anchors only ---- */
+/* the mission: the liquid hiker. Desktop: in the free space right of the headline; stacked: above the eyebrow */
+[data-page="index"] .hm-code { --da-w: clamp(120px, min(40vw, 22svh), 200px); margin: 0 auto clamp(16px, 3svh, 28px); flex: none; }
+@media (min-width: 720px) {
+  [data-page="index"] .hm-ledger .section-head--split { align-items: end; }
+  [data-page="index"] .hm-code { position: absolute; --da-w: clamp(220px, min(20vw, 32svh), 310px); width: var(--da-w); right: calc(21% - var(--da-w) / 2); top: 50%; transform: translateY(calc(-100% - 28px)); margin: 0; }
+}
+[data-page="index"] .hm-hike { --da-w: clamp(104px, min(34vw, 19svh), 170px); margin: 0 auto clamp(16px, 3svh, 28px); flex: none; }
+@media (min-width: 960px) {
+  [data-page="index"] .hm-hike { position: absolute; right: 0; top: 50%; transform: translateY(-50%); --da-w: clamp(240px, min(25vw, 40svh), 380px); margin: 0; }
+}
+/* New York alone (stacked): the face lands higher (data-dollar-shift); the text block takes up the space */
+@media (max-width: 959px) {
+  [data-page="index"].has-scenes .hm-facts > div:first-child { position: relative; top: -12px; }
+}
+</style>
+
+<!-- ============================ 1 · HERO ============================ -->
+<section class="section section--hero hm-hero" data-theme="dark" id="top" data-scene data-scene-name="Charity is broken">
+  <span class="glow" style="--x:76%;--y:62%;--size:80vmax;--o:.85" aria-hidden="true"></span>
+  <span class="glow glow--gold" style="--x:6%;--y:104%;--size:52vmax;--o:.2;--t:30s" aria-hidden="true"></span>
+  <div class="dots dots--bg hm-hero__field" data-dots="field" data-dots-color="paper" data-dots-density="0.8" aria-hidden="true"></div>
+  <div class="container hm-hero__grid">
+    <h1 class="h-display hm-hero__h" data-reveal="split-lines">Charity is broken.<br> <span class="hl">So we built...</span></h1>
+    <div class="hm-hero__body">
+      <p class="lede" data-reveal="up" data-delay=".35">The world's most efficient and transparent non-profit to ever exist, where every dollar is tracked to what it did. Live. In public.</p>
+      <div class="btn-row" data-reveal="up" data-delay=".5">
+        <a class="btn btn--primary btn--lg" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+      </div>
+      <p class="mono-label hm-hero__tag" data-reveal="fade" data-delay=".75">Aid, delivered.</p>
+    </div>
+    <div class="hm-hero__coin">
+      <div class="dollar-anchor" data-dollar="spin" data-dollar-size="hero"></div>
+    </div>
+  </div>
+  <div class="hm-cue" aria-hidden="true"></div>
+</section>
+
+<!-- ============================ 2 · THE PROBLEM ============================ -->
+<section class="section hm-problem" data-theme="dark" id="problem">
+  <span class="glow" style="--x:84%;--y:72%;--size:70vmax;--o:.5;--t:26s" aria-hidden="true"></span>
+  <div class="hm-count" id="hm-count" data-scene data-scene-steps="2" data-scene-name="The problem">
+    <div class="container hm-count__inner">
+      <div class="hm-count__a">
+        <p class="eyebrow" data-reveal="fade">01 · The problem</p>
+        <div class="hm-count__nw">
+          <p class="hm-count__num" data-reveal="count" data-count-to="617200000000" data-count-format="currency" data-count-style="roll" data-start="top 80%">$617,200,000,000</p>
+          <div class="dollar-anchor hm-count__ex" data-dollar="exclaim" data-dollar-size="1"></div>
+        </div>
+        <p class="hm-count__cap" data-reveal="up" data-delay=".4">Given by Americans last year. Up 5%.</p>
+      </div>
+      <div class="hm-count__b">
+        <p class="h-l hm-count__stop">And millions of people stopped giving.</p>
+        <p class="hm-fall"><span class="hm-fall__num">3.6%</span> <span class="hm-fall__txt">fewer donors. Fourth year running.</span></p>
+        <div class="dollar-anchor hm-count__an" data-dollar="shocked" data-dollar-size="feature" data-dollar-size-mobile="companion" data-dollar-pin-at=".9" data-dollar-media="(min-width: 960px) and (pointer: fine)"></div>
+        <div class="dollar-anchor hm-count__an-m" data-dollar="shocked" data-dollar-size="1" data-dollar-hold="1.6" data-dollar-when=".hm-count__stop" data-dollar-media="not all and (min-width: 960px) and (pointer: fine)" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section hm-trust-sec" data-theme="dark" data-scene data-scene-name="They stopped trusting">
+  <div class="container">
+    <h2 class="h-l hm-trust" data-reveal="split-lines">They didn't want to stop helping. They stopped trusting the institutions.</h2>
+    <div class="dollar-anchor hm-trust__drop" data-dollar="frown" data-dollar-size="feature"></div>
+  </div>
+</section>
+
+<section class="section hm-facts-sec" data-theme="dark" data-scene data-scene-name="What they found">
+  <div class="container">
+    <div class="hm-facts">
+      <div>
+        <p class="hm-facts__lead" data-reveal="up">Because they found out things like..</p>
+        <p class="eyebrow hm-facts__ny" data-reveal="fade">In New York alone:</p>
+        <div class="hm-facts__list">
+          <div class="hm-fact" data-slam>
+            <p class="hm-fact__num">$187 million.</p>
+            <p class="hm-fact__cap">Four cancer charities. Sued by the FTC and all fifty states.</p>
+          </div>
+          <div class="hm-fact" data-slam>
+            <p class="hm-fact__num">86 cents of every dollar.</p>
+            <p class="hm-fact__cap">Paid to the fundraisers in many cases.</p>
+          </div>
+        </div>
+        <p class="hm-facts__close" data-slam>Every one of them looked legitimate but they wasted the money that was meant to help.</p>
+      </div>
+      <div class="hm-facts__visual">
+        <div class="dollar-anchor" data-dollar="shocked" data-dollar-size="feature" data-dollar-size-mobile="1" data-dollar-glide data-dollar-shift="0,-.42" data-dollar-shift-media="(max-width: 959px)"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section hm-gov-sec" data-theme="dark" data-scene data-scene-name="It isn't just charities">
+  <div class="container">
+    <div class="hm-gov">
+      <p class="eyebrow" data-reveal="fade">It isn't just charities</p>
+      <p class="h-l hm-gov__text" data-reveal="up">The government's own auditors count roughly <span class="hl">$3 trillion</span> in improper payments since 2003. Every administration. Both parties. The machinery is the problem, not the people running it.</p>
+    </div>
+    <div class="dollar-anchor hm-gov__drop" data-dollar="leak" data-dollar-size="feature" data-dollar-size-mobile="companion" aria-hidden="true"></div>
+  </div>
+</section>
+
+<section class="section hm-gen-sec" data-theme="dark" data-scene data-scene-name="Delivery is broken">
+  <div class="dollar-anchor hm-gen__drop" data-dollar="underline" data-dollar-target="#hm-delivery" aria-hidden="true"></div>
+  <div class="container">
+    <div class="hm-gen">
+      <h2 class="h-xl" data-reveal="split-lines">Generosity isn't broken. <span class="hl" id="hm-delivery">Delivery is.</span></h2>
+      <a class="btn btn--link" href="/problem/" data-reveal="up"><span class="btn__label">Read the full problem</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 3 · THE TURN ============================ -->
+<!-- No data-theme here on purpose: home.js scrubs the dark-to-light flood across this stage. -->
+<section class="hm-turn" id="turn" aria-labelledby="hm-turn-h" data-scene data-scene-name="So we started over">
+  <div class="hm-turn__stage">
+    <div class="dollar-anchor hm-turn__coin" data-dollar="recycle" data-dollar-pre="leak" data-dollar-size="1"></div>
+    <span class="hm-turn__ring" aria-hidden="true"></span>
+    <h2 class="hm-turn__h" id="hm-turn-h">So we started over.</h2>
+  </div>
+</section>
+
+<!-- ============================ 4 · FOLLOW THE DOLLAR ============================ -->
+<section class="section hm-follow" data-theme="light" id="follow">
+  <div class="container">
+    <div class="hm-follow__intro scene-flex" data-scene data-scene-name="Follow one dollar">
+    <div class="dollar-anchor hm-follow__coin" data-dollar="people" data-dollar-size="feature" data-dollar-size-mobile="1" data-dollar-shift="0,-.22"></div>
+    <div class="section-head">
+      <p class="eyebrow" data-reveal="fade">02 · How it works</p>
+      <h2 class="h-xl" data-reveal="split-lines">We create a movement of the people.</h2>
+      <p class="lede" data-reveal="up">Millions of people pool together a dollar a day. It goes into a program created by experts backed by real data. And you watch it the whole way.</p>
+    </div>
+    </div>
+
+    <div class="hm-flow">
+      <ol class="hm-steps" data-progress data-progress-start="top 60%" data-progress-end="bottom 60%">
+        <li class="hm-step" data-scene data-scene-name="Fund">
+          <div class="hm-step__text">
+            <span class="hm-step__dot" aria-hidden="true"></span>
+            <h3 class="hm-step__title"><span class="hm-step__num">01 ·</span> Fund.</h3>
+            <p class="hm-step__body">Your dollar lands in a fund, alongside millions of others, with our partners' resources and capital too.</p>
+          </div>
+          <div class="hm-step__visual"><div class="dollar-anchor" data-dollar="dollar" data-dollar-size="feature"></div></div>
+        </li>
+        <li class="hm-step" data-scene data-scene-name="Operate">
+          <div class="hm-step__text">
+            <span class="hm-step__dot" aria-hidden="true"></span>
+            <h3 class="hm-step__title"><span class="hm-step__num">02 ·</span> Operate.</h3>
+            <p class="hm-step__body">We run it ourselves. If someone's already cracked the problem, we bring them in. We never hand off the money and walk away. We are a bunch of nerds dedicated to solving the problem with data, and love.</p>
+          </div>
+          <div class="hm-step__visual"><div class="dollar-anchor" data-dollar="galaxy" data-dollar-size="feature"></div></div>
+        </li>
+        <li class="hm-step" data-scene data-scene-name="Prove">
+          <div class="hm-step__text">
+            <span class="hm-step__dot" aria-hidden="true"></span>
+            <h3 class="hm-step__title"><span class="hm-step__num">03 ·</span> Prove.</h3>
+            <p class="hm-step__body">Every dollar on the record. What it funded. What it delivered. What it cost. Published as it happens on our public ledger, not a year later. We also video the progress, stream, and share weekly.</p>
+          </div>
+          <div class="hm-step__visual"><div class="dollar-anchor" data-dollar="shield" data-dollar-size="feature"></div></div>
+        </li>
+        <li class="hm-step" data-scene data-scene-name="Grow">
+          <div class="hm-step__text">
+            <span class="hm-step__dot" aria-hidden="true"></span>
+            <h3 class="hm-step__title"><span class="hm-step__num">04 ·</span> Grow.</h3>
+            <p class="hm-step__body">Proof spreads faster than promises. People see it work. They bring their people. More programs get funded.</p>
+          </div>
+          <div class="hm-step__visual"><div class="dollar-anchor" data-dollar="network" data-dollar-size="feature"></div></div>
+        </li>
+      </ol>
+      <div class="hm-loop" data-scene data-scene-name="The loop">
+        <div>
+          <p class="loop-line hm-loop__line" data-stagger="up" data-stagger-step=".14"><span>Programs create proof.</span> <span>Proof builds trust.</span> <span>Trust brings people.</span> <span>People fund programs.</span></p>
+          <a class="btn btn--link" href="/how-it-works/" data-reveal="up"><span class="btn__label">See how it works</span></a>
+        </div>
+        <div class="hm-step__visual"><div class="dollar-anchor" data-dollar="loop" data-dollar-size="feature"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 5 · THE LEDGER ============================ -->
+<section class="section hm-ledger" data-theme="light" id="ledger">
+  <div class="container">
+    <div class="scene-flex" data-scene data-scene-name="On the record">
+    <div class="dollar-anchor hm-code" data-dollar="code" data-dollar-glide aria-hidden="true"></div>
+    <div class="section-head section-head--split">
+      <div>
+        <p class="eyebrow" data-reveal="fade">03 · The proof</p>
+        <h2 class="h-xl" data-reveal="split-lines">Every dollar. On the record.</h2>
+      </div>
+      <p class="lede" data-reveal="up">Not an annual report we write about ourselves. A live ledger anyone can check. Including the parts that don't make us look good.</p>
+    </div>
+    </div>
+
+    <div class="lgx hm-lgx" data-ledger data-scene data-scene-steps="4" data-scene-name="The live ledger">
+      <div class="lgx__a" data-dollar="ambient"></div><!-- the rain throw is off: the opaque map card hides droplets drawn behind it -->
+      <div class="lgx__a lgx__a--1" data-dollar="ambient"></div>
+      <div class="lgx__a lgx__a--3" data-dollar="ambient"></div>
+      <!-- OPEN LEDGER STAGE. Include inside <div class="lgx" data-ledger data-scene data-scene-steps="4">.
+     Step 0: the drop rains onto the map. Steps 1-3: the three-window deck (Program register, Overview, Outcomes).
+     DOM order = shuffle order: the register is first so the flow lines land on its rows.
+     Behaviour: src/js/core/ledger.js. Look: src/css/ledger.css. All figures are example data. -->
+<div class="lgx__stage">
+  <div class="island lgx__island">
+    <div class="lgx__legend" aria-hidden="true"><i class="cat-food"></i><i class="cat-health"></i><i class="cat-opps"></i><i class="cat-infra"></i></div>
+    <div class="lgx__map" aria-hidden="true"><div class="lgx__mapbox"><div class="dots" data-dots="map" data-dots-color="paper"></div></div></div>
+    <svg class="lgx__flow" aria-hidden="true" focusable="false"></svg>
+
+    <div class="lgx__deckwrap">
+      <div class="lgx__deck" role="region" aria-label="Open Ledger, example data">
+
+        <!-- WINDOW 1 · PROGRAM REGISTER (in front first: the map flow lands on its rows) -->
+        <article class="lw lw--reg" aria-labelledby="lw-t-reg">
+          <div class="lw__shadow" aria-hidden="true"></div>
+          <div class="lw__glass">
+            <header class="lw__bar">
+              <span class="lw__lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <h3 class="lw__title" id="lw-t-reg">DAD · Open Ledger: Program register</h3>
+              <span class="lw__pill">Example data</span>
+            </header>
+            <div class="lw__body lw-reg">
+              <div class="lw-reg__head">
+                <p class="lw-reg__lede">The full register is downloadable as CSV. Any number here can be traced to a delivery record, a partner invoice and a verification timestamp.</p>
+                <button type="button" class="lw-ghost" aria-disabled="true"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v7.5m0 0 3-3m-3 3-3-3M3 12.5h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Export full register (CSV)</button>
+              </div>
+              <div class="lw-table" role="table" aria-label="Program register, example data">
+                <div class="lw-tr lw-tr--head" role="row"><span role="columnheader">Program</span><span role="columnheader">Deployed</span><span role="columnheader" class="lw-col-people">People reached</span><span role="columnheader">Verified outcomes</span><span role="columnheader">Status</span></div>
+                <div class="lw-tr" role="row" data-cat="food" style="--c: var(--red); --s: var(--cyan); --i: 0"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>Every Table Full</b><small>PRG-0114 · 38 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$6.42M</span></span><span role="cell" class="lw-num lw-col-people">884,210</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .97"></i></span><small>97% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Operating</span></span></div>
+                <div class="lw-tr" role="row" data-cat="opportunities" style="--c: var(--gold); --s: var(--cyan); --i: 1"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>Keep The Lights On</b><small>PRG-0221 · 29 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$5.18M</span></span><span role="cell" class="lw-num lw-col-people">412,880</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .99"></i></span><small>99% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Operating</span></span></div>
+                <div class="lw-tr" role="row" data-cat="health" style="--c: var(--cyan); --s: var(--cyan); --i: 2"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>Doors Not Waitlists</b><small>PRG-0308 · 22 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$3.96M</span></span><span role="cell" class="lw-num lw-col-people">168,430</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .94"></i></span><small>94% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Operating</span></span></div>
+                <div class="lw-tr" role="row" data-cat="infrastructure" style="--c: #F8F9FA; --s: var(--gold); --i: 3"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>Someone Picks Up</b><small>PRG-0402 · 31 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$2.87M</span></span><span role="cell" class="lw-num lw-col-people">641,090</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .91"></i></span><small>91% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Scaling</span></span></div>
+                <div class="lw-tr" role="row" style="--c: #1FA8A8; --s: var(--gold); --i: 4"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>Clinic Without Walls</b><small>PRG-0517 · 18 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$2.14M</span></span><span role="cell" class="lw-num lw-col-people">203,760</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .88"></i></span><small>88% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Scaling</span></span></div>
+                <div class="lw-tr" role="row" data-cat="food" style="--c: var(--red); --s: var(--red); --i: 5"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>First Paycheck</b><small>PRG-0623 · 12 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$1.44M</span></span><span role="cell" class="lw-num lw-col-people">61,340</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .76"></i></span><small>76% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Piloting</span></span></div>
+                <div class="lw-tr" role="row" data-cat="opportunities" style="--c: var(--gold); --s: var(--red); --i: 6"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>Rural Relay</b><small>PRG-0709 · 9 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$0.98M</span></span><span role="cell" class="lw-num lw-col-people">46,170</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .68"></i></span><small>68% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Piloting</span></span></div>
+              </div>
+            </div>
+          </div>
+          <div class="lw__dim" aria-hidden="true"></div>
+        </article>
+
+        <!-- WINDOW 2 · OVERVIEW -->
+        <article class="lw lw--ov" aria-labelledby="lw-t-ov">
+          <div class="lw__shadow" aria-hidden="true"></div>
+          <div class="lw__glass">
+            <header class="lw__bar">
+              <span class="lw__lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <h3 class="lw__title" id="lw-t-ov">DAD · Open Ledger: Overview</h3>
+              <span class="lw__pill">Example data</span>
+            </header>
+            <div class="lw__body lw-ov">
+              <div class="lw-ov__stats">
+                <div class="lw-stat" style="--c: var(--red)">
+                  <p class="lw-label">People helped</p>
+                  <p class="lw-big" data-roll>2,417,880</p>
+                  <p class="lw-desc">Unique individuals reached across 120 active programs.</p>
+                  <span class="lw-chip lw-chip--up"><span aria-hidden="true">▲</span> 84,110 this quarter</span>
+                </div>
+                <div class="lw-stat" style="--c: var(--gold)">
+                  <p class="lw-label">Meals funded</p>
+                  <p class="lw-big" data-roll>41.2M</p>
+                  <p class="lw-desc">Delivered through 214 food partners and 38 mobile pantries.</p>
+                  <span class="lw-chip lw-chip--up"><span aria-hidden="true">▲</span> 12.4% vs. last quarter</span>
+                </div>
+                <div class="lw-stat" style="--c: var(--cyan)">
+                  <p class="lw-label">Bills paid</p>
+                  <p class="lw-big" data-roll>$18.7M</p>
+                  <p class="lw-desc">Rent, utilities and medical arrears cleared at the source.</p>
+                  <span class="lw-chip lw-chip--up"><span aria-hidden="true">▲</span> $1.9M this quarter</span>
+                </div>
+                <div class="lw-stat" style="--c: #F8F9FA">
+                  <p class="lw-label">Traceable to outcome</p>
+                  <p class="lw-big" data-roll>100%</p>
+                  <p class="lw-desc">Every dollar carries a receipt. Unverified spend is published as unverified.</p>
+                  <span class="lw-chip lw-chip--ok">0 unreconciled records</span>
+                </div>
+              </div>
+              <dl class="lw-meta">
+                <div><dt>Ledger opened</dt><dd>04 Jan 2027</dd></div>
+                <div><dt>Last write</dt><dd><i class="lw-live" aria-hidden="true"></i>4s ago</dd></div>
+                <div><dt>Independent audits</dt><dd>7 of 7 passed</dd></div>
+                <div><dt>Records published</dt><dd>1,284,006</dd></div>
+              </dl>
+            </div>
+          </div>
+          <div class="lw__dim" aria-hidden="true"></div>
+        </article>
+
+        <!-- WINDOW 3 · OUTCOMES -->
+        <article class="lw lw--out" aria-labelledby="lw-t-out">
+          <div class="lw__shadow" aria-hidden="true"></div>
+          <div class="lw__glass">
+            <header class="lw__bar">
+              <span class="lw__lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <h3 class="lw__title" id="lw-t-out">DAD · Open Ledger: Outcomes</h3>
+              <span class="lw__pill">Example data</span>
+            </header>
+            <div class="lw__body lw-out">
+              <div class="lw-out__grid">
+                <div class="lw-oc" style="--c: var(--gold)">
+                  <p class="lw-label">Medical arrears cleared</p>
+                  <p class="lw-big" data-roll>$4.1M</p>
+                  <p class="lw-desc">Hospital and clinic balances paid at the source for 9,870 households, confirmed with the billing provider.</p>
+                  <div class="lw-spark" aria-hidden="true"><i style="--h:.2"></i><i style="--h:.27"></i><i style="--h:.31"></i><i style="--h:.4"></i><i style="--h:.46"></i><i style="--h:.55"></i><i style="--h:.62"></i><i style="--h:.71"></i><i style="--h:.83"></i><i style="--h:.96"></i></div>
+                  <p class="lw-method"><b>Method ·</b> Provider-confirmed balance · 22 hospital systems</p>
+                </div>
+                <div class="lw-oc" style="--c: var(--gold)">
+                  <p class="lw-label">Households food-secure at 6 months</p>
+                  <p class="lw-big" data-roll>78%</p>
+                  <p class="lw-desc">Up from 41% at intake. Measured by USDA six-item short form, n=18,442 households.</p>
+                  <div class="lw-spark" aria-hidden="true"><i style="--h:.38"></i><i style="--h:.41"></i><i style="--h:.47"></i><i style="--h:.5"></i><i style="--h:.57"></i><i style="--h:.61"></i><i style="--h:.66"></i><i style="--h:.72"></i><i style="--h:.75"></i><i style="--h:.8"></i></div>
+                  <p class="lw-method"><b>Method ·</b> USDA HFSSM short form · Quarterly resurvey</p>
+                </div>
+                <div class="lw-oc" style="--c: var(--red)">
+                  <p class="lw-label">Eviction filings avoided</p>
+                  <p class="lw-big" data-roll>14,206</p>
+                  <p class="lw-desc">Cases where an arrears payment cleared before a filing date, confirmed against county court records.</p>
+                  <div class="lw-spark" aria-hidden="true"><i style="--h:.14"></i><i style="--h:.22"></i><i style="--h:.3"></i><i style="--h:.35"></i><i style="--h:.44"></i><i style="--h:.52"></i><i style="--h:.6"></i><i style="--h:.7"></i><i style="--h:.84"></i><i style="--h:.94"></i></div>
+                  <p class="lw-method"><b>Method ·</b> County court record match · 92% match confidence</p>
+                </div>
+                <div class="lw-oc" style="--c: var(--cyan)">
+                  <p class="lw-label">Utility reconnections held 12 months</p>
+                  <p class="lw-big" data-roll>91%</p>
+                  <p class="lw-desc">Households still connected one year after a Keep The Lights On payment, verified with the utility.</p>
+                  <div class="lw-spark" aria-hidden="true"><i style="--h:.5"></i><i style="--h:.55"></i><i style="--h:.6"></i><i style="--h:.63"></i><i style="--h:.7"></i><i style="--h:.74"></i><i style="--h:.79"></i><i style="--h:.84"></i><i style="--h:.88"></i><i style="--h:.93"></i></div>
+                  <p class="lw-method"><b>Method ·</b> Utility-confirmed account status · 14 providers</p>
+                </div>
+              </div>
+              <div class="lw-pages" aria-hidden="true"><i class="is-on"></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+          <div class="lw__dim" aria-hidden="true"></div>
+        </article>
+
+      </div>
+      <p class="lgx__note">Example data for illustration only. DAD's first programs go live in June 2027; the live ledger publishes real records from then.</p>
+    </div>
+  </div>
+</div>
+
+    </div>
+
+    <div class="hm-ledger__end scene-flex" data-scene data-scene-name="What we'll show">
+    <div class="dollar-anchor hm-ledger__amb" data-dollar="ambient" style="position:absolute;width:2px;height:100svh;margin:0;pointer-events:none" aria-hidden="true"></div>
+    <div class="grid-2 hm-ledger__notes">
+      <p class="h-s" data-reveal="split-lines">Nobody gets 100% of your dollar to the work. We'll show you exactly how much did, and where the rest went.</p>
+      <div class="callout c-gold" data-reveal="up">
+        <p><strong>We have been strategically planning.</strong> Our first programs go live in June 2027. So we're publishing the standard we'll be judged against now, so you know what to expect.</p>
+      </div>
+    </div>
+    <a class="btn btn--link" href="/proof/" data-reveal="up"><span class="btn__label">See what we'll publish</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 6 · WHERE IT GOES ============================ -->
+<section class="section hm-programs" data-theme="light" id="programs">
+  <div class="container">
+    <div class="hm-programs__head scene-flex" data-scene data-scene-name="Our mission">
+      <div class="dollar-anchor hm-hike" data-dollar="hiker" data-dollar-glide aria-hidden="true"></div>
+      <p class="eyebrow" data-reveal="fade">04 · Programs</p>
+      <h2 class="h-display hm-mission" data-reveal="split-lines">Our mission: <span class="hl">end human suffering.</span></h2>
+      <p class="lede" data-reveal="up">Big? Yes. That's the point. We start where it's concrete.</p>
+    </div>
+    <div class="hm-programs__body scene-flex" data-scene data-scene-media="(min-width: 720px)" data-scene-name="Programs">
+    <div class="scene-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Programs">
+    <div class="grid-4 hm-programs__grid">
+      <article class="card card--hover cat-food hm-prog">
+        <div class="dots" data-dots="food" data-dots-amp="1.6" data-dots-color="red" aria-hidden="true"></div>
+        <h3 class="card__title">Food.</h3>
+        <p>That's actually healthy, and plenty of it.</p>
+      </article>
+      <article class="card card--hover cat-health hm-prog">
+        <div class="dots" data-dots="health" data-dots-amp="1.6" data-dots-color="cyan" aria-hidden="true"></div>
+        <h3 class="card__title">Health.</h3>
+        <p>Everyone should have access to helpful &amp; holistic treatments. Not bandaids, lifelong transformation.</p>
+      </article>
+      <article class="card card--hover cat-opps hm-prog">
+        <div class="dots" data-dots="opportunities" data-dots-amp="1.6" data-dots-color="gold" aria-hidden="true"></div>
+        <h3 class="card__title">Opportunities.</h3>
+        <p>Skills. Jobs. Stability. A way out forever.</p>
+      </article>
+      <article class="card card--hover cat-infra hm-prog">
+        <div class="dots" data-dots="infrastructure" data-dots-amp="1.6" data-dots-color="teal" aria-hidden="true"></div>
+        <h3 class="card__title">Infrastructure.</h3>
+        <p>The ground a community stands on. Companies the workers own.</p>
+      </article>
+    </div>
+    </div>
+    <div class="scene-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="No guessing">
+    <div class="gi-map hm-guess__map" aria-hidden="true"><div class="dots" data-dots="map" data-dots-color="ink" data-dots-density="0.9" data-dots-arcs="off" style="--ar:1.86"></div></div>
+    <p class="lede hm-programs__how" data-reveal="up">No guessing. We map need across all <span class="hm-num" data-reveal="count" data-count-to="3144">3,144</span> counties in America across trillions of data points, bring in the people who've solved it before or know how, and execute at the speed of super intelligence.</p>
+      <div class="dollar-anchor hm-programs__hide" data-dollar="ambient"></div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 7 · THE PEOPLE ============================ -->
+<section class="section hm-people" data-theme="light" id="people">
+  <div class="container rel">
+    <div class="hm-people__intro scene-flex" data-scene data-scene-name="The people">
+      <div class="section-head section-head--split">
+        <h2 class="h-l" data-reveal="split-lines">This isn't a charity built by just charity people.</h2>
+        <p class="lede" data-reveal="up">It's built by people who've scaled technology, companies, brands and audiences. Now they're doing it for the people who need them most.</p>
+        <div class="dollar-anchor hm-people__orbit" data-dollar="orbit9" data-dollar-size="feature" data-dollar-size-mobile="companion"></div>
+      </div>
+      <div class="hide-mobile" data-reveal="fade"><div class="ticker" data-ticker>
+  <p class="ticker__label eyebrow">Our team comes from</p>
+  <div class="ticker__rows">
+    <div class="ticker__viewport">
+      <ul class="ticker__track" role="list">
+        <li><img src="/assets/logos/00-salesforce.png" alt="Salesforce" width="400" height="281" style="--h:41" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/01-hubspot.png" alt="HubSpot" width="298" height="109" style="--h:38" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/02-amazon.png" alt="Amazon" width="480" height="145" style="--h:32" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/03-intel.png" alt="Intel" width="288" height="190" style="--h:48" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/04-samsung.png" alt="Samsung" width="400" height="72" style="--h:22" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/05b-tiktok.svg" alt="TikTok" width="986" height="291" style="--h:33" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/05-snapchat.png" alt="Snapchat" width="342" height="104" style="--h:34" loading="lazy" decoding="async"></li>
+      </ul>
+    </div>
+    <div class="ticker__viewport ticker__viewport--rev">
+      <ul class="ticker__track" role="list">
+        <li><img src="/assets/logos/06-j-p-morgan.png" alt="J.P. Morgan" width="600" height="122" style="--h:30" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/07-mtv.png" alt="MTV" width="600" height="380" style="--h:40" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/08-netflix.png" alt="Netflix" width="600" height="163" style="--h:29" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/09-bloomberg.png" alt="Bloomberg" width="600" height="122" style="--h:28" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/12-pg.png" alt="P&amp;G" width="297" height="136" style="--h:32" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/10-dartmouth.png" alt="Dartmouth" width="552" height="129" style="--h:36" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/11-lockheed.png" alt="Lockheed Martin" width="756" height="104" style="--h:28" loading="lazy" decoding="async"></li>
+      </ul>
+    </div>
+  </div>
+  <button class="ticker__toggle" type="button" aria-pressed="false" aria-label="Pause logo ticker"><span aria-hidden="true"></span></button>
+</div>
+</div>
+      <div class="hide-desktop" data-reveal="fade"><!-- Static logo module (phones): a dark panel, white logos in a grid. Desktop keeps the ticker. -->
+<div class="logo-panel is-dark">
+  <p class="logo-panel__label">Our team comes from</p>
+  <ul class="logo-panel__grid" role="list">
+    <li><img src="/assets/logos/00-salesforce.png" alt="Salesforce" width="400" height="281" style="--h:41" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/01-hubspot.png" alt="HubSpot" width="298" height="109" style="--h:38" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/02-amazon.png" alt="Amazon" width="480" height="145" style="--h:32" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/03-intel.png" alt="Intel" width="288" height="190" style="--h:48" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/04-samsung.png" alt="Samsung" width="400" height="72" style="--h:22" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/05b-tiktok.svg" alt="TikTok" width="986" height="291" style="--h:33" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/05-snapchat.png" alt="Snapchat" width="342" height="104" style="--h:34" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/06-j-p-morgan.png" alt="J.P. Morgan" width="600" height="122" style="--h:30" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/07-mtv.png" alt="MTV" width="600" height="380" style="--h:40" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/08-netflix.png" alt="Netflix" width="600" height="163" style="--h:29" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/09-bloomberg.png" alt="Bloomberg" width="600" height="122" style="--h:28" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/12-pg.png" alt="P&amp;G" width="297" height="136" style="--h:32" loading="lazy" decoding="async"></li>
+    <li class="is-wide"><img src="/assets/logos/10-dartmouth.png" alt="Dartmouth" width="552" height="129" style="--h:40" loading="lazy" decoding="async"></li>
+    <li class="is-wide"><img src="/assets/logos/11-lockheed.png" alt="Lockheed Martin" width="756" height="104" style="--h:34" loading="lazy" decoding="async"></li>
+  </ul>
+</div>
+</div>
+    </div>
+    <div class="hm-team scene-flex" data-scene data-scene-media="(min-width: 720px)" data-scene-name="Leadership">
+      <h3 class="sr-only">Leadership</h3>
+      <ul class="team-grid team-grid--lead hide-mobile" role="list" data-stagger="up" data-stagger-step=".07">
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/chris-watley.webp" alt="Chris Watley" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Chris Watley</h3><p class="person__title">Founder &amp; CEO</p><p class="person__bio">A decade scaling companies: building and running teams of 100+, managing nationwide boots-on-the-ground operations, and being a father for 17 years.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/rabetanety-andri.webp" alt="Rabetanety Andri" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Rabetanety Andri</h3><p class="person__title">Chief Financial &amp; Operating Officer</p><p class="person__bio">18 years running finance and operations at Amazon, P&amp;G and 1inch.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/sean-coe.webp" alt="Sean Coe" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Sean Coe</h3><p class="person__title">Director of Technology</p><p class="person__bio">25 years across technology, product and cybersecurity. Founder, CTO, and co-inventor of two AI/ML technologies.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/lukasz-orlowski.webp" alt="Lukasz Orlowski" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Lukasz Orlowski</h3><p class="person__title">Director of AI</p><p class="person__bio">MIT Technology Review Innovator Under 35. Intel infrastructure; strategy for ventures valued over $1B.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/colin-fitzpatrick.webp" alt="Colin Fitzpatrick" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Colin Fitzpatrick</h3><p class="person__title">Director of Partnerships</p><p class="person__bio">Ecosystem strategy inside Oracle, Salesforce and HubSpot. AI-native builder; $10M+ raised.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/tim-kingery.webp" alt="Tim Kingery" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Tim Kingery</h3><p class="person__title">Director of Growth</p><p class="person__bio">13+ years leading marketing teams across startups, tech and a publicly traded agency.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/robbie-norris.webp" alt="Robbie Norris" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Robbie Norris</h3><p class="person__title">Director of Media</p><p class="person__bio">Award-winning filmmaker from MTV. Sundance-screened. Directed Jamie Foxx, Mark Wahlberg and Chris Pratt.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/burcu-paker.webp" alt="Burcu Paker" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Burcu Paker</h3><p class="person__title">Chief of Staff</p><p class="person__bio">Eight years as Chief of Staff, turning complex ideas into systems that scale: strategy, technology and execution.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/fang-zhang.webp" alt="Fang Zhang" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Fang Zhang</h3><p class="person__title">Lead Engineer</p><p class="person__bio">Full-stack at Amazon, TikTok and Snap, building systems that serve hundreds of millions of users.</p></div></li>
+      </ul>
+      <div class="scene-m hm-team-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Leadership">
+      <ul class="team-grid team-grid--lead team-m hide-desktop" role="list" data-stagger="up" data-stagger-step=".1">
+        <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/chris-watley.webp" alt="Chris Watley" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Chris Watley</h3><p class="person__title">Founder &amp; CEO</p></div></li>
+        <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/rabetanety-andri.webp" alt="Rabetanety Andri" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Rabetanety Andri</h3><p class="person__title">Chief Financial &amp; Operating Officer</p></div></li>
+        <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/sean-coe.webp" alt="Sean Coe" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Sean Coe</h3><p class="person__title">Director of Technology</p></div></li>
+      </ul>
+      </div>
+      <div class="scene-m hm-team-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Leadership, 2 of 3">
+      <ul class="team-grid team-grid--lead team-m hide-desktop" role="list" data-stagger="up" data-stagger-step=".1">
+        <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/lukasz-orlowski.webp" alt="Lukasz Orlowski" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Lukasz Orlowski</h3><p class="person__title">Director of AI</p></div></li>
+        <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/colin-fitzpatrick.webp" alt="Colin Fitzpatrick" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Colin Fitzpatrick</h3><p class="person__title">Director of Partnerships</p></div></li>
+        <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/tim-kingery.webp" alt="Tim Kingery" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Tim Kingery</h3><p class="person__title">Director of Growth</p></div></li>
+      </ul>
+      </div>
+      <div class="scene-m hm-team-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Leadership, 3 of 3">
+      <ul class="team-grid team-grid--lead team-m hide-desktop" role="list" data-stagger="up" data-stagger-step=".1">
+        <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/robbie-norris.webp" alt="Robbie Norris" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Robbie Norris</h3><p class="person__title">Director of Media</p></div></li>
+        <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/burcu-paker.webp" alt="Burcu Paker" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Burcu Paker</h3><p class="person__title">Chief of Staff</p></div></li>
+        <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/assets/team/fang-zhang.webp" alt="Fang Zhang" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Fang Zhang</h3><p class="person__title">Lead Engineer</p></div></li>
+      </ul>
+      <a class="btn btn--link hm-people__more hide-desktop" href="/team/"><span class="btn__label">Meet the team</span></a>
+      </div>
+      <a class="btn btn--link hm-people__more hide-mobile" href="/team/" data-reveal="up"><span class="btn__label">Meet the team</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 8 · WHERE WE ARE ============================ -->
+<section class="section hm-now" data-theme="light" id="now" data-scene data-scene-name="Where we are">
+  <div class="container">
+    <div class="dollar-anchor hm-amb" data-dollar="ambient"></div>
+    <h2 class="h-l" data-reveal="split-lines">Where we are. <span class="hl">Building at hyper-speed.</span></h2>
+    <ol class="timeline hm-timeline" data-progress data-progress-start="top 80%" data-progress-end="bottom 55%" data-stagger="up" data-stagger-step=".14">
+      <li class="timeline__item is-now"><span class="timeline__when">Now</span><p class="timeline__what">Giving is open. Building the platform. Designing the first programs. Founding team in place.</p></li>
+      <li class="timeline__item"><span class="timeline__when">January 2027</span><p class="timeline__what">The donor app opens. Bring your people.</p></li>
+      <li class="timeline__item"><span class="timeline__when">June 2027</span><p class="timeline__what">The first programs go live, and so does the public ledger.</p></li>
+    </ol>
+    <a class="btn btn--link" href="/building-in-public/" data-reveal="up"><span class="btn__label">Follow the build</span></a>
+  </div>
+</section>
+
+<!-- ============================ 9 · CLOSE ============================ -->
+<section class="section cta-band hm-close" data-theme="dark" id="close" data-scene data-scene-media="(min-width: 720px)" data-scene-name="Join us">
+  <span class="glow" style="--x:50%;--y:64%;--size:92vmax;--o:.6" aria-hidden="true"></span>
+  <span class="glow glow--gold" style="--x:16%;--y:20%;--size:40vmax;--o:.18;--t:28s" aria-hidden="true"></span>
+  <div class="container cta-band__inner">
+    <div class="scene-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Join us">
+    <div class="dollar-anchor hm-close__logo" data-dollar="logo" data-dollar-size="companion"></div>
+    <h2 class="h-l" data-reveal="split-lines">Our measure of success isn't how big DAD gets. It's how much less the world needs it.</h2>
+    <p class="lede" data-reveal="up">Built for everyone who stopped believing giving works. Come watch us prove you wrong.</p>
+    <div class="btn-row center" data-reveal="up" data-delay=".15">
+      <a class="btn btn--primary btn--lg" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+      <a class="btn btn--ghost btn--lg" href="/building-in-public/"><span class="btn__label">Get build updates</span></a>
+    </div>
+    </div>
+    <div class="scene-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Founding Donor">
+    <div class="hm-close__join">
+      <div class="dollar-anchor hm-close__coin" data-dollar="logo" data-dollar-size="1" data-dollar-media="(max-width: 719px)"></div>
+      <form class="form form--inline cta-band__form" id="hm-join" data-form="founding" data-reveal="up" action="/api/submit.php" method="post">
+        <div class="form__row">
+          <div class="field"><input class="field__input" id="hm-fn" name="first_name" type="text" autocomplete="given-name" placeholder=" " required><label class="field__label" for="hm-fn">First name</label></div>
+          <div class="field"><input class="field__input" id="hm-em" name="email" type="email" autocomplete="email" inputmode="email" placeholder=" " required><label class="field__label" for="hm-em">Email</label></div>
+          <button class="btn btn--primary" type="submit"><span class="btn__label">Join the Waitlist</span></button>
+        </div>
+        <p class="form__note">Ready now? <a href="/give/">Donate now</a>. Not yet? Join the waitlist before January and you're still a Founding Donor. One email a month, max. Unsubscribe any time.</p>
+      </form>
+    </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="footer is-dark" id="footer" data-theme="dark">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a class="footer__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+        <p class="footer__tag">DAD · Aid, delivered.</p>
+      </div>
+      <nav class="footer__nav" aria-label="Footer">
+        <a href="/about/">About</a>
+        <a href="/how-it-works/">How It Works</a>
+        <a href="/programs/">Programs</a>
+        <a href="/proof/">The Proof</a>
+        <a href="/team/">Team</a>
+        <a href="/building-in-public/">Building in Public</a>
+        <a href="/transparency/">Transparency</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/contact/">Contact</a>
+        <a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a>
+        <a href="/movement/#careers">Careers</a>
+      </nav>
+    </div>
+    <div class="footer__mark" aria-hidden="true"><div class="dollar-anchor dollar-anchor--fill" data-dollar="logo" data-dollar-size="fill"></div></div>
+    <p class="footer__big" aria-hidden="true" data-reveal="split-chars">Aid, delivered.</p>
+    <div class="footer__legal">
+      <p>Dynamic Aid Delivery, INC. is a Delaware non-stock corporation.</p>
+      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a></p>
+    </div>
+  </div>
+</footer>
+
+<a class="btn btn--primary mobile-cta" href="/movement/" id="mobile-cta"><span class="btn__label">Join the Movement</span></a>
+<div class="cookie is-dark" id="cookie" role="region" aria-label="Cookie notice" hidden>
+  <p class="cookie__text">We use basic analytics to see what's working. No ads. No selling.</p>
+  <div class="cookie__actions">
+    <button class="btn btn--primary btn--sm" type="button" data-consent="accept"><span class="btn__label">Accept</span></button>
+    <button class="btn btn--ghost btn--sm" type="button" data-consent="decline"><span class="btn__label">Decline</span></button>
+  </div>
+</div>
+
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
+<div class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

@@ -1,0 +1,693 @@
+{
+  "generated": "2026-08-11T19:37:49+00:00",
+  "registry": {
+    "groups": [
+      "Economic",
+      "Food",
+      "Hardship",
+      "Health",
+      "Housing",
+      "Safety",
+      "Supply",
+      "Water"
+    ],
+    "sources": [
+      {
+        "key": "acs",
+        "name": "Census ACS 5-Year Estimates",
+        "group": "Economic",
+        "publisher": "U.S. Census Bureau",
+        "landing_url": "https://www.census.gov/programs-surveys/acs",
+        "cadence": "Annual",
+        "cadence_days": 90,
+        "release_pattern": "5-year estimates for year N release in December of year N+1.",
+        "license": "Public domain (U.S. Government work)",
+        "native_geography": "County (and finer)",
+        "county_method": "native",
+        "caveats": [
+          "5-year estimates are a rolling average, not a snapshot. A county that changed sharply in the last year will look smoother than it really is.",
+          "Small-population counties carry wide margins of error. Treat a county under ~10,000 people as directional, not precise.",
+          "Connecticut replaced counties with planning regions in 2022; those FIPS codes differ from older datasets and will not join to some sources."
+        ],
+        "indicators": [
+          {
+            "key": "population",
+            "label": "Population",
+            "unit": "count",
+            "direction": "higher_is_worse",
+            "description": "Total resident population. Used as the denominator for most rates.",
+            "decimals": 0,
+            "scored": false
+          },
+          {
+            "key": "poverty_rate",
+            "label": "Poverty rate",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Share of people with income below the federal poverty level.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "child_poverty_rate",
+            "label": "Child poverty rate",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Share of people under 18 with income below the federal poverty level.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "median_household_income",
+            "label": "Median household income",
+            "unit": "dollars",
+            "direction": "higher_is_better",
+            "description": "Half of households earn more than this, half earn less.",
+            "decimals": 0,
+            "scored": true
+          },
+          {
+            "key": "rent_burden_rate",
+            "label": "Severe rent burden",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Share of renter households spending 50% or more of income on rent. The strongest single predictor of who falls into homelessness next.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "uninsured_rate",
+            "label": "Uninsured rate",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Share of the civilian population with no health insurance coverage.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "no_vehicle_rate",
+            "label": "Households without a vehicle",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Share of households with no car. Turns distance into a hard barrier - critical for judging whether aid can physically be reached.",
+            "decimals": 1,
+            "scored": true
+          }
+        ],
+        "requires_key": "CENSUS_API_KEY"
+      },
+      {
+        "key": "sdwis",
+        "name": "Safe Drinking Water Information System (SDWIS)",
+        "group": "Water",
+        "publisher": "U.S. Environmental Protection Agency",
+        "landing_url": "https://echo.epa.gov/tools/data-downloads",
+        "cadence": "Quarterly",
+        "cadence_days": 30,
+        "release_pattern": "Refreshed roughly quarterly; violation records lag reporting by months.",
+        "license": "Public domain (U.S. Government work)",
+        "native_geography": "Public water system (service area)",
+        "county_method": "Each active public water system's served population is split evenly across the counties it reports serving. County percentages are shares of the population served by public systems, not of all residents - private wells are outside SDWIS entirely.",
+        "caveats": [
+          "CRITICAL: this measures REPORTED violations, not water quality. A system that never tests reports no violations and appears clean. Under-resourced systems are exactly the ones most likely to under-report.",
+          "Covers regulated public water systems only. Private wells - about 13% of the U.S. population, concentrated in rural areas - are invisible here.",
+          "Water systems cross county lines. Systems serving multiple counties are attributed to their primary reported county, which overstates some counties and understates neighbours.",
+          "A health-based violation is not the same as unsafe water at the tap. It means a standard was exceeded at some point in the reporting window."
+        ],
+        "indicators": [
+          {
+            "key": "water_pop_health_violation_pct",
+            "label": "Population on a system with a health violation",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Share of the publicly-served population on a water system with a health-based violation in the last three years - a contaminant above the legal limit.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "water_lead_copper_violations",
+            "label": "Lead / copper exceedances",
+            "unit": "count",
+            "direction": "higher_is_worse",
+            "description": "Water systems in the county with a lead or copper action-level exceedance on record.",
+            "decimals": 0,
+            "scored": true
+          },
+          {
+            "key": "water_systems_in_violation",
+            "label": "Water systems in violation",
+            "unit": "count",
+            "direction": "higher_is_worse",
+            "description": "Number of public water systems in the county with any open violation.",
+            "decimals": 0,
+            "scored": true
+          },
+          {
+            "key": "water_serious_violator_pct",
+            "label": "Population on a serious-violator system",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Share of the publicly-served population on a system EPA flags as a serious violator - persistent, unresolved, or high-severity non-compliance.",
+            "decimals": 1,
+            "scored": true
+          }
+        ],
+        "requires_key": null
+      },
+      {
+        "key": "hud_pit",
+        "name": "HUD Point-in-Time Homeless Count",
+        "group": "Housing",
+        "publisher": "U.S. Department of Housing and Urban Development",
+        "landing_url": "https://www.hudexchange.info/programs/hdx/pit-hic/",
+        "cadence": "Annual",
+        "cadence_days": 120,
+        "release_pattern": "Counted on a single night each January. Published roughly the following December, so the freshest available figure is often 11-23 months old.",
+        "license": "Public domain (U.S. Government work)",
+        "native_geography": "Continuum of Care (CoC) - a multi-county service region",
+        "county_method": "CoC totals are allocated to member counties in proportion to population. This is an ESTIMATE, not a measurement.",
+        "caveats": [
+          "CRITICAL: the county figure is an allocation, not a count. HUD counts at CoC level. A CoC covering 12 rural counties reports one number, which we split by population - so the map will misplace people within a CoC.",
+          "A single-night January count systematically undercounts. It misses people doubled up, in cars in unsurveyed areas, and anyone avoiding the count.",
+          "Counting methodology varies by CoC and changes between years. Year-over-year movement in one CoC may reflect a method change, not a real change.",
+          "Rural CoCs have the weakest counting infrastructure and the largest undercount."
+        ],
+        "indicators": [
+          {
+            "key": "homeless_total",
+            "label": "People experiencing homelessness",
+            "unit": "count",
+            "direction": "higher_is_worse",
+            "description": "Estimated total sheltered plus unsheltered on the January count night.",
+            "decimals": 0,
+            "scored": true
+          },
+          {
+            "key": "homeless_rate_per_10k",
+            "label": "Homelessness rate",
+            "unit": "rate_per_10k",
+            "direction": "higher_is_worse",
+            "description": "People experiencing homelessness per 10,000 residents. Use this rather than the raw count when comparing counties of different sizes.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "unsheltered_pct",
+            "label": "Share unsheltered",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Of those counted, the share sleeping outside rather than in a shelter. A direct read on whether local shelter capacity is failing.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "homeless_children",
+            "label": "Children experiencing homelessness",
+            "unit": "count",
+            "direction": "higher_is_worse",
+            "description": "Estimated people under 18 in the count.",
+            "decimals": 0,
+            "scored": true
+          },
+          {
+            "key": "shelter_beds_per_100_homeless",
+            "label": "Shelter beds per 100 people",
+            "unit": "count",
+            "direction": "higher_is_better",
+            "description": "Year-round shelter beds available per 100 people counted as homeless. Below 100 means the local system cannot house everyone it counted.",
+            "decimals": 0,
+            "scored": true
+          }
+        ],
+        "requires_key": null
+      },
+      {
+        "key": "fbi_cde",
+        "name": "FBI Crime Data Explorer",
+        "group": "Safety",
+        "publisher": "Federal Bureau of Investigation",
+        "landing_url": "https://cde.ucr.cjis.gov/",
+        "cadence": "Annual",
+        "cadence_days": 90,
+        "release_pattern": "Prior-year national data lands in autumn; some agencies report monthly.",
+        "license": "Public domain (U.S. Government work)",
+        "native_geography": "Law enforcement agency jurisdiction",
+        "county_method": "Agency figures summed to the agency's county, divided by county population.",
+        "caveats": [
+          "CRITICAL: reporting is voluntary and coverage is uneven. The transition to NIBRS caused large agencies - including some of the biggest cities - to drop out in some years. A low crime rate may mean low crime OR no reporting. Always read the coverage percentage alongside the rate.",
+          "Agency jurisdictions do not align to county lines. State police and multi-jurisdiction agencies distort the rollup.",
+          "Reported crime measures what police record, which reflects policing intensity and community willingness to report as much as underlying crime.",
+          "Not appropriate for judging a community. Included to understand operating conditions for staff and volunteers, not to rank places as good or bad."
+        ],
+        "indicators": [
+          {
+            "key": "violent_crime_rate",
+            "label": "Violent crime rate",
+            "unit": "rate_per_100k",
+            "direction": "higher_is_worse",
+            "description": "Reported violent offences per 100,000 residents.",
+            "decimals": 0,
+            "scored": true
+          },
+          {
+            "key": "property_crime_rate",
+            "label": "Property crime rate",
+            "unit": "rate_per_100k",
+            "direction": "higher_is_worse",
+            "description": "Reported property offences per 100,000 residents.",
+            "decimals": 0,
+            "scored": true
+          },
+          {
+            "key": "crime_coverage_pct",
+            "label": "Reporting coverage",
+            "unit": "percent",
+            "direction": "higher_is_better",
+            "description": "Share of the county population covered by agencies that actually reported. Below ~70%, treat the crime rates as unreliable.",
+            "decimals": 1,
+            "scored": false
+          }
+        ],
+        "requires_key": "DATA_GOV_API_KEY"
+      },
+      {
+        "key": "usda_fara",
+        "name": "Food Access Research Atlas",
+        "group": "Food",
+        "publisher": "U.S. Department of Agriculture, Economic Research Service",
+        "landing_url": "https://www.ers.usda.gov/data-products/food-access-research-atlas/",
+        "cadence": "Irregular (roughly every 4-5 years)",
+        "cadence_days": 180,
+        "release_pattern": "Updated infrequently. Expect the published vintage to be several years old.",
+        "license": "Public domain (U.S. Government work)",
+        "native_geography": "Census tract",
+        "county_method": "Tract populations summed to county, then expressed as a county share.",
+        "caveats": [
+          "The published vintage is typically several years old. This is structural - USDA does not refresh it annually. State it plainly to funders.",
+          "'Low access' is defined by straight-line distance to a supermarket. It ignores whether a road, a bus route, or a safe walk actually exists.",
+          "Distance thresholds differ between urban (1 mile) and rural (10 miles) tracts, so urban and rural counties are not strictly comparable on this measure."
+        ],
+        "indicators": [
+          {
+            "key": "food_low_access_pct",
+            "label": "Low-income & low food access",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Share of residents who are both low-income and far from a supermarket. The standard federal definition of a food desert.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "food_low_access_no_vehicle_pct",
+            "label": "Low access with no vehicle",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Share far from a supermarket AND without a car. The sharpest food-insecurity signal on the map, and the clearest case for delivered aid.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "snap_participation_pct",
+            "label": "SNAP participation",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Share of households receiving SNAP (food stamp) benefits.",
+            "decimals": 1,
+            "scored": true
+          }
+        ],
+        "requires_key": null
+      },
+      {
+        "key": "cdc_places",
+        "name": "CDC PLACES - Health Outcomes",
+        "group": "Health",
+        "publisher": "Centers for Disease Control and Prevention",
+        "landing_url": "https://www.cdc.gov/places/",
+        "cadence": "Annual",
+        "cadence_days": 120,
+        "release_pattern": "Annual release, typically mid-year, based on survey data 1-2 years prior.",
+        "license": "Public domain (U.S. Government work)",
+        "native_geography": "County (modelled from BRFSS)",
+        "county_method": "native",
+        "caveats": [
+          "CRITICAL: these are MODEL-BASED estimates, not measurements. CDC uses national survey data plus local demographics to predict local rates. Two demographically similar counties can be assigned similar values even if reality differs.",
+          "Because the model leans on demographics, it can understate places whose outcomes are worse than their demographic profile predicts.",
+          "Adults only (18+). Children do not appear in this source.",
+          "188 of 3,144 counties are absent from the 2023 release entirely, mostly very small-population counties.",
+          "Not suitable for claiming a specific number of affected individuals in one county. Suitable for ranking and comparison."
+        ],
+        "indicators": [
+          {
+            "key": "health_poor_health_pct",
+            "label": "Fair or poor general health",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Adults self-reporting fair or poor overall health.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "health_diabetes_pct",
+            "label": "Diabetes prevalence",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Adults diagnosed with diabetes. Strongly linked to food access.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "health_mental_distress_pct",
+            "label": "Frequent mental distress",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Adults reporting 14 or more poor mental health days in the past month.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "health_depression_pct",
+            "label": "Depression",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Adults ever diagnosed with a depressive disorder.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "health_disability_pct",
+            "label": "Any disability",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Adults reporting any disability. Relevant to delivery design - a high share means aid must come to people, not the reverse.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "uninsured_adults_pct",
+            "label": "Uninsured adults (18-64)",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Adults aged 18-64 with no health insurance coverage.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "health_checkup_pct",
+            "label": "Routine checkup in past year",
+            "unit": "percent",
+            "direction": "higher_is_better",
+            "description": "Adults who saw a doctor for a routine checkup in the past year.",
+            "decimals": 1,
+            "scored": true
+          }
+        ],
+        "requires_key": null
+      },
+      {
+        "key": "cdc_sdoh",
+        "name": "CDC PLACES - Social Determinants of Health",
+        "group": "Hardship",
+        "publisher": "Centers for Disease Control and Prevention",
+        "landing_url": "https://www.cdc.gov/places/",
+        "cadence": "Annual",
+        "cadence_days": 120,
+        "release_pattern": "Released with the main PLACES file.",
+        "license": "Public domain (U.S. Government work)",
+        "native_geography": "County (modelled from BRFSS optional module)",
+        "county_method": "native",
+        "caveats": [
+          "CRITICAL - NINE STATES HAVE NO DATA AT ALL: Colorado, Florida, Oregon, South Dakota, Tennessee, Texas, Vermont, Washington, Wyoming. These questions are an OPTIONAL survey module and those states did not field it. Coverage is all-or-nothing per state, never partial. Texas and Florida are among the highest-need states in the country. Missing is NOT zero - never rank a county on these measures without checking coverage first.",
+          "Only 2,299 of 3,144 counties have any value (73%).",
+          "CRITICAL: these are MODEL-BASED estimates, not measurements. CDC uses national survey data plus local demographics to predict local rates. Two demographically similar counties can be assigned similar values even if reality differs.",
+          "Because the model leans on demographics, it can understate places whose outcomes are worse than their demographic profile predicts.",
+          "Adults only (18+). Children do not appear in this source.",
+          "188 of 3,144 counties are absent from the 2023 release entirely, mostly very small-population counties.",
+          "Not suitable for claiming a specific number of affected individuals in one county. Suitable for ranking and comparison."
+        ],
+        "indicators": [
+          {
+            "key": "food_insecurity_pct",
+            "label": "Food insecurity",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Adults who were food insecure in the past 12 months. A direct measure of the problem, not a distance proxy - the single best food indicator on the map where it exists.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "food_stamps_pct",
+            "label": "Received food stamps",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Adults who received SNAP benefits in the past 12 months.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "housing_insecurity_pct",
+            "label": "Housing insecurity",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Adults who experienced housing insecurity in the past 12 months. The upstream signal that predicts homelessness, rather than counting it a year after the fact.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "utility_shutoff_threat_pct",
+            "label": "Utility shut-off threat",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Adults threatened with utility shut-off in the past 12 months. The AFFORDABILITY side of water access - a household can sit inside a fully compliant water system and still have no water at the tap.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "no_transportation_pct",
+            "label": "No reliable transportation",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Adults who lacked reliable transportation in the past 12 months. Determines whether people can reach aid, or whether aid must reach them.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "no_social_support_pct",
+            "label": "Lacking social & emotional support",
+            "unit": "percent",
+            "direction": "higher_is_worse",
+            "description": "Adults reporting they rarely or never get the social support they need.",
+            "decimals": 1,
+            "scored": true
+          }
+        ],
+        "requires_key": null
+      },
+      {
+        "key": "irs_bmf",
+        "name": "IRS Exempt Organizations Business Master File",
+        "group": "Supply",
+        "publisher": "Internal Revenue Service",
+        "landing_url": "https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf",
+        "cadence": "Monthly",
+        "cadence_days": 30,
+        "release_pattern": "Refreshed monthly.",
+        "license": "Public domain (U.S. Government work)",
+        "native_geography": "Organization mailing address (ZIP code)",
+        "county_method": "ZIP code mapped to county via the HUD USPS crosswalk, weighted by residential ratio.",
+        "caveats": [
+          "CRITICAL: this is a MAILING ADDRESS, not a service area. A national charity headquartered in Manhattan counts toward New York County no matter where it actually delivers. This inflates dense metros and understates rural service.",
+          "Registration is not activity. Many listed organizations are dormant, tiny, or exist only on paper. Presence in the file does not mean anyone is being served.",
+          "Churches are not required to register and are frequently absent, which understates real service capacity in rural and Southern counties especially.",
+          "Read this as a rough proxy for organizational density, never as proof that a need is already being met. Verify on the ground before siting anything."
+        ],
+        "indicators": [
+          {
+            "key": "nonprofits_per_10k",
+            "label": "Nonprofits per 10,000 residents",
+            "unit": "rate_per_10k",
+            "direction": "higher_is_better",
+            "description": "Registered 501(c)(3) public charities per 10,000 residents.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "human_services_per_10k",
+            "label": "Human services orgs per 10,000",
+            "unit": "rate_per_10k",
+            "direction": "higher_is_better",
+            "description": "Food, housing, and human services charities per 10,000 residents (NTEE codes K, L, and P) - the organizations doing work like DAD's.",
+            "decimals": 1,
+            "scored": true
+          },
+          {
+            "key": "health_orgs_per_10k",
+            "label": "Health orgs per 10,000",
+            "unit": "rate_per_10k",
+            "direction": "higher_is_better",
+            "description": "Health-focused charities per 10,000 residents (NTEE codes E and F).",
+            "decimals": 1,
+            "scored": true
+          }
+        ],
+        "requires_key": null
+      }
+    ]
+  },
+  "manifest": {
+    "sources": {
+      "acs": {
+        "last_fetched": "2026-08-11T19:37:36+00:00",
+        "note": "Detail + subject tables; rent burden = renters paying 50%+ of income.",
+        "rows": 3222,
+        "status": "ok",
+        "vintage": "ACS 5-year 2019-2023"
+      },
+      "cdc_places": {
+        "coverage": {
+          "food_insecurity_pct": 2299,
+          "food_stamps_pct": 2299,
+          "health_checkup_pct": 2956,
+          "health_depression_pct": 2956,
+          "health_diabetes_pct": 2956,
+          "health_disability_pct": 2956,
+          "health_mental_distress_pct": 2956,
+          "health_poor_health_pct": 2956,
+          "housing_insecurity_pct": 2299,
+          "no_social_support_pct": 2299,
+          "no_transportation_pct": 2299,
+          "uninsured_adults_pct": 2956,
+          "utility_shutoff_threat_pct": 2299
+        },
+        "last_fetched": "2026-08-11T19:02:30+00:00",
+        "note": "13 measures, crude prevalence. Social determinants absent for 9 states: CO, FL, OR, SD, TN, TX, VT, WA, WY.",
+        "rows": 2956,
+        "sdoh_columns": [
+          "food_insecurity_pct",
+          "food_stamps_pct",
+          "housing_insecurity_pct",
+          "utility_shutoff_threat_pct",
+          "no_transportation_pct",
+          "no_social_support_pct"
+        ],
+        "sdoh_missing_states": [
+          "CO",
+          "FL",
+          "OR",
+          "SD",
+          "TN",
+          "TX",
+          "VT",
+          "WA",
+          "WY"
+        ],
+        "status": "ok",
+        "vintage": "PLACES 2023 release"
+      },
+      "geography": {
+        "last_fetched": "2026-08-11T18:47:50+00:00",
+        "note": "Census Population Estimates Program, vintage 2024",
+        "rows": 3144,
+        "status": "ok",
+        "vintage": "PEP 2024"
+      },
+      "geometry": {
+        "last_fetched": "2026-08-11T18:58:50+00:00",
+        "note": "3144 counties, 51 states. Territories excluded (not projectable by geoAlbersUsa).",
+        "rows": 3144,
+        "status": "ok",
+        "vintage": "Census cartographic boundaries 2024 (1:20m)"
+      },
+      "hud_pit": {
+        "last_fetched": "2026-08-11T19:24:22+00:00",
+        "note": "385 CoCs allocated to counties via 2017 crosswalk; 98.4% of national count allocated. County figures are population-weighted estimates, not counts.",
+        "rows": 3086,
+        "status": "ok",
+        "vintage": "PIT January 2024 (published Dec 2024)"
+      },
+      "irs_bmf": {
+        "last_fetched": "2026-08-11T19:26:52+00:00",
+        "note": "1,523,592 501(c)(3) organizations mapped to counties by mailing ZIP. Mailing address, not service area.",
+        "rows": 3144,
+        "status": "ok",
+        "vintage": "EO BMF snapshot, pulled 2026-08-11"
+      },
+      "sdwis": {
+        "last_fetched": "2026-08-11T19:20:41+00:00",
+        "note": "142022 active systems across 51 states. ",
+        "rows": 3079,
+        "status": "ok",
+        "vintage": "ECHO SDWA snapshot, pulled 2026-08-11"
+      }
+    }
+  },
+  "coverage": {
+    "population": 1.0,
+    "poverty_rate": 1.0,
+    "child_poverty_rate": 0.9994,
+    "median_household_income": 0.9994,
+    "rent_burden_rate": 1.0,
+    "uninsured_rate": 1.0,
+    "no_vehicle_rate": 1.0,
+    "water_pop_health_violation_pct": 0.9793,
+    "water_lead_copper_violations": 0.9793,
+    "water_systems_in_violation": 0.9793,
+    "water_serious_violator_pct": 0.9793,
+    "homeless_total": 0.979,
+    "homeless_rate_per_10k": 0.979,
+    "unsheltered_pct": 0.979,
+    "homeless_children": 0.979,
+    "health_poor_health_pct": 0.9402,
+    "health_diabetes_pct": 0.9402,
+    "health_mental_distress_pct": 0.9402,
+    "health_depression_pct": 0.9402,
+    "health_disability_pct": 0.9402,
+    "uninsured_adults_pct": 0.9402,
+    "health_checkup_pct": 0.9402,
+    "food_insecurity_pct": 0.7312,
+    "food_stamps_pct": 0.7312,
+    "housing_insecurity_pct": 0.7312,
+    "utility_shutoff_threat_pct": 0.7312,
+    "no_transportation_pct": 0.7312,
+    "no_social_support_pct": 0.7312,
+    "nonprofits_per_10k": 1.0,
+    "human_services_per_10k": 1.0,
+    "health_orgs_per_10k": 1.0
+  },
+  "missing_indicators": [
+    "shelter_beds_per_100_homeless",
+    "violent_crime_rate",
+    "property_crime_rate",
+    "crime_coverage_pct",
+    "food_low_access_pct",
+    "food_low_access_no_vehicle_pct",
+    "snap_participation_pct"
+  ],
+  "default_scored": [
+    "poverty_rate",
+    "child_poverty_rate",
+    "median_household_income",
+    "rent_burden_rate",
+    "uninsured_rate",
+    "no_vehicle_rate",
+    "water_pop_health_violation_pct",
+    "water_lead_copper_violations",
+    "water_systems_in_violation",
+    "water_serious_violator_pct",
+    "homeless_total",
+    "homeless_rate_per_10k",
+    "unsheltered_pct",
+    "homeless_children",
+    "health_poor_health_pct",
+    "health_diabetes_pct",
+    "health_mental_distress_pct",
+    "health_depression_pct",
+    "health_disability_pct",
+    "uninsured_adults_pct",
+    "health_checkup_pct",
+    "nonprofits_per_10k",
+    "human_services_per_10k",
+    "health_orgs_per_10k"
+  ],
+  "min_coverage_for_default": 0.9
+}

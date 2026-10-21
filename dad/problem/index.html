@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en" data-theme="dark" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Problem | DAD</title>
+<meta name="description" content="People didn't stop wanting to help. They stopped believing it worked. More money, fewer donors: a trust problem, and five leaks in how aid is delivered.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dynamicaid.org/problem/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DAD · Dynamic Aid Delivery">
+<meta property="og:title" content="The Problem | DAD">
+<meta property="og:description" content="People didn't stop wanting to help. They stopped believing it worked. More money, fewer donors: a trust problem, and five leaks in how aid is delivered.">
+<meta property="og:url" content="https://dynamicaid.org/problem/">
+<meta property="og:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Problem | DAD">
+<meta name="twitter:description" content="People didn't stop wanting to help. They stopped believing it worked. More money, fewer donors: a trust problem, and five leaks in how aid is delivered.">
+<meta name="theme-color" content="#0E1E1E">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/site.css?v=c2c7328da2">
+<script>
+/* boot flags: runs before first paint */
+(function(){
+  var h=document.documentElement; h.classList.remove('no-js'); h.classList.add('js');
+  var rm=false; try{rm=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  if(rm) h.classList.add('reduced');
+  var seen=false; try{seen=sessionStorage.getItem('dad-pl')==='1';}catch(e){}
+  if(seen||rm) h.classList.add('no-pl');
+  /* the cookie chip's strip is reserved from the first paint, so nothing jumps when it slides in */
+  var cc=null; try{cc=localStorage.getItem('dad-consent');}catch(e){}
+  if(!cc) h.classList.add('has-cookie');
+  /* never leave content hidden if the app fails to boot */
+  setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
+})();
+</script>
+<script defer src="/vendor/gsap.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/SplitText.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/lenis.min.js?v=c2c7328da2"></script>
+<script type="module" src="/js/app.js?v=c2c7328da2"></script>
+<!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
+     home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
+     fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
+<link rel="modulepreload" href="/js/core/util.js?v=c2c7328da2">
+</head>
+<body data-page="problem" data-mobile-cta="on">
+<a class="skip-link" href="#swap">Skip to content</a>
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__mark">
+    <svg viewBox="-43 -4 366 108" focusable="false">
+      <g class="pl-glyph"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
+      <g class="pl-glyph pl-g2"><path fill="#F8F9FA" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/></g>
+      <g class="pl-glyph pl-g3"><g transform="translate(280,0) scale(-1,1)"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g></g>
+      <g class="pl-bar pl-b1"><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g></g>
+      <g class="pl-bar pl-b2"><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></g>
+    </svg>
+  </div>
+  <div class="preloader__bar"><i></i></div>
+  <p class="preloader__tag">Aid, delivered.</p>
+</div>
+
+<div class="route-bar" id="route-bar" aria-hidden="true"><i></i></div>
+<div class="flood" id="flood" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true" tabindex="-1"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+    <nav class="nav__links" aria-label="Primary">
+      <a class="nav__link" href="/about/" data-nav><span class="nav__roll" data-text="About">About</span></a>
+      <a class="nav__link" href="/how-it-works/" data-nav><span class="nav__roll" data-text="How It Works">How It Works</span></a>
+      <a class="nav__link" href="/programs/" data-nav><span class="nav__roll" data-text="Programs">Programs</span></a>
+      <a class="nav__link" href="/proof/" data-nav><span class="nav__roll" data-text="The Proof">The Proof</span></a>
+      <a class="nav__link" href="/team/" data-nav><span class="nav__roll" data-text="Team">Team</span></a>
+      <a class="nav__link" href="/movement/" data-nav><span class="nav__roll" data-text="The Movement">The Movement</span></a>
+    </nav>
+    <a class="btn btn--primary btn--sm nav__cta" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+    <button class="nav__burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span></span><span></span></button>
+  </div>
+  <div class="nav__progress" aria-hidden="true"><i></i></div>
+</header>
+<div class="menu is-dark" id="menu" role="dialog" aria-modal="true" aria-label="Site menu" inert>
+  <div class="menu__bg" aria-hidden="true"></div>
+  <div class="menu__inner">
+    <nav class="menu__links" aria-label="Menu">
+      <a class="menu__link" href="/about/" data-nav><span class="menu__idx">01</span><span class="menu__txt">About</span></a>
+      <a class="menu__link" href="/how-it-works/" data-nav><span class="menu__idx">02</span><span class="menu__txt">How It Works</span></a>
+      <a class="menu__link" href="/programs/" data-nav><span class="menu__idx">03</span><span class="menu__txt">Programs</span></a>
+      <a class="menu__link" href="/proof/" data-nav><span class="menu__idx">04</span><span class="menu__txt">The Proof</span></a>
+      <a class="menu__link" href="/team/" data-nav><span class="menu__idx">05</span><span class="menu__txt">Team</span></a>
+      <a class="menu__link" href="/movement/" data-nav><span class="menu__idx">06</span><span class="menu__txt">The Movement</span></a>
+    </nav>
+    <div class="menu__cta"><a class="btn btn--primary btn--lg" href="/movement/"><span class="btn__label">Join the Movement</span></a></div>
+    <nav class="menu__foot" aria-label="More">
+      <a href="/building-in-public/">Building in Public</a><a href="/transparency/">Transparency</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a><a href="/movement/#careers">Careers</a>
+    </nav>
+    <p class="menu__tag">Aid, delivered.</p>
+  </div>
+</div>
+
+<main id="swap" data-page="problem" data-module="/js/pages/problem.js?v=c2c7328da2" data-scenes tabindex="-1">
+<!-- ============ HERO ============ -->
+<section class="section section--hero ph-hero" data-theme="dark" aria-labelledby="pb-title" data-scene data-scene-name="The problem">
+  <div class="dots dots--bg" data-dots="field" data-dots-color="paper" data-dots-density="0.8" aria-hidden="true"></div>
+  <span class="glow" style="--x:72%;--y:46%;--size:80vmax;--o:.85"></span>
+  <span class="glow glow--gold" style="--x:88%;--y:96%;--size:50vmax;--o:.25;--t:30s"></span>
+  <div class="container">
+    <div class="ph-hero__grid">
+      <div class="ph-hero__copy">
+        <p class="eyebrow" data-reveal="fade">The problem</p>
+        <h1 class="h-display ph-hero__h" id="pb-title" data-reveal="split-lines">People didn't stop wanting to help. <span class="hl">They stopped believing it worked.</span></h1>
+      </div>
+      <div class="ph-hero__coin">
+        <div class="dollar-anchor dollar-anchor--hero" data-dollar="exclaim"></div>
+      </div>
+    </div>
+    <span class="ph-cue" aria-hidden="true"><i></i></span>
+  </div>
+</section>
+
+<!-- ============ THE PARADOX ============ -->
+<section class="section ph-paradox" data-theme="dark" aria-label="The paradox" data-scene data-scene-name="The paradox">
+  <div class="container">
+    <div class="ph-para">
+      <div class="ph-para__row ph-para__row--up">
+        <div class="ph-para__txt">
+          <p class="ph-para__num" data-reveal="count" data-count-style="roll" data-count-to="617.2" data-count-decimals="1" data-count-format="currency" data-count-suffix=" billion.">$617.2 billion.</p>
+          <p class="ph-para__cap" data-reveal="up" data-delay=".25">Given by Americans last year. <span class="ph-tag ph-tag--up">Up 5%.</span></p>
+        </div>
+        <div class="ph-para__coin"><div class="dollar-anchor" data-dollar="spin" data-dollar-size=".82"></div></div>
+      </div>
+      <div class="ph-para__row ph-para__row--down">
+        <div class="ph-para__txt">
+          <p class="ph-para__num ph-para__num--down"><span class="ph-drop" data-reveal="drop">3.6%</span> <span class="ph-para__unit" data-reveal="fade" data-delay=".5">fewer donors.</span></p>
+          <p class="ph-para__cap" data-reveal="up" data-delay=".35">Fourth year in a row.</p>
+        </div>
+        <div class="ph-para__coin"><div class="dollar-anchor" data-dollar="crack" data-dollar-size=".82"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section ph-verdict" data-theme="dark" aria-label="A trust problem" data-scene data-scene-name="A trust problem">
+  <div class="container">
+    <div class="dollar-anchor ph-ghost" data-dollar="ambient"></div>
+    <p class="h-l ph-read ph-para__verdict" data-read>More money. Fewer people. That's not a generosity problem. <span class="hl">It's a trust problem.</span></p>
+  </div>
+</section>
+
+<!-- ============ WHY THEY LEFT ============ -->
+<section class="section ph-left" data-theme="dark" aria-label="Why they left">
+  <span class="glow" style="--x:12%;--y:30%;--size:70vmax;--o:.5;--t:26s"></span>
+  <div class="container">
+    <div class="ph-left__grid">
+      <div class="ph-left__aside">
+        <p class="ph-left__label" data-reveal="fade">In New York alone!</p>
+        <div class="ph-rail" aria-hidden="true">
+          <div class="dollar-anchor ph-stick" data-dollar="angry"></div>
+          <div class="dollar-anchor ph-stick" data-dollar="angry"></div>
+        </div>
+      </div>
+      <ol class="ph-facts ph-facts--1 scene-flex" role="list" data-scene data-scene-name="Why they left">
+        <li class="ph-fact">
+          <p class="ph-fact__lead"><span class="ph-fact__num" data-reveal="count" data-count-style="roll" data-count-to="85" data-count-format="currency">$85</span> <span class="ph-fact__rest">to raise every $100.</span></p>
+          <p class="ph-fact__txt">Two cancer charities in New York spent 85% of donations raising more donations.</p>
+        </li>
+        <li class="ph-fact">
+          <p class="ph-fact__lead"><span class="ph-fact__num" data-reveal="count" data-count-style="roll" data-count-to="104">104</span> <span class="ph-fact__rest">campaigns lost money.</span></p>
+          <p class="ph-fact__txt">In one year in New York, they cost more to run than they raised. More than $20 million, gone.</p>
+        </li>
+      </ol>
+      <ol class="ph-facts ph-facts--2 scene-flex" role="list" data-scene data-scene-name="Lost money">
+        <li class="ph-fact">
+          <p class="ph-fact__lead"><span class="ph-fact__num" data-reveal="count" data-count-style="roll" data-count-to="395" data-count-format="currency" data-count-suffix=" million">$395 million</span> <span class="ph-fact__rest">to fundraising companies.</span></p>
+          <p class="ph-fact__txt">One state. One year. They kept an average of 25 cents of every dollar.</p>
+        </li>
+        <li class="ph-fact">
+          <p class="ph-fact__lead"><span class="ph-fact__num" data-reveal="count" data-count-style="roll" data-count-to="86" data-count-suffix=" cents">86 cents</span> <span class="ph-fact__rest">of every dollar.</span></p>
+          <p class="ph-fact__txt">One national children's charity paid $109.8 million of the $127.8 million it raised to professional solicitors.</p>
+        </li>
+      </ol>
+      <ol class="ph-facts ph-facts--3 scene-flex" role="list" data-scene data-scene-name="Wasted">
+        <li class="ph-fact">
+          <p class="ph-fact__lead"><span class="ph-fact__num" data-reveal="count" data-count-style="roll" data-count-to="187" data-count-format="currency" data-count-suffix=" million.">$187 million.</span></p>
+          <p class="ph-fact__txt">Four cancer charities, sued by the FTC and all fifty states. Donations meant for patients paid for cars, cruises and tuition.</p>
+        </li>
+        <li class="ph-fact">
+          <p class="ph-fact__lead"><span class="ph-fact__num" data-reveal="count" data-count-style="roll" data-count-to="9" data-count-suffix=" cents.">9 cents.</span></p>
+          <p class="ph-fact__txt">At one charity, that's how much of each dollar of cash spending reached the programs.</p>
+        </li>
+      </ol>
+      <div class="ph-legit-wrap scene-flex" data-scene data-scene-name="Looked legitimate">
+        <h2 class="h-xl ph-legit" data-reveal="split-words">Every one of them looked <span class="ph-legit__w">legitimate.</span></h2>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ IT ISN'T JUST CHARITIES ============ -->
+<section class="section ph-gov" data-theme="dark" aria-label="It isn't just charities" data-scene data-scene-name="Not just charities">
+  <div class="container">
+    <div class="ph-gov__grid">
+      <p class="h-m ph-read ph-gov__text" data-read>The government's own auditors count roughly <span class="ph-gov__big">$3 trillion</span> in improper payments since 2003. Every administration. Both parties. <span class="hl">The machinery is the problem, not the people running it.</span></p>
+      <div class="ph-gov__coin"><div class="dollar-anchor" data-dollar="split"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE FIVE LEAKS ============ -->
+<section class="section section--flush-bottom ph-leaks-intro" data-theme="dark" aria-label="The five leaks" data-scene data-scene-name="The machinery">
+  <div class="container">
+    <p class="h-l ph-leaks-intro__h" data-reveal="split-lines">Nobody here is short of good intent. They're running machinery built before the internet. <span class="hl">And the machinery is where the money goes.</span></p>
+    <div class="dollar-anchor pb-leak-drop" data-dollar="leak"></div>
+  </div>
+</section>
+
+<section class="ph-leaks" data-theme="dark" aria-label="Five leaks" data-scene data-scene-name="Five leaks" data-scene-steps="5" data-scene-steps-media="(min-width: 960px) and (hover: hover) and (pointer: fine)">
+  <div class="ph-leaks__stage">
+    <div class="ph-leaks__track">
+      <article class="ph-leak">
+        <div class="ph-leak__art"><div class="dots" data-dots="leak-1" data-dots-color="red" aria-hidden="true"></div></div>
+        <div class="ph-leak__body">
+          <h3 class="ph-leak__title"><span class="ph-leak__idx">01 ·</span> Money moves slowly.</h3>
+          <p class="ph-leak__text">Layers of approval, reconciliation and reporting sit between your gift and the work.</p>
+        </div>
+      </article>
+      <article class="ph-leak">
+        <div class="ph-leak__art"><div class="dots" data-dots="leak-2" data-dots-color="red" aria-hidden="true"></div></div>
+        <div class="ph-leak__body">
+          <h3 class="ph-leak__title"><span class="ph-leak__idx">02 ·</span> Checking is expensive.</h3>
+          <p class="ph-leak__text">Confirming help arrived costs more than the help. So most organizations sample it, or skip it.</p>
+        </div>
+      </article>
+      <article class="ph-leak">
+        <div class="ph-leak__art"><div class="dots" data-dots="leak-3" data-dots-color="red" aria-hidden="true"></div></div>
+        <div class="ph-leak__body">
+          <h3 class="ph-leak__title"><span class="ph-leak__idx">03 ·</span> Overhead eats the dollar.</h3>
+          <p class="ph-leak__text">Structures built to raise money consume the money they raise.</p>
+        </div>
+      </article>
+      <article class="ph-leak">
+        <div class="ph-leak__art"><div class="dots" data-dots="leak-4" data-dots-color="red" aria-hidden="true"></div></div>
+        <div class="ph-leak__body">
+          <h3 class="ph-leak__title"><span class="ph-leak__idx">04 ·</span> Impact is reported, not shown.</h3>
+          <p class="ph-leak__text">An annual PDF, written by the people being judged.</p>
+        </div>
+      </article>
+      <article class="ph-leak">
+        <div class="ph-leak__art"><div class="dots" data-dots="leak-5" data-dots-color="red" aria-hidden="true"></div></div>
+        <div class="ph-leak__body">
+          <h3 class="ph-leak__title"><span class="ph-leak__idx">05 ·</span> Relief ends before stability starts.</h3>
+          <p class="ph-leak__text">Emergency help fixes the moment and leaves the conditions that caused it.</p>
+        </div>
+      </article>
+    </div>
+    <div class="ph-leaks__bar" aria-hidden="true"><i></i><span></span><span></span><span></span><span></span><span></span></div>
+  </div>
+</section>
+
+<section class="section ph-broken" data-theme="dark" aria-labelledby="pb-broken" data-scene data-scene-name="Delivery is broken">
+  <span class="glow" style="--x:50%;--y:42%;--size:80vmax;--o:.7"></span>
+  <div class="container ph-broken__inner">
+    <div class="dollar-anchor ph-broken__coin" data-dollar="crack"></div>
+    <h2 class="h-xl ph-broken__h" id="pb-broken"><span class="ph-broken__a" data-reveal="split-words">Generosity isn't broken.</span> <span class="ph-broken__b hl" data-reveal="split-chars" data-delay=".35">Delivery is.</span></h2>
+  </div>
+</section>
+
+<!-- ============ WHY NOW (the flood to light) ============ -->
+<section class="section ph-now" data-theme="light" aria-labelledby="pb-now">
+  <div class="container">
+    <div class="ph-now__head scene-flex" data-scene data-scene-name="Why now">
+      <h2 class="h-xl" id="pb-now" data-reveal="split-lines">Five years ago this couldn't be built. <span class="hl">Now it can.</span></h2>
+      <div class="ph-now__coin"><div class="dollar-anchor" data-dollar="ambient"></div></div>
+    </div>
+    <div class="ph-now__grid">
+      <div class="ph-now__visual">
+        <div class="ph-now__frame">
+          <div class="dots" id="pb-forces" data-dots="loop" data-dots-steps data-dots-trigger="#pb-forces-list" aria-hidden="true"></div>
+        </div>
+      </div>
+      <ol class="ph-forces" id="pb-forces-list" role="list">
+        <li class="ph-force" data-dots-step="loop" data-scene data-scene-name="AI">
+          <div class="dollar-anchor ph-ghost" data-dollar="ambient"></div>
+          <h3 class="ph-force__t">AI.</h3>
+          <p class="ph-force__d">Checking, matching and reporting at almost no cost. The three jobs that made real transparency unaffordable.</p>
+        </li>
+        <li class="ph-force" data-dots-step="globe" data-scene data-scene-name="Creators">
+          <div class="dollar-anchor ph-ghost" data-dollar="ambient"></div>
+          <h3 class="ph-force__t">Creators.</h3>
+          <p class="ph-force__d">Reach that used to cost hundreds of millions is now earned. Proof travels further than ads ever did.</p>
+        </li>
+        <li class="ph-force" data-dots-step="dollar" data-scene data-scene-name="Real-time money">
+          <div class="dollar-anchor ph-ghost" data-dollar="ambient"></div>
+          <h3 class="ph-force__t">Real-time money.</h3>
+          <p class="ph-force__d">Funds that settle in minutes, with a record of where they went, cheap enough to make a dollar a day work.</p>
+        </li>
+        <li class="ph-force" data-dots-step="shield" data-scene data-scene-name="Verification">
+          <div class="dollar-anchor ph-ghost" data-dollar="ambient"></div>
+          <h3 class="ph-force__t">Digital verification.</h3>
+          <p class="ph-force__d">Need, delivery and outcome confirmed on a phone. No office. No paper trail.</p>
+        </li>
+        <li class="ph-force" data-dots-step="people" data-scene data-scene-name="The disillusioned">
+          <div class="dollar-anchor ph-ghost" data-dollar="ambient"></div>
+          <h3 class="ph-force__t">The disillusioned.</h3>
+          <p class="ph-force__d">Millions of people who still want to give, still can, and are looking for somewhere to believe in.</p>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CLOSE ============ -->
+<section class="section cta-band ph-close" data-theme="dark" aria-labelledby="pb-close" data-scene data-scene-name="Until now">
+  <span class="glow" style="--x:50%;--y:40%;--size:90vmax;--o:.6"></span>
+  <span class="glow glow--gold" style="--x:30%;--y:80%;--size:50vmax;--o:.25;--t:28s"></span>
+  <div class="container cta-band__inner">
+    <div class="dollar-anchor dollar-anchor--s" data-dollar="ambient"></div>
+    <h2 class="h-xl measure ph-close__h" id="pb-close" data-reveal="split-lines">The world changed. Giving didn't. <span class="hl">Until now.</span></h2>
+    <div class="btn-row center" data-reveal="up">
+      <a class="btn btn--primary btn--lg btn--arrow" href="/how-it-works/" data-magnetic><span class="btn__label">See how DAD works</span></a>
+    </div>
+    <p class="source-note ph-sources" data-reveal="fade">Sources: Giving USA 2026 · Fundraising Effectiveness Project, Q4 2025 · CharityWatch · New York Attorney General, "Pennies for Charity" (2025 report, 588 campaigns) · Tampa Bay Times / CNN / Center for Investigative Reporting (2013) · FTC et al. v. Cancer Fund of America et al. (2015) · CharityWatch 2024 · GAO-26-108694 (April 2026)</p>
+  </div>
+</section>
+
+</main>
+<footer class="footer is-dark" id="footer" data-theme="dark">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a class="footer__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+        <p class="footer__tag">DAD · Aid, delivered.</p>
+      </div>
+      <nav class="footer__nav" aria-label="Footer">
+        <a href="/about/">About</a>
+        <a href="/how-it-works/">How It Works</a>
+        <a href="/programs/">Programs</a>
+        <a href="/proof/">The Proof</a>
+        <a href="/team/">Team</a>
+        <a href="/building-in-public/">Building in Public</a>
+        <a href="/transparency/">Transparency</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/contact/">Contact</a>
+        <a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a>
+        <a href="/movement/#careers">Careers</a>
+      </nav>
+    </div>
+    <div class="footer__mark" aria-hidden="true"><div class="dollar-anchor dollar-anchor--fill" data-dollar="logo" data-dollar-size="fill"></div></div>
+    <p class="footer__big" aria-hidden="true" data-reveal="split-chars">Aid, delivered.</p>
+    <div class="footer__legal">
+      <p>Dynamic Aid Delivery, INC. is a Delaware non-stock corporation.</p>
+      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a></p>
+    </div>
+  </div>
+</footer>
+
+<a class="btn btn--primary mobile-cta" href="/movement/" id="mobile-cta"><span class="btn__label">Join the Movement</span></a>
+<div class="cookie is-dark" id="cookie" role="region" aria-label="Cookie notice" hidden>
+  <p class="cookie__text">We use basic analytics to see what's working. No ads. No selling.</p>
+  <div class="cookie__actions">
+    <button class="btn btn--primary btn--sm" type="button" data-consent="accept"><span class="btn__label">Accept</span></button>
+    <button class="btn btn--ghost btn--sm" type="button" data-consent="decline"><span class="btn__label">Decline</span></button>
+  </div>
+</div>
+
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
+<div class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

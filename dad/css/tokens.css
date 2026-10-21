@@ -1,0 +1,198 @@
+/* =====================================================================
+   DAD · Brand v2.0 tokens
+   Colours, theme variables, type scale, spacing, radii, motion, z-index.
+   Components read ONLY the theme variables (--bg, --fg, ...) so they
+   flip automatically when the theme system tweens <html data-theme>.
+   ===================================================================== */
+:root {
+  /* brand palette */
+  --ink: #0E1E1E;
+  --ink2: #0A1616;
+  --ink3: #142A2A;
+  --paper: #F8F9FA;
+  --paper2: #EEF1F2;
+  --red: #FF4A22;          /* Kinetic Red-Orange: primary accent / CTA */
+  --red-hi: #FF6A45;
+  --red-ink: #C9340F;      /* red for small text on paper (AA 5:1) */
+  /* paper-tuned brand colours for headline text on warm paper (large text, >= 3:1 on #FBF5EE) */
+  --red-paper: #E23A12;
+  --cyan-paper: #0384A3;
+  --gold-paper: #B37A00;
+  --teal-paper: #007A7A;
+  --cyan: #00D4FF;
+  --gold: #FFB800;
+  --teal: #007A7A;
+  --mut: #8FA3A3;
+  --line: #E3E6E8;
+  --body: #4A5757;
+  --dkmut: #B9C6C6;
+
+  /* program categories */
+  --cat-food: var(--red);
+  --cat-health: var(--cyan);
+  --cat-opps: var(--gold);
+
+  /* type families */
+  --f-disp: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; /* Chris 2026-10-09: Inter replaces IBM Plex Mono for labels and data */
+
+  /* type scale (390px first, fluid to 1440px+) */
+  --fs-display: clamp(46px, 7.4vw + 6px, 150px);
+  --fs-xl: clamp(40px, 6.2vw + 10px, 112px);
+  --fs-l: clamp(32px, 4vw + 12px, 76px);
+  --fs-m: clamp(24px, 1.9vw + 15px, 44px);
+  --fs-s: clamp(19px, .7vw + 15px, 26px);
+  --fs-lede: clamp(18px, .62vw + 14px, 24px);
+  --fs-body: clamp(16px, .2vw + 15.2px, 18px);
+  --fs-small: 14px;
+  --fs-mono: clamp(12px, .1vw + 11.2px, 13px);
+  --fs-mono-s: 12px;
+
+  --lh-tight: .94;
+  --lh-head: 1.04;
+  --lh-body: 1.65;
+
+  --tr-display: -.042em;
+  --tr-head: -.03em;
+  --tr-tight: -.018em;
+  --tr-mono: .2em;
+  --tr-mono-wide: .3em;
+
+  /* spacing scale */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+  --s-10: 128px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --container: 1320px;
+  --section-y: clamp(96px, 14vw, 200px);
+  --nav-h: 76px;
+
+  /* radii */
+  --r-xs: 6px;
+  --r-s: 10px;
+  --r-m: 16px;
+  --r-l: 24px;
+  --r-xl: 32px;
+  --r-pill: 999px;
+
+  /* motion */
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --ease-io: cubic-bezier(.65, 0, .35, 1);
+  --ease-in: cubic-bezier(.55, 0, 1, .45);
+  --ease-back: cubic-bezier(.34, 1.56, .64, 1);
+  --d-1: .2s;
+  --d-2: .45s;
+  --d-3: .8s;
+  --d-4: 1.2s;
+
+  /* z-index map */
+  --z-flood: 0;
+  --z-gl: 1;
+  --z-main: 2;
+  --z-grain: 3;
+  --z-mcta: 40;
+  --z-nav: 60;
+  --z-menu: 55;
+  --z-cookie: 70;
+  --z-cursor: 90;
+  --z-route: 95;
+  --z-preloader: 100;
+  --z-skip: 110;
+
+  /* icons (masks) */
+  --i-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12h15M13 6l6 6-6 6'/%3E%3C/svg%3E");
+  --i-x: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='10.6'/%3E%3Cpath d='M8.4 8.4l7.2 7.2M15.6 8.4l-7.2 7.2'/%3E%3C/svg%3E");
+  --i-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10.6'/%3E%3Cpath d='M7.6 12.4l3 3 5.8-6.4'/%3E%3C/svg%3E");
+  --i-chev: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* ---------------------------------------------------------------------
+   THEMES. Keep html[data-theme] and the local .is-dark/.is-light scopes
+   in sync: theme.js reads these values to tween between them.
+   --------------------------------------------------------------------- */
+html[data-theme="dark"],
+.is-dark {
+  --bg: #0E1E1E;
+  --bg-2: #0A1616;
+  --fg: #F8F9FA;
+  --fg-mut: #C4D0D0;
+  --fg-faint: #9EB0B0;
+  --line-c: rgba(248, 249, 250, .12);
+  --line-strong: rgba(248, 249, 250, .3);
+  --card: rgba(248, 249, 250, .035);
+  --card-hi: rgba(248, 249, 250, .075);
+  --accent: #FF4A22;
+  --accent-text: #FF5A33;
+  --ok: #00D4FF;
+  --err: #FF8A6B;
+  --infra: #F8F9FA;
+  --skeleton: rgba(248, 249, 250, .07);
+  --skeleton-hi: rgba(248, 249, 250, .2);
+  --glow-o: 1;
+  --logo-b: 1;
+  --logo-o: .7;
+  --shadow-c: rgba(0, 0, 0, .55);
+  --grain-o: .07;
+  --nav-bg: rgba(14, 30, 30, .72);
+  --cyan: #00D4FF;
+  --gold: #FFB800;
+}
+
+html[data-theme="light"],
+.is-light {
+  /* "Warm paper" (Chris, 2026-10-09, option E): no pure white anywhere.
+     The light half of the story is a soft off-white with a hint of peach. */
+  --bg: #FBF5EE;
+  --bg-2: #F4EBE1;
+  --fg: #0E1E1E;
+  --fg-mut: #3E4746;
+  --fg-faint: #59615F;
+  --line-c: rgba(14, 30, 30, .1);
+  --line-strong: rgba(14, 30, 30, .24);
+  --card: rgba(255, 250, 244, .7);
+  --card-hi: #FFFAF4;
+  --accent: #FF4A22;
+  --accent-text: #C9340F;
+  --ok: #007A7A;
+  --err: #C9340F;
+  --infra: #007A7A;
+  --skeleton: rgba(14, 30, 30, .06);
+  --skeleton-hi: rgba(14, 30, 30, .14);
+  --glow-o: .18;
+  --logo-b: 0;
+  --logo-o: .7;
+  --shadow-c: rgba(74, 44, 20, .14);
+  --grain-o: .04;
+  --nav-bg: rgba(251, 245, 238, .78);
+  /* deeper cyan/gold so dots, pills and accents hold contrast on warm paper */
+  --cyan: #0090B5;
+  --gold: #D48A00;
+}
+
+.is-dark,
+.is-light {
+  color: var(--fg-mut);
+}
+
+/* category helpers: set --c for any component that reads it */
+.cat-food { --c: var(--red); }
+.cat-health { --c: var(--cyan); }
+.cat-opps { --c: var(--gold); }
+.cat-infra { --c: var(--infra); }
+.c-red { --c: var(--red); }
+.c-cyan { --c: var(--cyan); }
+.c-gold { --c: var(--gold); }
+.c-teal { --c: var(--teal); }
+/* --c-paper: the same colour, tuned for headline text on warm paper */
+.c-red, .cat-food { --c-paper: var(--red-paper); }
+.c-cyan, .cat-health { --c-paper: var(--cyan-paper); }
+.c-gold, .cat-opps { --c-paper: var(--gold-paper); }
+.c-teal, .cat-infra { --c-paper: var(--teal-paper); }

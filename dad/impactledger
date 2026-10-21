@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAD — The Open Ledger</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgcng9IjI2IiBmaWxsPSIjRkY0QTIyIi8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTEsMjIpIHNjYWxlKDAuNzYpIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4OCwwKSBzY2FsZSgtMSwxKSI+PHBhdGggZmlsbD0iI0Y4RjlGQSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMCwwIEgzOCBBNTAsNTAgMCAwIDEgMzgsMTAwIEgwIFogTTI0LDI0IEgzNiBBMjYsMjYgMCAwIDEgMzYsNzYgSDI0IFoiLz48L2c+PHJlY3QgeD0iMTAwIiB5PSIxNiIgd2lkdGg9IjkiIGhlaWdodD0iNjgiIHJ4PSI0LjUiIGZpbGw9IiNGOEY5RkEiLz48cmVjdCB4PSIxMTciIHk9IjMyIiB3aWR0aD0iNiIgaGVpZ2h0PSIzNiIgcng9IjMiIGZpbGw9IiNGOEY5RkEiLz48L2c+PC9zdmc+Cg=="/>
+<link rel="apple-touch-icon" href="dad-app-icon.svg"/>
+<meta name="theme-color" content="#0E1E1E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#FF4A22; --gold:#FFB800; --teal:#007A7A; --cyan:#00D4FF;
+  --paper:#F8F9FA; --ink:#0E1E1E;
+  --surface:#122525; --surface-2:#0B1A1A;
+  --line:rgba(248,249,250,0.09);
+  --line-2:rgba(0,212,255,0.16);
+  --dim:#8FA3A3; --dim-2:#5F7373;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',sans-serif;background:var(--ink);color:var(--paper);
+  line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(900px 520px at 12% -8%, rgba(0,122,122,0.34), transparent 62%),
+    radial-gradient(760px 460px at 92% 4%, rgba(255,74,34,0.16), transparent 60%),
+    radial-gradient(1000px 700px at 50% 108%, rgba(0,212,255,0.07), transparent 62%);
+}
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.5;
+  background-image:linear-gradient(var(--line-2) 1px,transparent 1px),linear-gradient(90deg,var(--line-2) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(circle at 50% 30%, #000 0%, transparent 78%);
+  -webkit-mask-image:radial-gradient(circle at 50% 30%, #000 0%, transparent 78%);
+  opacity:.22;
+}
+.page{position:relative;z-index:2;}
+.wrap{max-width:1320px;margin:0 auto;padding:0 32px;}
+h1,h2,h3,.grotesk{font-family:'Space Grotesk',sans-serif;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.kicker{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--red);
+}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:60;backdrop-filter:blur(16px);
+  background:rgba(14,30,30,.82);border-bottom:1px solid var(--line);
+}
+.topbar .wrap{display:flex;align-items:center;gap:28px;height:68px;}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand .name{font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:14px;letter-spacing:.16em;text-transform:uppercase;}
+.brand .sub{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;color:var(--dim-2);text-transform:uppercase;}
+nav{display:flex;gap:26px;margin-left:auto;}
+nav a{
+  font-size:13px;color:var(--dim);text-decoration:none;padding:6px 0;
+  border-bottom:1px solid transparent;transition:.2s;
+}
+nav a:hover{color:var(--paper);border-bottom-color:var(--red);}
+.btn{
+  background:var(--red);color:#fff;border:none;border-radius:999px;
+  padding:10px 20px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;transition:.2s;white-space:nowrap;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(255,74,34,.34);}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--paper);}
+.btn-ghost:hover{border-color:var(--cyan);box-shadow:none;}
+
+/* ---------- live pill ---------- */
+.live{
+  display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line-2);
+  border-radius:999px;padding:6px 14px 6px 11px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--cyan);background:rgba(0,212,255,.05);
+}
+.dot-live{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(0,212,255,.7);animation:pulse 2s infinite;}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(0,212,255,.55);}
+  70%{box-shadow:0 0 0 9px rgba(0,212,255,0);}
+  100%{box-shadow:0 0 0 0 rgba(0,212,255,0);}
+}
+
+/* ---------- hero ---------- */
+.hero{padding:80px 0 44px;}
+.hero h1{
+  font-size:clamp(38px,5.6vw,74px);font-weight:700;line-height:1.02;
+  letter-spacing:-.028em;margin:20px 0 0;max-width:16ch;
+}
+.hero h1 em{font-style:normal;color:var(--red);}
+.hero .lede{
+  margin-top:22px;max-width:620px;font-size:17px;color:#C2CFCF;
+}
+.hero-top{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap;}
+.hero-meta{
+  font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim-2);
+  letter-spacing:.1em;text-transform:uppercase;text-align:right;line-height:2;
+}
+.hero-meta b{color:var(--paper);font-weight:500;}
+
+/* ---------- hero stat band ---------- */
+.band{
+  margin-top:56px;display:grid;grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--line);border-radius:20px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(0,122,122,.20),rgba(11,26,26,.72));
+}
+.band > div{padding:32px 28px;border-right:1px solid var(--line);position:relative;overflow:hidden;}
+.band > div:last-child{border-right:none;}
+.band .lbl{
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:14px;
+}
+.band .num{
+  font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:-.03em;
+  font-size:clamp(34px,3.9vw,54px);line-height:1;
+}
+.band .cap{font-size:13px;color:#9FB2B2;margin-top:10px;}
+.band .trend{
+  display:inline-block;margin-top:12px;font-family:'IBM Plex Mono',monospace;
+  font-size:11px;letter-spacing:.06em;padding:3px 9px;border-radius:6px;
+  background:rgba(0,212,255,.10);color:var(--cyan);border:1px solid rgba(0,212,255,.2);
+}
+.band .trend.gold{background:rgba(255,184,0,.10);color:var(--gold);border-color:rgba(255,184,0,.22);}
+.band .trend.red{background:rgba(255,74,34,.10);color:#FF7A55;border-color:rgba(255,74,34,.24);}
+
+/* ---------- sections ---------- */
+section{padding:78px 0;}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;flex-wrap:wrap;margin-bottom:30px;}
+.sec-head h2{font-size:clamp(26px,2.7vw,36px);font-weight:700;letter-spacing:-.02em;margin-top:9px;}
+.sec-head p{color:#9FB2B2;font-size:15px;max-width:560px;margin-top:8px;}
+
+/* ---------- map ---------- */
+.map-shell{display:grid;grid-template-columns:1fr 336px;gap:22px;align-items:stretch;}
+.panel{
+  background:linear-gradient(180deg,rgba(18,37,37,.92),rgba(11,26,26,.92));
+  border:1px solid var(--line);border-radius:20px;position:relative;overflow:hidden;
+}
+.panel-pad{padding:24px 26px;}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:18px 24px;border-bottom:1px solid var(--line);
+}
+.panel-head h3{font-size:14px;font-weight:500;letter-spacing:.04em;}
+.panel-head .sm{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--dim-2);letter-spacing:.12em;text-transform:uppercase;}
+#usmap{display:block;width:100%;height:auto;}
+.map-wrap{position:relative;padding:8px 10px 4px;}
+.legend{
+  display:flex;flex-wrap:wrap;gap:8px 20px;padding:14px 26px 20px;border-top:1px solid var(--line);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--dim);
+}
+.legend span{display:inline-flex;align-items:center;gap:8px;}
+.legend i{width:8px;height:8px;border-radius:50%;display:inline-block;}
+.pin{cursor:pointer;}
+.pin .halo{opacity:.16;transition:.25s;}
+.pin:hover .halo{opacity:.42;}
+.pin .core{transition:.25s;}
+.pin:hover .core{r:6.4;}
+#tip{
+  position:absolute;pointer-events:none;opacity:0;transform:translate(-50%,-118%);
+  background:rgba(8,20,20,.97);border:1px solid var(--line-2);border-radius:12px;
+  padding:12px 14px;min-width:186px;transition:opacity .16s;z-index:20;
+  box-shadow:0 18px 40px rgba(0,0,0,.5);
+}
+#tip .t-city{font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:14px;}
+#tip .t-prog{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-top:5px;}
+#tip .t-row{display:flex;justify-content:space-between;gap:14px;font-size:12px;color:#A9BCBC;margin-top:9px;}
+#tip .t-row b{color:var(--paper);font-weight:600;font-family:'IBM Plex Mono',monospace;}
+
+/* ---------- feed ---------- */
+.feed{height:100%;display:flex;flex-direction:column;}
+.feed-body{padding:6px 0 10px;overflow:hidden;position:relative;flex:1;}
+.feed-body::after{content:'';position:absolute;left:0;right:0;bottom:0;height:56px;background:linear-gradient(transparent,rgba(11,26,26,.98));pointer-events:none;}
+.f-item{
+  display:grid;grid-template-columns:8px 1fr;gap:12px;align-items:start;
+  padding:13px 22px;border-bottom:1px solid rgba(248,249,250,.05);
+  animation:slidein .5s ease both;
+}
+@keyframes slidein{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:none;}}
+.f-item .bul{width:8px;height:8px;border-radius:50%;margin-top:6px;}
+.f-item .l1{font-size:13px;font-weight:500;}
+.f-item .l2{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--dim-2);letter-spacing:.07em;margin-top:3px;text-transform:uppercase;}
+.f-item .amt{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--cyan);}
+
+/* ---------- metric grid ---------- */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;}
+.mcard{
+  background:linear-gradient(180deg,rgba(18,37,37,.9),rgba(11,26,26,.9));
+  border:1px solid var(--line);border-radius:18px;padding:26px 24px;position:relative;overflow:hidden;
+  transition:.25s;
+}
+.mcard:hover{transform:translateY(-3px);border-color:rgba(0,212,255,.3);}
+.mcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent,var(--red));}
+.mcard .lbl{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);}
+.mcard .num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:42px;letter-spacing:-.03em;line-height:1.05;margin-top:12px;}
+.mcard .cap{font-size:12.5px;color:#93A6A6;margin-top:8px;}
+.spark{display:flex;align-items:flex-end;gap:3px;height:30px;margin-top:16px;}
+.spark i{flex:1;background:var(--accent,var(--red));border-radius:2px 2px 0 0;opacity:.42;transition:.3s;}
+.mcard:hover .spark i{opacity:.85;}
+
+/* ---------- programs ledger ---------- */
+.ledger{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:rgba(11,26,26,.7);}
+.lrow{
+  display:grid;grid-template-columns:2.4fr 1fr 1fr 1.5fr 108px;gap:20px;align-items:center;
+  padding:18px 26px;border-bottom:1px solid rgba(248,249,250,.06);transition:.2s;
+}
+.lrow:last-child{border-bottom:none;}
+.lrow:hover{background:rgba(0,122,122,.10);}
+.lhead{
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim-2);background:rgba(8,20,20,.7);
+}
+.lhead:hover{background:rgba(8,20,20,.7);}
+.p-name{display:flex;align-items:center;gap:13px;}
+.p-name i{width:9px;height:9px;border-radius:2px;flex:none;}
+.p-name .n{font-weight:500;font-size:14.5px;}
+.p-name .c{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim-2);letter-spacing:.1em;text-transform:uppercase;}
+.lrow .val{font-family:'IBM Plex Mono',monospace;font-size:14px;}
+.bar{height:6px;border-radius:3px;background:rgba(248,249,250,.09);overflow:hidden;}
+.bar span{display:block;height:100%;border-radius:3px;width:0;transition:width 1.4s cubic-bezier(.2,.7,.2,1);}
+.bar-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim-2);margin-top:6px;letter-spacing:.08em;}
+.tag{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 9px;border-radius:6px;text-align:center;white-space:nowrap;
+}
+.tag.ok{background:rgba(0,212,255,.11);color:var(--cyan);border:1px solid rgba(0,212,255,.22);}
+.tag.run{background:rgba(255,184,0,.11);color:var(--gold);border:1px solid rgba(255,184,0,.24);}
+.tag.new{background:rgba(255,74,34,.11);color:#FF8462;border:1px solid rgba(255,74,34,.26);}
+
+/* ---------- outcomes ---------- */
+.ogrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+.ocard{
+  border:1px solid var(--line);border-radius:18px;padding:26px;
+  background:linear-gradient(180deg,rgba(18,37,37,.9),rgba(11,26,26,.9));
+}
+.ocard h4{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:500;}
+.ocard .big{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:52px;letter-spacing:-.035em;line-height:1;margin:14px 0 6px;}
+.ocard .note{font-size:12.5px;color:#8FA3A3;}
+.ocard .src{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim-2);letter-spacing:.1em;text-transform:uppercase;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);}
+.chart{display:flex;align-items:flex-end;gap:7px;height:76px;margin:18px 0 4px;}
+.chart div{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--cyan),rgba(0,212,255,.15));height:0;transition:height 1.2s cubic-bezier(.2,.7,.2,1);}
+
+/* ---------- initiatives ---------- */
+.init{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;}
+.icard{border:1px solid var(--line);border-radius:18px;padding:24px;background:rgba(11,26,26,.66);transition:.25s;}
+.icard:hover{border-color:rgba(255,74,34,.34);transform:translateY(-3px);}
+.icard .co{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
+.icard h4{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:500;margin:10px 0 8px;}
+.icard p{font-size:13.5px;color:#93A6A6;min-height:42px;}
+.imeta{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--dim-2);letter-spacing:.08em;margin:16px 0 7px;text-transform:uppercase;}
+
+/* ---------- partners ---------- */
+.pstrip{
+  display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
+  border:1px solid var(--line);border-radius:20px;padding:30px 26px;background:rgba(11,26,26,.6);
+}
+.pchip{
+  font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.1em;
+  border:1px solid var(--line);border-radius:999px;padding:9px 17px;color:#A9BCBC;transition:.2s;
+}
+.pchip:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ---------- cta ---------- */
+.cta{
+  border:1px solid rgba(255,74,34,.3);border-radius:24px;padding:56px 48px;text-align:center;
+  background:radial-gradient(700px 320px at 50% 0%, rgba(255,74,34,.16), rgba(11,26,26,.9));
+}
+.cta h2{font-size:clamp(28px,3.4vw,44px);font-weight:700;letter-spacing:-.025em;}
+.cta p{color:#A9BCBC;max-width:520px;margin:14px auto 26px;font-size:15.5px;}
+
+footer{border-top:1px solid var(--line);padding:34px 0 60px;}
+.fbot{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim-2);letter-spacing:.1em;text-transform:uppercase;}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.in{opacity:1;transform:none;}
+
+@media(max-width:1080px){
+  .map-shell{grid-template-columns:1fr;}
+  .band{grid-template-columns:repeat(2,1fr);}
+  .band > div:nth-child(2){border-right:none;}
+  .band > div:nth-child(-n+2){border-bottom:1px solid var(--line);}
+  .lrow{grid-template-columns:2fr 1fr 1.4fr;}
+  .lrow > *:nth-child(3){display:none;}
+  nav{display:none;}
+}
+@media(max-width:640px){
+  .wrap{padding:0 20px;}
+  .band{grid-template-columns:1fr;}
+  .band > div{border-right:none;border-bottom:1px solid var(--line);}
+  .lrow{grid-template-columns:1.6fr 1fr;}
+  .lrow > *:nth-child(2),.lrow > *:nth-child(4){display:none;}
+  .hero-meta{text-align:left;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ============ TOP BAR ============ -->
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <svg viewBox="-6 -6 142 112" width="34" role="img" aria-label="DAD logomark">
+        <g transform="translate(88,0) scale(-1,1)"><path fill="#FF4A22" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
+        <rect x="100" y="16" width="9" height="68" rx="4.5" fill="#FF4A22"/>
+        <rect x="117" y="32" width="6" height="36" rx="3" fill="#FF4A22"/>
+      </svg>
+      <div>
+        <div class="name">Dynamic Aid Delivery</div>
+        <div class="sub">The Open Ledger</div>
+      </div>
+    </div>
+    <nav>
+      <a href="#map">Map</a>
+      <a href="#programs">Programs</a>
+      <a href="#outcomes">Outcomes</a>
+      <a href="#initiatives">Initiatives</a>
+      <a href="#partners">Partners</a>
+    </nav>
+    <button class="btn btn-ghost">Download data</button>
+    <button class="btn">Give $1 a day</button>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<div class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <div>
+        <div class="live"><span class="dot-live"></span> Ledger live · syncing every 11 seconds</div>
+        <h1>Aid, delivered.<br><em>Verified on arrival.</em></h1>
+        <p class="lede">Every dollar is traced from donation to program to verified outcome, then published continuously — not summarised once a year. This is the whole ledger. Nothing is held back.</p>
+      </div>
+      <div class="hero-meta">
+        Ledger opened <b>04 Jan 2027</b><br>
+        Last write <b id="lastwrite">just now</b><br>
+        Independent audits <b>7 of 7 passed</b><br>
+        Records published <b>1,284,006</b>
+      </div>
+    </div>
+
+    <div class="band reveal">
+      <div>
+        <div class="lbl">People helped</div>
+        <div class="num" data-count="2417880" data-suffix="">0</div>
+        <div class="cap">Unique individuals reached across 120 active programs.</div>
+        <div class="trend">▲ 84,110 this quarter</div>
+      </div>
+      <div>
+        <div class="lbl">Meals funded</div>
+        <div class="num" data-count="41200000" data-format="compact">0</div>
+        <div class="cap">Delivered through 214 food partners and 38 mobile pantries.</div>
+        <div class="trend gold">▲ 12.4% vs. last quarter</div>
+      </div>
+      <div>
+        <div class="lbl">Bills paid</div>
+        <div class="num" data-count="18740000" data-prefix="$" data-format="compact">0</div>
+        <div class="cap">Rent, utilities and medical arrears cleared at the source.</div>
+        <div class="trend">▲ $1.9M this quarter</div>
+      </div>
+      <div>
+        <div class="lbl">Traceable to outcome</div>
+        <div class="num" data-count="100" data-suffix="%">0</div>
+        <div class="cap">Every dollar carries a receipt. Unverified spend is published as unverified.</div>
+        <div class="trend red">0 unreconciled records</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MAP ============ -->
+<section id="map">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="kicker">01 — Where the work is</div>
+        <h2>1,942 delivery sites. One map.</h2>
+        <p>Each point is a funded program site with a published outcome record. Hover any point to see what it runs, who it reaches, and when it last reported.</p>
+      </div>
+      <div class="live"><span class="dot-live"></span> 62 sites reporting now</div>
+    </div>
+
+    <div class="map-shell">
+      <div class="panel reveal">
+        <div class="panel-head">
+          <h3>National delivery map</h3>
+          <div class="sm">All 50 states · updated 11s ago</div>
+        </div>
+        <div class="map-wrap">
+          <svg id="usmap" viewBox="0 0 1000 540" role="img" aria-label="Map of United States delivery sites"></svg>
+          <div id="tip">
+            <div class="t-city"></div>
+            <div class="t-prog"></div>
+            <div class="t-row"><span>People reached</span><b class="t-people"></b></div>
+            <div class="t-row"><span>Deployed</span><b class="t-amt"></b></div>
+            <div class="t-row"><span>Last report</span><b class="t-time"></b></div>
+          </div>
+        </div>
+        <div class="legend">
+          <span><i style="background:#FF4A22"></i> Food &amp; nutrition</span>
+          <span><i style="background:#FFB800"></i> Bills &amp; utilities</span>
+          <span><i style="background:#00D4FF"></i> Housing &amp; shelter</span>
+          <span><i style="background:#F8F9FA"></i> Mental health</span>
+          <span style="margin-left:auto;color:#5F7373">Point size = people reached</span>
+        </div>
+      </div>
+
+      <div class="panel feed reveal">
+        <div class="panel-head">
+          <h3>Live delivery feed</h3>
+          <div class="sm">Unfiltered</div>
+        </div>
+        <div class="feed-body" id="feed"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ METRICS ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="kicker">02 — The operation</div>
+        <h2>What's running right now</h2>
+        <p>Programs we own and operate. Initiatives we co-build with partners. Every figure below is drawn from the same ledger the map reads from.</p>
+      </div>
+    </div>
+    <div class="mgrid reveal">
+      <div class="mcard" style="--accent:#FF4A22">
+        <div class="lbl">Active programs</div>
+        <div class="num" data-count="120">0</div>
+        <div class="cap">Owned and operated by DAD in 44 states.</div>
+        <div class="spark" data-spark="34,41,39,52,58,63,71,80,88,97,108,120"></div>
+      </div>
+      <div class="mcard" style="--accent:#FFB800">
+        <div class="lbl">Initiatives in progress</div>
+        <div class="num" data-count="62">0</div>
+        <div class="cap">Co-built with corporate and civic partners.</div>
+        <div class="spark" data-spark="9,14,17,22,26,31,36,42,47,53,58,62"></div>
+      </div>
+      <div class="mcard" style="--accent:#00D4FF">
+        <div class="lbl">Volunteers on roster</div>
+        <div class="num" data-count="4028">0</div>
+        <div class="cap">Impact Teams trained and credentialed.</div>
+        <div class="spark" data-spark="620,880,1140,1490,1810,2160,2540,2880,3210,3540,3810,4028"></div>
+      </div>
+      <div class="mcard" style="--accent:#007A7A">
+        <div class="lbl">Partner organisations</div>
+        <div class="num" data-count="333">0</div>
+        <div class="cap">Food banks, clinics, utilities, employers.</div>
+        <div class="spark" data-spark="41,68,92,116,141,168,196,224,254,283,309,333"></div>
+      </div>
+      <div class="mcard" style="--accent:#FF4A22">
+        <div class="lbl">Delivery sites</div>
+        <div class="num" data-count="1942">0</div>
+        <div class="cap">Physical locations with a published record.</div>
+        <div class="spark" data-spark="410,540,660,790,910,1050,1210,1370,1520,1680,1820,1942"></div>
+      </div>
+      <div class="mcard" style="--accent:#FFB800">
+        <div class="lbl">Cost per person reached</div>
+        <div class="num" data-count="11.4" data-prefix="$" data-decimals="1">0</div>
+        <div class="cap">Down from $19.80 at ledger open.</div>
+        <div class="spark" data-spark="19.8,18.9,18.1,17.2,16.4,15.5,14.6,13.8,13.1,12.4,11.9,11.4"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROGRAMS LEDGER ============ -->
+<section id="programs">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="kicker">03 — The ledger</div>
+        <h2>Program by program, dollar by dollar</h2>
+        <p>The full register is downloadable as CSV. Any number here can be traced to a delivery record, a partner invoice and a verification timestamp.</p>
+      </div>
+      <button class="btn btn-ghost">Export full register (CSV)</button>
+    </div>
+
+    <div class="ledger reveal">
+      <div class="lrow lhead">
+        <div>Program</div><div>Deployed</div><div>People reached</div><div>Verified outcomes</div><div>Status</div>
+      </div>
+      <div class="lrow">
+        <div class="p-name"><i style="background:#FF4A22"></i><div><div class="n">Every Table Full</div><div class="c">PRG-0114 · 38 states</div></div></div>
+        <div class="val">$6.42M</div>
+        <div class="val">884,210</div>
+        <div><div class="bar"><span style="background:#FF4A22" data-w="97"></span></div><div class="bar-lbl">97% verified</div></div>
+        <div><span class="tag ok">Operating</span></div>
+      </div>
+      <div class="lrow">
+        <div class="p-name"><i style="background:#FFB800"></i><div><div class="n">Keep The Lights On</div><div class="c">PRG-0221 · 29 states</div></div></div>
+        <div class="val">$5.18M</div>
+        <div class="val">412,880</div>
+        <div><div class="bar"><span style="background:#FFB800" data-w="99"></span></div><div class="bar-lbl">99% verified</div></div>
+        <div><span class="tag ok">Operating</span></div>
+      </div>
+      <div class="lrow">
+        <div class="p-name"><i style="background:#00D4FF"></i><div><div class="n">Doors Not Waitlists</div><div class="c">PRG-0308 · 22 states</div></div></div>
+        <div class="val">$3.96M</div>
+        <div class="val">168,430</div>
+        <div><div class="bar"><span style="background:#00D4FF" data-w="94"></span></div><div class="bar-lbl">94% verified</div></div>
+        <div><span class="tag ok">Operating</span></div>
+      </div>
+      <div class="lrow">
+        <div class="p-name"><i style="background:#F8F9FA"></i><div><div class="n">Someone Picks Up</div><div class="c">PRG-0402 · 31 states</div></div></div>
+        <div class="val">$2.87M</div>
+        <div class="val">641,090</div>
+        <div><div class="bar"><span style="background:#F8F9FA" data-w="91"></span></div><div class="bar-lbl">91% verified</div></div>
+        <div><span class="tag run">Scaling</span></div>
+      </div>
+      <div class="lrow">
+        <div class="p-name"><i style="background:#007A7A"></i><div><div class="n">Clinic Without Walls</div><div class="c">PRG-0517 · 18 states</div></div></div>
+        <div class="val">$2.14M</div>
+        <div class="val">203,760</div>
+        <div><div class="bar"><span style="background:#00A3A3" data-w="88"></span></div><div class="bar-lbl">88% verified</div></div>
+        <div><span class="tag run">Scaling</span></div>
+      </div>
+      <div class="lrow">
+        <div class="p-name"><i style="background:#FF4A22"></i><div><div class="n">First Paycheck</div><div class="c">PRG-0623 · 12 states</div></div></div>
+        <div class="val">$1.44M</div>
+        <div class="val">61,340</div>
+        <div><div class="bar"><span style="background:#FF4A22" data-w="76"></span></div><div class="bar-lbl">76% verified</div></div>
+        <div><span class="tag new">Piloting</span></div>
+      </div>
+      <div class="lrow">
+        <div class="p-name"><i style="background:#FFB800"></i><div><div class="n">Rural Relay</div><div class="c">PRG-0709 · 9 states</div></div></div>
+        <div class="val">$0.98M</div>
+        <div class="val">46,170</div>
+        <div><div class="bar"><span style="background:#FFB800" data-w="68"></span></div><div class="bar-lbl">68% verified</div></div>
+        <div><span class="tag new">Piloting</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OUTCOMES ============ -->
+<section id="outcomes">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="kicker">04 — Outcomes</div>
+        <h2>The numbers that took the longest</h2>
+        <p>Outcome measures are the hardest thing to publish honestly, so we publish the method alongside the result. Where a figure can't survive a journalist, it isn't here.</p>
+      </div>
+    </div>
+    <div class="ogrid reveal">
+      <div class="ocard">
+        <h4>Suicide rate, served counties</h4>
+        <div class="big" style="color:var(--cyan)">−6.0%</div>
+        <div class="note">Age-adjusted, 24-month window, 31 counties with a Someone Picks Up site vs. matched control counties.</div>
+        <div class="chart" data-chart="100,99,98,97,96,95,94.8,94.4,94.2,94"></div>
+        <div class="src">Method · CDC WONDER + county coroner filings · peer-reviewed</div>
+      </div>
+      <div class="ocard">
+        <h4>Households food-secure at 6 months</h4>
+        <div class="big" style="color:var(--gold)">78%</div>
+        <div class="note">Up from 41% at intake. Measured by USDA six-item short form, n=18,442 households.</div>
+        <div class="chart" data-chart="41,46,52,57,62,66,70,73,76,78"></div>
+        <div class="src">Method · USDA HFSSM short form · quarterly resurvey</div>
+      </div>
+      <div class="ocard">
+        <h4>Eviction filings avoided</h4>
+        <div class="big" style="color:var(--red)">14,206</div>
+        <div class="note">Cases where an arrears payment cleared before a filing date, confirmed against county court records.</div>
+        <div class="chart" data-chart="820,1140,1560,2010,2480,3050,3690,4380,5120,5900"></div>
+        <div class="src">Method · county court record match · 92% match confidence</div>
+      </div>
+      <div class="ocard">
+        <h4>Utility reconnections held 12 months</h4>
+        <div class="big" style="color:var(--cyan)">91%</div>
+        <div class="note">Households still connected one year after a Keep The Lights On payment, verified with the utility.</div>
+        <div class="chart" data-chart="72,76,79,82,84,86,88,89,90,91"></div>
+        <div class="src">Method · utility-confirmed account status · 14 providers</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INITIATIVES ============ -->
+<section id="initiatives">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="kicker">05 — Co-built</div>
+        <h2>62 initiatives in progress</h2>
+        <p>Initiatives are built with a partner and run on the same ledger as everything else. Six of the largest are shown; the register lists all 62.</p>
+      </div>
+      <button class="btn btn-ghost">View all 62</button>
+    </div>
+    <div class="init reveal">
+      <div class="icard">
+        <div class="co">Regional grocery co-op · 11 states</div>
+        <h4>Surplus to Table</h4>
+        <p>Redirects near-date inventory into DAD pantry routes within 18 hours of flagging.</p>
+        <div class="imeta"><span>Phase 3 of 4</span><span>72%</span></div>
+        <div class="bar"><span style="background:#FF4A22" data-w="72"></span></div>
+      </div>
+      <div class="icard">
+        <div class="co">Midwest utility group · 6 states</div>
+        <h4>No Winter Shutoffs</h4>
+        <p>Arrears cleared before the shutoff queue runs, using a shared eligibility feed.</p>
+        <div class="imeta"><span>Phase 4 of 4</span><span>91%</span></div>
+        <div class="bar"><span style="background:#FFB800" data-w="91"></span></div>
+      </div>
+      <div class="icard">
+        <div class="co">Health system · 14 hospitals</div>
+        <h4>Discharge With A Plan</h4>
+        <p>Housing and food placement attached to discharge paperwork, not left to a leaflet.</p>
+        <div class="imeta"><span>Phase 2 of 4</span><span>48%</span></div>
+        <div class="bar"><span style="background:#00D4FF" data-w="48"></span></div>
+      </div>
+      <div class="icard">
+        <div class="co">Logistics partner · national</div>
+        <h4>Last Mile, Every Mile</h4>
+        <p>Empty return legs carry pantry freight to rural counties at no marginal cost.</p>
+        <div class="imeta"><span>Phase 3 of 4</span><span>66%</span></div>
+        <div class="bar"><span style="background:#FF4A22" data-w="66"></span></div>
+      </div>
+      <div class="icard">
+        <div class="co">Employer coalition · 240 sites</div>
+        <h4>Paid Before Payday</h4>
+        <p>Emergency arrears cover for shift workers, repaid by the employer, not the worker.</p>
+        <div class="imeta"><span>Phase 2 of 4</span><span>39%</span></div>
+        <div class="bar"><span style="background:#FFB800" data-w="39"></span></div>
+      </div>
+      <div class="icard">
+        <div class="co">Telecoms partner · 22 states</div>
+        <h4>A Line That Answers</h4>
+        <p>Zero-rated crisis line access on prepaid plans, live in 22 states.</p>
+        <div class="imeta"><span>Phase 4 of 4</span><span>84%</span></div>
+        <div class="bar"><span style="background:#F8F9FA" data-w="84"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PARTNERS ============ -->
+<section id="partners">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <div class="kicker">06 — 333 partners</div>
+        <h2>Who we deliver with</h2>
+        <p>Partners appear here once their first outcome record is verified — not when the contract is signed.</p>
+      </div>
+    </div>
+    <div class="pstrip reveal">
+      <span class="pchip">NORTHSIDE FOOD BANK</span>
+      <span class="pchip">MERIDIAN HEALTH</span>
+      <span class="pchip">CASCADE UTILITIES</span>
+      <span class="pchip">HARBOR SHELTER NETWORK</span>
+      <span class="pchip">GREATPLAINS GROCERS</span>
+      <span class="pchip">CITY OF ALBANY</span>
+      <span class="pchip">RIVERBEND CLINIC GROUP</span>
+      <span class="pchip">ATLAS FREIGHT</span>
+      <span class="pchip">UNION LOCAL 1187</span>
+      <span class="pchip">SOUTHERN POWER CO-OP</span>
+      <span class="pchip">LAKESHORE SCHOOLS</span>
+      <span class="pchip">DESERT VALLEY HOUSING</span>
+      <span class="pchip">FIRSTLINE TELECOM</span>
+      <span class="pchip">PIEDMONT MUTUAL</span>
+      <span class="pchip">+ 319 MORE</span>
+    </div>
+  </div>
+</section>
+
+<footer style="margin-top:40px">
+  <div class="wrap fbot">
+    <div>DAD — Dynamic Aid Delivery · The Open Ledger</div>
+    <div>Product mockup · Illustrative data · July 2026</div>
+    <div>Aid, delivered.</div>
+  </div>
+</footer>
+
+</div>
+
+<script>
+/* ============================================================
+   US DOT-MATRIX MAP
+   ============================================================ */
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('usmap');
+
+// Stylised continental outline (viewBox 1000 x 540)
+const MAINLAND = [
+  [60,60],[300,50],[470,44],[506,64],[540,96],[566,114],[600,84],[628,118],
+  [652,148],[700,154],[740,140],[780,118],[820,96],[860,72],[898,56],[916,110],
+  [892,150],[884,186],[900,204],[898,246],[878,268],[884,300],[890,348],[900,360],
+  [930,470],[905,470],[878,382],[840,388],[800,392],[756,402],[706,396],[664,414],
+  [622,406],[580,428],[540,452],[518,472],[470,440],[430,412],[392,392],[352,352],
+  [264,352],[200,352],[150,376],[120,342],[92,300],[102,268],[62,200],[76,148]
+];
+const ALASKA = [[52,432],[92,414],[132,424],[152,446],[130,472],[88,480],[58,466]];
+const HAWAII = [[186,486],[214,486],[224,502],[196,506]];
+const LAKE_MI = [[598,96],[618,98],[620,146],[602,152],[592,124]];
+const LAKE_ERIE = [[672,150],[716,146],[718,160],[676,164]];
+const SHAPES = [MAINLAND, ALASKA, HAWAII];
+const HOLES  = [LAKE_MI, LAKE_ERIE];
+
+function inPoly(x, y, poly){
+  let hit = false;
+  for(let i=0, j=poly.length-1; i<poly.length; j=i++){
+    const xi=poly[i][0], yi=poly[i][1], xj=poly[j][0], yj=poly[j][1];
+    if(((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi)) hit = !hit;
+  }
+  return hit;
+}
+function inUS(x,y){
+  return SHAPES.some(p => inPoly(x,y,p)) && !HOLES.some(p => inPoly(x,y,p));
+}
+
+// --- dot matrix ---
+const dotLayer = document.createElementNS(NS,'g');
+const STEP = 11;
+let dots = [];
+for(let y=40; y<520; y+=STEP){
+  for(let x=40; x<965; x+=STEP){
+    const ox = (Math.round(y/STEP) % 2) ? STEP/2 : 0;
+    const px = x+ox;
+    if(!inUS(px,y)) continue;
+    const c = document.createElementNS(NS,'circle');
+    c.setAttribute('cx',px); c.setAttribute('cy',y); c.setAttribute('r',1.9);
+    c.setAttribute('fill','#F8F9FA');
+    c.setAttribute('opacity','0');
+    dotLayer.appendChild(c);
+    dots.push({el:c, x:px, y:y});
+  }
+}
+svg.appendChild(dotLayer);
+
+// stagger the dots in, brighter toward the coasts/centre of activity
+dots.forEach(d=>{
+  const delay = (d.x/965)*900 + Math.random()*420;
+  setTimeout(()=>{
+    d.el.style.transition='opacity .7s ease';
+    d.el.setAttribute('opacity', (0.10 + Math.random()*0.11).toFixed(3));
+  }, delay);
+});
+
+/* ---------- delivery sites ---------- */
+const CAT = {
+  food:   {c:'#FF4A22', label:'Food & nutrition'},
+  bills:  {c:'#FFB800', label:'Bills & utilities'},
+  house:  {c:'#00D4FF', label:'Housing & shelter'},
+  mind:   {c:'#F8F9FA', label:'Mental health'}
+};
+const SITES = [
+  ['Seattle, WA',95,88,'food',18400,'$212K','2m ago'],
+  ['Portland, OR',82,132,'house',12100,'$168K','9m ago'],
+  ['San Francisco, CA',100,256,'mind',22600,'$304K','just now'],
+  ['Los Angeles, CA',128,330,'food',68200,'$742K','1m ago'],
+  ['San Diego, CA',146,366,'bills',19800,'$241K','14m ago'],
+  ['Phoenix, AZ',216,344,'food',34500,'$389K','6m ago'],
+  ['Las Vegas, NV',168,276,'bills',16200,'$198K','21m ago'],
+  ['Denver, CO',330,240,'house',24100,'$277K','4m ago'],
+  ['Salt Lake City, UT',232,206,'mind',11400,'$142K','33m ago'],
+  ['Boise, ID',182,142,'food',8600,'$97K','18m ago'],
+  ['Billings, MT',332,112,'bills',5400,'$61K','52m ago'],
+  ['Albuquerque, NM',302,300,'house',10900,'$128K','27m ago'],
+  ['El Paso, TX',334,348,'food',21700,'$246K','7m ago'],
+  ['Minneapolis, MN',520,122,'food',28900,'$318K','3m ago'],
+  ['Milwaukee, WI',588,150,'mind',14700,'$171K','11m ago'],
+  ['Chicago, IL',592,178,'food',71300,'$806K','just now'],
+  ['Detroit, MI',652,166,'bills',44800,'$512K','5m ago'],
+  ['Cleveland, OH',700,180,'house',26200,'$291K','16m ago'],
+  ['Cincinnati, OH',680,216,'food',19600,'$224K','23m ago'],
+  ['Pittsburgh, PA',750,196,'bills',21300,'$248K','12m ago'],
+  ['Kansas City, MO',512,216,'food',23400,'$266K','8m ago'],
+  ['St. Louis, MO',572,226,'mind',25100,'$284K','19m ago'],
+  ['Oklahoma City, OK',482,290,'bills',17800,'$203K','29m ago'],
+  ['Little Rock, AR',572,300,'food',13200,'$149K','37m ago'],
+  ['Dallas, TX',492,338,'food',48600,'$556K','2m ago'],
+  ['Houston, TX',522,386,'house',52300,'$601K','just now'],
+  ['New Orleans, LA',612,378,'food',26800,'$302K','15m ago'],
+  ['Memphis, TN',602,290,'mind',22400,'$253K','24m ago'],
+  ['Nashville, TN',668,272,'mind',20100,'$229K','31m ago'],
+  ['Birmingham, AL',664,318,'food',18900,'$214K','13m ago'],
+  ['Atlanta, GA',720,308,'food',56400,'$648K','1m ago'],
+  ['Charlotte, NC',780,276,'house',24700,'$281K','17m ago'],
+  ['Washington, DC',832,214,'bills',33900,'$392K','6m ago'],
+  ['Philadelphia, PA',858,182,'food',46200,'$531K','4m ago'],
+  ['New York, NY',878,156,'food',94100,'$1.08M','just now'],
+  ['Boston, MA',902,126,'house',31600,'$364K','10m ago'],
+  ['Orlando, FL',896,406,'food',27300,'$308K','22m ago'],
+  ['Miami, FL',906,446,'bills',38200,'$441K','3m ago'],
+  ['Anchorage, AK',100,446,'house',4200,'$58K','1h ago'],
+  ['Honolulu, HI',203,494,'food',6100,'$74K','44m ago']
+];
+
+const pinLayer = document.createElementNS(NS,'g');
+svg.appendChild(pinLayer);
+
+const tip = document.getElementById('tip');
+const fmt = n => n.toLocaleString('en-US');
+
+SITES.forEach((s,i)=>{
+  const [city,x,y,cat,people,amt,time] = s;
+  const col = CAT[cat].c;
+  const r = 3.2 + Math.min(4.6, Math.sqrt(people)/58);
+
+  const g = document.createElementNS(NS,'g');
+  g.setAttribute('class','pin');
+  g.setAttribute('opacity','0');
+
+  const halo = document.createElementNS(NS,'circle');
+  halo.setAttribute('class','halo');
+  halo.setAttribute('cx',x); halo.setAttribute('cy',y);
+  halo.setAttribute('r', r*3.4); halo.setAttribute('fill',col);
+
+  const ring = document.createElementNS(NS,'circle');
+  ring.setAttribute('cx',x); ring.setAttribute('cy',y);
+  ring.setAttribute('r', r*1.9); ring.setAttribute('fill','none');
+  ring.setAttribute('stroke',col); ring.setAttribute('stroke-width','.9');
+  ring.setAttribute('opacity','.42');
+
+  const core = document.createElementNS(NS,'circle');
+  core.setAttribute('class','core');
+  core.setAttribute('cx',x); core.setAttribute('cy',y);
+  core.setAttribute('r', r); core.setAttribute('fill',col);
+
+  g.append(halo, ring, core);
+  pinLayer.appendChild(g);
+
+  setTimeout(()=>{
+    g.style.transition='opacity .6s ease';
+    g.setAttribute('opacity','1');
+  }, 900 + i*38);
+
+  // slow breathing on the biggest sites
+  if(people > 40000){
+    const an = document.createElementNS(NS,'animate');
+    an.setAttribute('attributeName','r');
+    an.setAttribute('values', `${r*1.9};${r*3.6};${r*1.9}`);
+    an.setAttribute('dur', (2.6 + Math.random()*1.6)+'s');
+    an.setAttribute('repeatCount','indefinite');
+    const an2 = document.createElementNS(NS,'animate');
+    an2.setAttribute('attributeName','opacity');
+    an2.setAttribute('values','.55;0;.55');
+    an2.setAttribute('dur', (2.6 + Math.random()*1.6)+'s');
+    an2.setAttribute('repeatCount','indefinite');
+    ring.append(an, an2);
+  }
+
+  g.addEventListener('mouseenter', ()=>{
+    tip.querySelector('.t-city').textContent = city;
+    const p = tip.querySelector('.t-prog');
+    p.textContent = CAT[cat].label;
+    p.style.color = col;
+    tip.querySelector('.t-people').textContent = fmt(people);
+    tip.querySelector('.t-amt').textContent = amt;
+    tip.querySelector('.t-time').textContent = time;
+    const box = svg.getBoundingClientRect();
+    tip.style.left = (x/1000*box.width + 10) + 'px';
+    tip.style.top  = (y/540*box.height + 8) + 'px';
+    tip.style.opacity = 1;
+  });
+  g.addEventListener('mouseleave', ()=> tip.style.opacity = 0);
+});
+
+/* ---------- animated delivery arcs ---------- */
+const arcLayer = document.createElementNS(NS,'g');
+svg.insertBefore(arcLayer, pinLayer);
+function arc(a,b,col,dur,delay){
+  const [x1,y1]=a,[x2,y2]=b;
+  const mx=(x1+x2)/2, my=(y1+y2)/2 - Math.hypot(x2-x1,y2-y1)*0.28;
+  const p = document.createElementNS(NS,'path');
+  p.setAttribute('d',`M${x1},${y1} Q${mx},${my} ${x2},${y2}`);
+  p.setAttribute('fill','none'); p.setAttribute('stroke',col);
+  p.setAttribute('stroke-width','1'); p.setAttribute('opacity','.34');
+  p.setAttribute('stroke-dasharray','5 260'); p.setAttribute('stroke-linecap','round');
+  const an = document.createElementNS(NS,'animate');
+  an.setAttribute('attributeName','stroke-dashoffset');
+  an.setAttribute('values','265;0'); an.setAttribute('dur',dur+'s');
+  an.setAttribute('begin',delay+'s'); an.setAttribute('repeatCount','indefinite');
+  p.appendChild(an);
+  arcLayer.appendChild(p);
+}
+[[[95,88],[592,178]],[[128,330],[720,308]],[[906,446],[492,338]],
+ [[216,344],[878,156]],[[520,122],[832,214]],[[522,386],[592,178]]]
+ .forEach((pair,i)=> arc(pair[0],pair[1],'#00D4FF', 3.4+i*0.5, i*0.7));
+
+/* ============================================================
+   COUNTERS
+   ============================================================ */
+function compact(n){
+  if(n>=1e9) return (n/1e9).toFixed(1).replace(/\.0$/,'')+'B';
+  if(n>=1e6) return (n/1e6).toFixed(1).replace(/\.0$/,'')+'M';
+  if(n>=1e3) return (n/1e3).toFixed(0)+'K';
+  return String(Math.round(n));
+}
+function runCount(el){
+  if(el.dataset.done) return;
+  el.dataset.done = 1;
+  const target = parseFloat(el.dataset.count);
+  const pre = el.dataset.prefix || '';
+  const suf = el.dataset.suffix || '';
+  const dec = parseInt(el.dataset.decimals || 0);
+  const isCompact = el.dataset.format === 'compact';
+  const dur = 1700, t0 = performance.now();
+  function step(t){
+    const k = Math.min(1,(t-t0)/dur);
+    const e = 1 - Math.pow(1-k, 3);
+    const v = target*e;
+    el.textContent = pre + (isCompact ? compact(v) : v.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec})) + suf;
+    if(k<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ---------- sparklines ---------- */
+function buildSpark(el){
+  if(el.dataset.built) return;
+  el.dataset.built = 1;
+  const vals = el.dataset.spark.split(',').map(Number);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  vals.forEach((v,i)=>{
+    const b = document.createElement('i');
+    b.style.height = '2px';
+    el.appendChild(b);
+    setTimeout(()=>{
+      b.style.height = (8 + ((v-min)/((max-min)||1))*22) + 'px';
+    }, i*55);
+  });
+}
+function buildChart(el){
+  if(el.dataset.built) return;
+  el.dataset.built = 1;
+  const vals = el.dataset.chart.split(',').map(Number);
+  const min = Math.min(...vals)*0.94, max = Math.max(...vals);
+  vals.forEach((v,i)=>{
+    const b = document.createElement('div');
+    el.appendChild(b);
+    setTimeout(()=>{ b.style.height = (14 + ((v-min)/((max-min)||1))*62) + 'px'; }, i*70);
+  });
+}
+
+/* ============================================================
+   REVEAL ON SCROLL
+   ============================================================ */
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(!en.isIntersecting) return;
+    en.target.classList.add('in');
+    en.target.querySelectorAll('[data-count]').forEach(runCount);
+    en.target.querySelectorAll('[data-spark]').forEach(buildSpark);
+    en.target.querySelectorAll('[data-chart]').forEach(buildChart);
+    en.target.querySelectorAll('.bar span').forEach((s,i)=>{
+      setTimeout(()=> s.style.width = s.dataset.w + '%', 120 + i*70);
+    });
+    io.unobserve(en.target);
+  });
+},{threshold:.14});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ============================================================
+   LIVE FEED
+   ============================================================ */
+const FEED_CITIES = SITES.map(s=>s[0]);
+const FEED_PROGS = [
+  ['Every Table Full','food'],['Keep The Lights On','bills'],
+  ['Doors Not Waitlists','house'],['Someone Picks Up','mind'],
+  ['Clinic Without Walls','house'],['First Paycheck','bills'],
+  ['Rural Relay','food']
+];
+const ACTIONS = [
+  'Pantry route completed','Utility arrears cleared','Shelter placement confirmed',
+  'Crisis line staffed','Rent arrears cleared','Mobile clinic session closed',
+  'Grocery delivery verified','Prescription cost covered'
+];
+let recNo = 4217;
+const feed = document.getElementById('feed');
+
+function feedItem(){
+  const city = FEED_CITIES[Math.floor(Math.random()*FEED_CITIES.length)];
+  const [prog,cat] = FEED_PROGS[Math.floor(Math.random()*FEED_PROGS.length)];
+  const act = ACTIONS[Math.floor(Math.random()*ACTIONS.length)];
+  const amt = '$' + (Math.floor(Math.random()*940)+60).toLocaleString();
+  const people = Math.floor(Math.random()*180)+8;
+  recNo++;
+  const el = document.createElement('div');
+  el.className = 'f-item';
+  el.innerHTML =
+    `<span class="bul" style="background:${CAT[cat].c}"></span>
+     <div>
+       <div class="l1">${act} — <span style="color:#A9BCBC">${city}</span></div>
+       <div class="l2">${prog} · REC #${recNo} · verified</div>
+       <div class="l2" style="margin-top:6px"><span class="amt">${amt}</span> · ${people} people reached</div>
+     </div>`;
+  feed.prepend(el);
+  while(feed.children.length > 9) feed.lastChild.remove();
+}
+for(let i=0;i<9;i++) feedItem();
+setInterval(feedItem, 2600);
+
+/* last-write clock */
+let secs = 0;
+setInterval(()=>{
+  secs = (secs + 1) % 12;
+  document.getElementById('lastwrite').textContent = secs === 0 ? 'just now' : secs + 's ago';
+}, 1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en" data-theme="dark" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Proof | DAD</title>
+<meta name="description" content="We don't have a track record yet. So here's the standard we'll be judged against: what we'll publish, for every program.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dynamicaid.org/proof/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DAD · Dynamic Aid Delivery">
+<meta property="og:title" content="The Proof | DAD">
+<meta property="og:description" content="We don't have a track record yet. So here's the standard we'll be judged against: what we'll publish, for every program.">
+<meta property="og:url" content="https://dynamicaid.org/proof/">
+<meta property="og:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Proof | DAD">
+<meta name="twitter:description" content="We don't have a track record yet. So here's the standard we'll be judged against: what we'll publish, for every program.">
+<meta name="theme-color" content="#0E1E1E">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/site.css?v=c2c7328da2">
+<script>
+/* boot flags: runs before first paint */
+(function(){
+  var h=document.documentElement; h.classList.remove('no-js'); h.classList.add('js');
+  var rm=false; try{rm=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  if(rm) h.classList.add('reduced');
+  var seen=false; try{seen=sessionStorage.getItem('dad-pl')==='1';}catch(e){}
+  if(seen||rm) h.classList.add('no-pl');
+  /* the cookie chip's strip is reserved from the first paint, so nothing jumps when it slides in */
+  var cc=null; try{cc=localStorage.getItem('dad-consent');}catch(e){}
+  if(!cc) h.classList.add('has-cookie');
+  /* never leave content hidden if the app fails to boot */
+  setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
+})();
+</script>
+<script defer src="/vendor/gsap.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/SplitText.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/lenis.min.js?v=c2c7328da2"></script>
+<script type="module" src="/js/app.js?v=c2c7328da2"></script>
+<!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
+     home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
+     fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
+<link rel="modulepreload" href="/js/core/util.js?v=c2c7328da2">
+</head>
+<body data-page="proof" data-mobile-cta="on">
+<a class="skip-link" href="#swap">Skip to content</a>
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__mark">
+    <svg viewBox="-43 -4 366 108" focusable="false">
+      <g class="pl-glyph"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
+      <g class="pl-glyph pl-g2"><path fill="#F8F9FA" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/></g>
+      <g class="pl-glyph pl-g3"><g transform="translate(280,0) scale(-1,1)"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g></g>
+      <g class="pl-bar pl-b1"><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g></g>
+      <g class="pl-bar pl-b2"><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></g>
+    </svg>
+  </div>
+  <div class="preloader__bar"><i></i></div>
+  <p class="preloader__tag">Aid, delivered.</p>
+</div>
+
+<div class="route-bar" id="route-bar" aria-hidden="true"><i></i></div>
+<div class="flood" id="flood" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true" tabindex="-1"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+    <nav class="nav__links" aria-label="Primary">
+      <a class="nav__link" href="/about/" data-nav><span class="nav__roll" data-text="About">About</span></a>
+      <a class="nav__link" href="/how-it-works/" data-nav><span class="nav__roll" data-text="How It Works">How It Works</span></a>
+      <a class="nav__link" href="/programs/" data-nav><span class="nav__roll" data-text="Programs">Programs</span></a>
+      <a class="nav__link" href="/proof/" data-nav aria-current="page"><span class="nav__roll" data-text="The Proof">The Proof</span></a>
+      <a class="nav__link" href="/team/" data-nav><span class="nav__roll" data-text="Team">Team</span></a>
+      <a class="nav__link" href="/movement/" data-nav><span class="nav__roll" data-text="The Movement">The Movement</span></a>
+    </nav>
+    <a class="btn btn--primary btn--sm nav__cta" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+    <button class="nav__burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span></span><span></span></button>
+  </div>
+  <div class="nav__progress" aria-hidden="true"><i></i></div>
+</header>
+<div class="menu is-dark" id="menu" role="dialog" aria-modal="true" aria-label="Site menu" inert>
+  <div class="menu__bg" aria-hidden="true"></div>
+  <div class="menu__inner">
+    <nav class="menu__links" aria-label="Menu">
+      <a class="menu__link" href="/about/" data-nav><span class="menu__idx">01</span><span class="menu__txt">About</span></a>
+      <a class="menu__link" href="/how-it-works/" data-nav><span class="menu__idx">02</span><span class="menu__txt">How It Works</span></a>
+      <a class="menu__link" href="/programs/" data-nav><span class="menu__idx">03</span><span class="menu__txt">Programs</span></a>
+      <a class="menu__link" href="/proof/" data-nav aria-current="page"><span class="menu__idx">04</span><span class="menu__txt">The Proof</span></a>
+      <a class="menu__link" href="/team/" data-nav><span class="menu__idx">05</span><span class="menu__txt">Team</span></a>
+      <a class="menu__link" href="/movement/" data-nav><span class="menu__idx">06</span><span class="menu__txt">The Movement</span></a>
+    </nav>
+    <div class="menu__cta"><a class="btn btn--primary btn--lg" href="/movement/"><span class="btn__label">Join the Movement</span></a></div>
+    <nav class="menu__foot" aria-label="More">
+      <a href="/building-in-public/">Building in Public</a><a href="/transparency/">Transparency</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a><a href="/movement/#careers">Careers</a>
+    </nav>
+    <p class="menu__tag">Aid, delivered.</p>
+  </div>
+</div>
+
+<main id="swap" data-page="proof" data-module="/js/pages/proof.js?v=c2c7328da2" data-scenes tabindex="-1">
+<style>
+/* ---- THE PROOF (page-scoped) ---- */
+[data-page="proof"] .pp-field { position: absolute; inset: 0; width: auto; height: auto; aspect-ratio: auto; opacity: .5; pointer-events: none; -webkit-mask-image: linear-gradient(180deg, #000 50%, transparent 98%); mask-image: linear-gradient(180deg, #000 50%, transparent 98%); }
+[data-page="proof"] .pp-ghost { position: absolute; left: 50%; top: 0; width: 2px; height: 2px; aspect-ratio: auto; margin: 0; }
+[data-page="proof"] .pf-hero { overflow: hidden; overflow: clip; }
+[data-page="proof"] .pf-hero .h-xl { max-width: 15ch; }
+
+/* what we'll publish: a ledger that writes itself in */
+[data-page="proof"] .pf-book { position: relative; border-radius: var(--r-l); background: var(--card); box-shadow: inset 0 0 0 1px var(--line-c), 0 40px 90px -60px var(--shadow-c); overflow: hidden; }
+[data-page="proof"] .pf-book__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px clamp(18px, 2.4vw, 32px); border-bottom: 1px solid var(--line-c); }
+[data-page="proof"] .pf-book__head .eyebrow { margin: 0; }
+[data-page="proof"] .pf-book__dots { display: flex; gap: 6px; }
+[data-page="proof"] .pf-book__dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); }
+[data-page="proof"] .pf-book__dots i:first-child { background: var(--red); }
+[data-page="proof"] .pf-rows { list-style: none; margin: 0; padding: 0; }
+[data-page="proof"] .pf-row { position: relative; display: grid; grid-template-columns: 40px 1fr 28px; gap: 4px 14px; align-items: baseline; padding: clamp(20px, 2.4vw, 30px) clamp(18px, 2.4vw, 32px); }
+[data-page="proof"] .pf-row__rule { position: absolute; left: clamp(18px, 2.4vw, 32px); right: clamp(18px, 2.4vw, 32px); bottom: 0; height: 1px; background: var(--line-c); }
+[data-page="proof"] .pf-row__rule::after { content: ""; position: absolute; inset: 0; background: var(--fg); transform: scaleX(0); transform-origin: 0 50%; }
+[data-page="proof"] .pf-row:last-child .pf-row__rule { display: none; }
+[data-page="proof"] .pf-row__idx { font: 500 var(--fs-mono)/1.6 var(--f-mono); letter-spacing: .2em; color: var(--fg-faint); grid-row: span 2; }
+[data-page="proof"] .pf-row__title { margin: 0; font: 700 clamp(26px, 2.6vw + 10px, 52px)/1.02 var(--f-disp); letter-spacing: -.035em; color: var(--fg); position: relative; justify-self: start; }
+[data-page="proof"] .pf-row__text { margin: 0; grid-column: 2; font: 400 var(--fs-lede)/1.4 var(--f-sans); color: var(--fg-mut); }
+[data-page="proof"] .pf-row__tick { grid-column: 3; grid-row: 1; align-self: center; width: 26px; height: 26px; color: var(--teal); }
+[data-page="proof"] .pf-row__tick circle { stroke-dasharray: 64; stroke-dashoffset: 64; }
+[data-page="proof"] .pf-row__tick path { stroke-dasharray: 16; stroke-dashoffset: 16; }
+@media (min-width: 900px) {
+  [data-page="proof"] .pf-row { grid-template-columns: 64px minmax(0, 1.1fr) minmax(0, .9fr) 32px; align-items: center; }
+  [data-page="proof"] .pf-row__idx { grid-row: auto; }
+  [data-page="proof"] .pf-row__text { grid-column: 3; }
+  [data-page="proof"] .pf-row__tick { grid-column: 4; }
+}
+/* the writing animation (JS adds .is-writing / .is-written) */
+html.js:not(.reduced) [data-page="proof"] .pf-row:not(.is-written) .pf-row__title { clip-path: inset(0 100% 0 0); }
+html.js:not(.reduced) [data-page="proof"] .pf-row:not(.is-written) .pf-row__text { opacity: 0; transform: translate3d(0, 14px, 0); }
+html.js:not(.reduced) [data-page="proof"] .pf-row:not(.is-written) .pf-row__idx { opacity: 0; }
+[data-page="proof"] .pf-row__title { clip-path: inset(0 0 0 0); transition: clip-path .9s steps(16, end) .25s; }
+[data-page="proof"] .pf-row__title::after { content: ""; position: absolute; right: -.12em; top: .1em; bottom: .1em; width: 3px; background: var(--red); opacity: 0; }
+html.js:not(.reduced) [data-page="proof"] .pf-row.is-written .pf-row__title::after { animation: pf-caret 1.4s steps(1) .2s 1 both; }
+[data-page="proof"] .pf-row__text { transition: opacity .9s var(--ease) 1s, transform 1.1s var(--ease) 1s; }
+[data-page="proof"] .pf-row__idx { transition: opacity .6s var(--ease); }
+[data-page="proof"] .pf-row.is-written .pf-row__rule::after { transform: scaleX(1); transition: transform 1.4s var(--ease) .1s; }
+[data-page="proof"] .pf-row.is-written .pf-row__tick circle { stroke-dashoffset: 0; transition: stroke-dashoffset .8s var(--ease) 1.15s; }
+[data-page="proof"] .pf-row.is-written .pf-row__tick path { stroke-dashoffset: 0; transition: stroke-dashoffset .5s var(--ease) 1.6s; }
+html.reduced [data-page="proof"] .pf-row__tick circle, html.reduced [data-page="proof"] .pf-row__tick path { stroke-dashoffset: 0; }
+html.reduced [data-page="proof"] .pf-row__rule::after { transform: scaleX(1); }
+@keyframes pf-caret { 0%, 20%, 60% { opacity: 1; } 40%, 80%, 100% { opacity: 0; } }
+
+/* honest overhead */
+[data-page="proof"] .pf-over .split { align-items: center; }
+[data-page="proof"] .pf-over__visual { position: relative; display: grid; place-items: center; min-height: clamp(260px, 34vw, 520px); }
+[data-page="proof"] .pf-over__coin { --da-w: clamp(220px, 30vw, 440px); position: relative; z-index: 0; }
+[data-page="proof"] .pf-hundred { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; pointer-events: none; }
+[data-page="proof"] .pf-hundred span { position: relative; font: 700 clamp(110px, 17vw, 300px)/.8 var(--f-disp); letter-spacing: -.06em; color: transparent; -webkit-text-stroke: 1.5px var(--line-strong); }
+[data-page="proof"] .pf-hundred span::after { content: ""; position: absolute; left: -4%; right: -4%; top: 50%; height: clamp(6px, .8vw, 12px); margin-top: -4px; border-radius: 6px; background: var(--red); transform: scaleX(var(--p, 0)) rotate(-8deg); transform-origin: 0 50%; box-shadow: 0 8px 30px -6px rgba(255, 74, 34, .55); }
+[data-page="proof"] .pf-over__statement { max-width: 14ch; }
+
+/* live ledger: the Open Ledger stage (css/ledger.css) */
+
+[data-page="proof"].has-scenes .pf-row__title { font-size: clamp(22px, min(2.6vw + 10px, 5svh), 52px); }
+[data-page="proof"].has-scenes .pf-hundred span { font-size: clamp(100px, min(17vw, 30svh), 300px); }
+[data-page="proof"].has-scenes .pf-live .section-head { margin-bottom: 0; }
+/* principles: the base card (the list markers and the card frame had gone missing, so the
+   numerals read "1. 01" and the row collapsed to a plain list) */
+[data-page="proof"] .pf-stack { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(14px, 1.6vw, 24px); }
+[data-page="proof"] .pf-p { display: grid; gap: 14px; padding: clamp(22px, 2.4vw, 34px); border-radius: var(--r-l); background: var(--card); box-shadow: inset 0 0 0 1px var(--line-c); }
+[data-page="proof"] .pf-p__top { display: flex; align-items: center; gap: 14px; }
+[data-page="proof"] .pf-p__idx { flex: none; font: 500 var(--fs-mono)/1 var(--f-mono); letter-spacing: .2em; color: var(--fg-faint); }
+[data-page="proof"] .pf-p__bar { flex: 1; height: 2px; border-radius: 2px; background: var(--c, var(--fg-faint)); opacity: .8; }
+[data-page="proof"] .pf-p__title { margin: 0; font: 700 var(--fs-m)/1.05 var(--f-disp); letter-spacing: -.03em; color: var(--fg); text-wrap: balance; }
+[data-page="proof"] .pf-p__text { margin: 0; font-size: var(--fs-lede); line-height: 1.45; color: var(--fg-mut); text-wrap: pretty; }
+/* principles: three, then two, as a row of cards (one scene each); phones stack them, no sideways swipe */
+[data-page="proof"].has-scenes .pf-p { position: relative; top: auto; transform: none !important; --dim: 0 !important; min-height: 0; grid-template-columns: 1fr; align-content: start; gap: clamp(12px, 1.8svh, 20px); }
+[data-page="proof"].has-scenes .pf-p__title { font-size: var(--fs-m); line-height: 1.05; }
+[data-page="proof"].has-scenes .pf-p__text { font-size: var(--fs-lede); color: var(--fg-mut); }
+[data-page="proof"].has-scenes .pf-p__idx { color: var(--fg); font-weight: 600; }
+[data-page="proof"].has-scenes .pf-principles .section-head { margin-bottom: clamp(16px, 3svh, 40px); }
+@media (min-width: 720px) {
+  [data-page="proof"].has-scenes .pf-stack { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 1.6vw, 24px); }
+  [data-page="proof"].has-scenes .pf-stack--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-page="proof"].has-scenes .pf-stack--2 .pf-p__title { font-size: var(--fs-l); }
+}
+@media (max-width: 719px) {
+  [data-page="proof"].has-scenes .pf-stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(8px, 1.4svh, 12px); }
+  [data-page="proof"].has-scenes .pf-p { padding: clamp(12px, 2svh, 18px) 16px; gap: clamp(5px, 1svh, 9px); }
+  [data-page="proof"].has-scenes .pf-p__title { font-size: clamp(20px, min(5.8vw, 3.1svh), 26px); }
+  [data-page="proof"].has-scenes .pf-p__text { font-size: clamp(13.5px, min(3.9vw, 2.05svh), 16px); line-height: 1.42; }
+}
+/* the live ledger head: the drop rests beside the claim, set large */
+[data-page="proof"].has-scenes .pf-live__head .h-l { font-size: var(--fs-xl); line-height: .98; }
+[data-page="proof"] .pf-live__side { display: grid; gap: clamp(14px, 2.4svh, 28px); justify-items: start; }
+[data-page="proof"] .pf-live__coin { --da-w: clamp(110px, min(24vw, 34svh), 320px); margin: 0; }
+@media (max-width: 959px) { [data-page="proof"] .pf-live__side { grid-template-columns: auto 1fr; align-items: center; } [data-page="proof"] .pf-live__coin { --da-w: clamp(84px, 14svh, 130px); } }
+@media (max-width: 719px) {
+  [data-page="proof"].has-scenes .pf-row { padding-block: clamp(8px, 1.4svh, 16px); }
+  [data-page="proof"].has-scenes .pf-row__title { font-size: clamp(19px, min(5.4vw, 3svh), 26px); }
+  [data-page="proof"].has-scenes .pf-hundred span { font-size: clamp(84px, min(26vw, 16svh), 150px); }
+  [data-page="proof"].has-scenes .pf-over__visual { min-height: 0; }
+  [data-page="proof"].has-scenes .pf-over__coin { --da-w: clamp(110px, 20svh, 200px); }
+  [data-page="proof"].has-scenes .pf-over .split { gap: 12px; }
+  [data-page="proof"].has-scenes .pf-over .stack-l { --gap: clamp(10px, 1.8svh, 20px); }
+}
+</style>
+
+<!-- 1 · HERO -->
+<section class="section section--hero pf-hero" data-theme="dark" aria-labelledby="pf-title" data-scene data-scene-name="The proof">
+  <div class="dots pp-field" data-dots="field" data-dots-start="instant" aria-hidden="true"></div>
+  <span class="glow" style="--x:76%;--y:44%;--o:.75"></span>
+  <div class="container">
+    <div class="split split--wide-text">
+      <div class="stack stack-l">
+        <p class="eyebrow" data-reveal="fade">The proof</p>
+        <h1 class="h-xl" id="pf-title" data-reveal="split-lines">We don't have a track record yet. <span class="hl">So here's the standard we'll be judged against.</span></h1>
+        <p class="lede measure" data-reveal="up" data-delay=".3">Every organization at this stage dresses up early momentum as evidence. We're doing the opposite: publishing the bar before we clear it.</p>
+      </div>
+      <div class="dollar-anchor dollar-anchor--hero" data-dollar="spin"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · WHAT WE'LL PUBLISH, FOR EVERY PROGRAM -->
+<section class="section pf-publish" data-theme="light" aria-labelledby="pf-pub-h" data-scene data-scene-name="What we'll publish">
+  <div class="dollar-anchor pp-ghost" data-dollar="ambient"></div>
+  <div class="container">
+    <div class="pf-book" data-reveal="up">
+      <div class="pf-book__head">
+        <h2 class="eyebrow" id="pf-pub-h">What we'll publish, for every program</h2>
+        <span class="pf-book__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      </div>
+      <ol class="pf-rows">
+        <li class="pf-row"><span class="pf-row__idx" aria-hidden="true">01</span><h3 class="pf-row__title">What it funded.</h3><p class="pf-row__text">Down to the line item.</p><svg class="pf-row__tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7.6 12.4l3 3 5.8-6.4"/></svg><span class="pf-row__rule" aria-hidden="true"></span></li>
+        <li class="pf-row"><span class="pf-row__idx" aria-hidden="true">02</span><h3 class="pf-row__title">What it delivered.</h3><p class="pf-row__text">Counted, verified, dated.</p><svg class="pf-row__tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7.6 12.4l3 3 5.8-6.4"/></svg><span class="pf-row__rule" aria-hidden="true"></span></li>
+        <li class="pf-row"><span class="pf-row__idx" aria-hidden="true">03</span><h3 class="pf-row__title">What it cost.</h3><p class="pf-row__text">Cost per outcome, not just total spend.</p><svg class="pf-row__tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7.6 12.4l3 3 5.8-6.4"/></svg><span class="pf-row__rule" aria-hidden="true"></span></li>
+        <li class="pf-row"><span class="pf-row__idx" aria-hidden="true">04</span><h3 class="pf-row__title">Money held vs money deployed.</h3><p class="pf-row__text">No mystery reserves.</p><svg class="pf-row__tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7.6 12.4l3 3 5.8-6.4"/></svg><span class="pf-row__rule" aria-hidden="true"></span></li>
+        <li class="pf-row"><span class="pf-row__idx" aria-hidden="true">05</span><h3 class="pf-row__title">Time from funding to launch.</h3><p class="pf-row__text">How long your dollar waited.</p><svg class="pf-row__tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7.6 12.4l3 3 5.8-6.4"/></svg><span class="pf-row__rule" aria-hidden="true"></span></li>
+        <li class="pf-row"><span class="pf-row__idx" aria-hidden="true">06</span><h3 class="pf-row__title">What we got wrong.</h3><p class="pf-row__text">And what we changed because of it.</p><svg class="pf-row__tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7.6 12.4l3 3 5.8-6.4"/></svg><span class="pf-row__rule" aria-hidden="true"></span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · THE HONEST VERSION OF OVERHEAD (coin splits) -->
+<section class="section pf-over" data-theme="light" aria-labelledby="pf-over-h" data-scene data-scene-name="Overhead">
+  <div class="container">
+    <div class="split">
+      <div class="stack stack-l">
+        <h2 class="eyebrow" id="pf-over-h" data-reveal="fade">The honest version of overhead</h2>
+        <p class="h-l pf-over__statement" data-reveal="split-lines">Nobody gets 100% of your dollar to the work.</p>
+        <p class="lede" data-reveal="up">Anyone who says they do is paying for the rest somewhere you can't see.</p>
+        <p class="body measure" data-reveal="up" data-delay=".15">We'll publish the split: what reached the program, what it cost to run DAD, and why.</p>
+      </div>
+      <div class="pf-over__visual split__visual">
+        <p class="pf-hundred" aria-hidden="true" data-progress data-progress-start="top 70%" data-progress-end="center 45%"><span>100%</span></p>
+        <div class="dollar-anchor pf-over__coin" data-dollar="ambient"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · THE LIVE LEDGER (dark island: the drop rains onto the map, then the Open Ledger deck) -->
+<section class="section pf-live" data-theme="light" aria-labelledby="pf-live-h">
+  <div class="container">
+    <div class="pf-live__head scene-flex" data-scene data-scene-name="The live ledger">
+    <div class="section-head section-head--split">
+      <div class="stack">
+        <h2 class="eyebrow" id="pf-live-h" data-reveal="fade">The live ledger</h2>
+        <p class="h-l" data-reveal="split-lines">Not an annual PDF. A running public record.</p>
+      </div>
+      <div class="pf-live__side">
+        <div class="dollar-anchor pf-live__coin" data-dollar="ambient"></div>
+        <p class="lede" data-reveal="up" data-delay=".2">Including the parts that don't make us look good.</p>
+      </div>
+    </div>
+    </div>
+    <div class="lgx pf-lgx" data-ledger data-scene data-scene-steps="4" data-scene-name="A running record">
+      <div class="lgx__a" data-dollar="ambient"></div><!-- the rain throw is off: the opaque map card hides droplets drawn behind it -->
+      <div class="lgx__a lgx__a--1" data-dollar="ambient"></div>
+      <div class="lgx__a lgx__a--3" data-dollar="ambient"></div>
+      <!-- OPEN LEDGER STAGE. Include inside <div class="lgx" data-ledger data-scene data-scene-steps="4">.
+     Step 0: the drop rains onto the map. Steps 1-3: the three-window deck (Program register, Overview, Outcomes).
+     DOM order = shuffle order: the register is first so the flow lines land on its rows.
+     Behaviour: src/js/core/ledger.js. Look: src/css/ledger.css. All figures are example data. -->
+<div class="lgx__stage">
+  <div class="island lgx__island">
+    <div class="lgx__legend" aria-hidden="true"><i class="cat-food"></i><i class="cat-health"></i><i class="cat-opps"></i><i class="cat-infra"></i></div>
+    <div class="lgx__map" aria-hidden="true"><div class="lgx__mapbox"><div class="dots" data-dots="map" data-dots-color="paper"></div></div></div>
+    <svg class="lgx__flow" aria-hidden="true" focusable="false"></svg>
+
+    <div class="lgx__deckwrap">
+      <div class="lgx__deck" role="region" aria-label="Open Ledger, example data">
+
+        <!-- WINDOW 1 · PROGRAM REGISTER (in front first: the map flow lands on its rows) -->
+        <article class="lw lw--reg" aria-labelledby="lw-t-reg">
+          <div class="lw__shadow" aria-hidden="true"></div>
+          <div class="lw__glass">
+            <header class="lw__bar">
+              <span class="lw__lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <h3 class="lw__title" id="lw-t-reg">DAD · Open Ledger: Program register</h3>
+              <span class="lw__pill">Example data</span>
+            </header>
+            <div class="lw__body lw-reg">
+              <div class="lw-reg__head">
+                <p class="lw-reg__lede">The full register is downloadable as CSV. Any number here can be traced to a delivery record, a partner invoice and a verification timestamp.</p>
+                <button type="button" class="lw-ghost" aria-disabled="true"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v7.5m0 0 3-3m-3 3-3-3M3 12.5h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Export full register (CSV)</button>
+              </div>
+              <div class="lw-table" role="table" aria-label="Program register, example data">
+                <div class="lw-tr lw-tr--head" role="row"><span role="columnheader">Program</span><span role="columnheader">Deployed</span><span role="columnheader" class="lw-col-people">People reached</span><span role="columnheader">Verified outcomes</span><span role="columnheader">Status</span></div>
+                <div class="lw-tr" role="row" data-cat="food" style="--c: var(--red); --s: var(--cyan); --i: 0"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>Every Table Full</b><small>PRG-0114 · 38 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$6.42M</span></span><span role="cell" class="lw-num lw-col-people">884,210</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .97"></i></span><small>97% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Operating</span></span></div>
+                <div class="lw-tr" role="row" data-cat="opportunities" style="--c: var(--gold); --s: var(--cyan); --i: 1"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>Keep The Lights On</b><small>PRG-0221 · 29 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$5.18M</span></span><span role="cell" class="lw-num lw-col-people">412,880</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .99"></i></span><small>99% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Operating</span></span></div>
+                <div class="lw-tr" role="row" data-cat="health" style="--c: var(--cyan); --s: var(--cyan); --i: 2"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>Doors Not Waitlists</b><small>PRG-0308 · 22 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$3.96M</span></span><span role="cell" class="lw-num lw-col-people">168,430</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .94"></i></span><small>94% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Operating</span></span></div>
+                <div class="lw-tr" role="row" data-cat="infrastructure" style="--c: #F8F9FA; --s: var(--gold); --i: 3"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>Someone Picks Up</b><small>PRG-0402 · 31 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$2.87M</span></span><span role="cell" class="lw-num lw-col-people">641,090</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .91"></i></span><small>91% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Scaling</span></span></div>
+                <div class="lw-tr" role="row" style="--c: #1FA8A8; --s: var(--gold); --i: 4"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>Clinic Without Walls</b><small>PRG-0517 · 18 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$2.14M</span></span><span role="cell" class="lw-num lw-col-people">203,760</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .88"></i></span><small>88% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Scaling</span></span></div>
+                <div class="lw-tr" role="row" data-cat="food" style="--c: var(--red); --s: var(--red); --i: 5"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>First Paycheck</b><small>PRG-0623 · 12 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$1.44M</span></span><span role="cell" class="lw-num lw-col-people">61,340</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .76"></i></span><small>76% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Piloting</span></span></div>
+                <div class="lw-tr" role="row" data-cat="opportunities" style="--c: var(--gold); --s: var(--red); --i: 6"><span role="cell" class="lw-prog"><i class="lw-sq"></i><span><b>Rural Relay</b><small>PRG-0709 · 9 states</small></span></span><span role="cell" class="lw-num"><span data-roll>$0.98M</span></span><span role="cell" class="lw-num lw-col-people">46,170</span><span role="cell" class="lw-ver"><span class="lw-bar"><i style="--v: .68"></i></span><small>68% verified</small></span><span role="cell" class="lw-st"><span class="lw-status">Piloting</span></span></div>
+              </div>
+            </div>
+          </div>
+          <div class="lw__dim" aria-hidden="true"></div>
+        </article>
+
+        <!-- WINDOW 2 · OVERVIEW -->
+        <article class="lw lw--ov" aria-labelledby="lw-t-ov">
+          <div class="lw__shadow" aria-hidden="true"></div>
+          <div class="lw__glass">
+            <header class="lw__bar">
+              <span class="lw__lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <h3 class="lw__title" id="lw-t-ov">DAD · Open Ledger: Overview</h3>
+              <span class="lw__pill">Example data</span>
+            </header>
+            <div class="lw__body lw-ov">
+              <div class="lw-ov__stats">
+                <div class="lw-stat" style="--c: var(--red)">
+                  <p class="lw-label">People helped</p>
+                  <p class="lw-big" data-roll>2,417,880</p>
+                  <p class="lw-desc">Unique individuals reached across 120 active programs.</p>
+                  <span class="lw-chip lw-chip--up"><span aria-hidden="true">▲</span> 84,110 this quarter</span>
+                </div>
+                <div class="lw-stat" style="--c: var(--gold)">
+                  <p class="lw-label">Meals funded</p>
+                  <p class="lw-big" data-roll>41.2M</p>
+                  <p class="lw-desc">Delivered through 214 food partners and 38 mobile pantries.</p>
+                  <span class="lw-chip lw-chip--up"><span aria-hidden="true">▲</span> 12.4% vs. last quarter</span>
+                </div>
+                <div class="lw-stat" style="--c: var(--cyan)">
+                  <p class="lw-label">Bills paid</p>
+                  <p class="lw-big" data-roll>$18.7M</p>
+                  <p class="lw-desc">Rent, utilities and medical arrears cleared at the source.</p>
+                  <span class="lw-chip lw-chip--up"><span aria-hidden="true">▲</span> $1.9M this quarter</span>
+                </div>
+                <div class="lw-stat" style="--c: #F8F9FA">
+                  <p class="lw-label">Traceable to outcome</p>
+                  <p class="lw-big" data-roll>100%</p>
+                  <p class="lw-desc">Every dollar carries a receipt. Unverified spend is published as unverified.</p>
+                  <span class="lw-chip lw-chip--ok">0 unreconciled records</span>
+                </div>
+              </div>
+              <dl class="lw-meta">
+                <div><dt>Ledger opened</dt><dd>04 Jan 2027</dd></div>
+                <div><dt>Last write</dt><dd><i class="lw-live" aria-hidden="true"></i>4s ago</dd></div>
+                <div><dt>Independent audits</dt><dd>7 of 7 passed</dd></div>
+                <div><dt>Records published</dt><dd>1,284,006</dd></div>
+              </dl>
+            </div>
+          </div>
+          <div class="lw__dim" aria-hidden="true"></div>
+        </article>
+
+        <!-- WINDOW 3 · OUTCOMES -->
+        <article class="lw lw--out" aria-labelledby="lw-t-out">
+          <div class="lw__shadow" aria-hidden="true"></div>
+          <div class="lw__glass">
+            <header class="lw__bar">
+              <span class="lw__lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <h3 class="lw__title" id="lw-t-out">DAD · Open Ledger: Outcomes</h3>
+              <span class="lw__pill">Example data</span>
+            </header>
+            <div class="lw__body lw-out">
+              <div class="lw-out__grid">
+                <div class="lw-oc" style="--c: var(--gold)">
+                  <p class="lw-label">Medical arrears cleared</p>
+                  <p class="lw-big" data-roll>$4.1M</p>
+                  <p class="lw-desc">Hospital and clinic balances paid at the source for 9,870 households, confirmed with the billing provider.</p>
+                  <div class="lw-spark" aria-hidden="true"><i style="--h:.2"></i><i style="--h:.27"></i><i style="--h:.31"></i><i style="--h:.4"></i><i style="--h:.46"></i><i style="--h:.55"></i><i style="--h:.62"></i><i style="--h:.71"></i><i style="--h:.83"></i><i style="--h:.96"></i></div>
+                  <p class="lw-method"><b>Method ·</b> Provider-confirmed balance · 22 hospital systems</p>
+                </div>
+                <div class="lw-oc" style="--c: var(--gold)">
+                  <p class="lw-label">Households food-secure at 6 months</p>
+                  <p class="lw-big" data-roll>78%</p>
+                  <p class="lw-desc">Up from 41% at intake. Measured by USDA six-item short form, n=18,442 households.</p>
+                  <div class="lw-spark" aria-hidden="true"><i style="--h:.38"></i><i style="--h:.41"></i><i style="--h:.47"></i><i style="--h:.5"></i><i style="--h:.57"></i><i style="--h:.61"></i><i style="--h:.66"></i><i style="--h:.72"></i><i style="--h:.75"></i><i style="--h:.8"></i></div>
+                  <p class="lw-method"><b>Method ·</b> USDA HFSSM short form · Quarterly resurvey</p>
+                </div>
+                <div class="lw-oc" style="--c: var(--red)">
+                  <p class="lw-label">Eviction filings avoided</p>
+                  <p class="lw-big" data-roll>14,206</p>
+                  <p class="lw-desc">Cases where an arrears payment cleared before a filing date, confirmed against county court records.</p>
+                  <div class="lw-spark" aria-hidden="true"><i style="--h:.14"></i><i style="--h:.22"></i><i style="--h:.3"></i><i style="--h:.35"></i><i style="--h:.44"></i><i style="--h:.52"></i><i style="--h:.6"></i><i style="--h:.7"></i><i style="--h:.84"></i><i style="--h:.94"></i></div>
+                  <p class="lw-method"><b>Method ·</b> County court record match · 92% match confidence</p>
+                </div>
+                <div class="lw-oc" style="--c: var(--cyan)">
+                  <p class="lw-label">Utility reconnections held 12 months</p>
+                  <p class="lw-big" data-roll>91%</p>
+                  <p class="lw-desc">Households still connected one year after a Keep The Lights On payment, verified with the utility.</p>
+                  <div class="lw-spark" aria-hidden="true"><i style="--h:.5"></i><i style="--h:.55"></i><i style="--h:.6"></i><i style="--h:.63"></i><i style="--h:.7"></i><i style="--h:.74"></i><i style="--h:.79"></i><i style="--h:.84"></i><i style="--h:.88"></i><i style="--h:.93"></i></div>
+                  <p class="lw-method"><b>Method ·</b> Utility-confirmed account status · 14 providers</p>
+                </div>
+              </div>
+              <div class="lw-pages" aria-hidden="true"><i class="is-on"></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+          <div class="lw__dim" aria-hidden="true"></div>
+        </article>
+
+      </div>
+      <p class="lgx__note">Example data for illustration only. DAD's first programs go live in June 2027; the live ledger publishes real records from then.</p>
+    </div>
+  </div>
+</div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 5 · WHAT WE STAND ON (stacked cards) -->
+<section class="section pf-principles" data-theme="light" aria-labelledby="pf-pr-h">
+  <div class="dollar-anchor pp-ghost" data-dollar="ambient"></div>
+  <div class="container">
+    <div class="pf-principles__scene scene-flex" data-scene data-scene-name="What we stand on">
+    <div class="section-head"><h2 class="eyebrow" id="pf-pr-h" data-reveal="fade">What we stand on</h2></div>
+    <ol class="pf-stack">
+      <li class="pf-p cat-food" style="--i:0"><div class="pf-p__top" aria-hidden="true"><span class="pf-p__idx">01</span><span class="pf-p__bar"></span></div><h3 class="pf-p__title">Proof over promise.</h3><p class="pf-p__text">We publish what happened, even when it's unflattering. A report written by the party being judged isn't evidence.</p></li>
+      <li class="pf-p cat-health" style="--i:1"><div class="pf-p__top" aria-hidden="true"><span class="pf-p__idx">02</span><span class="pf-p__bar"></span></div><h3 class="pf-p__title">Dignity is not negotiable.</h3><p class="pf-p__text">Radical transparency applies to our operations. Never to a person's hardest month. No member appears in our story without their consent, and they can take it back.</p></li>
+      <li class="pf-p cat-opps" style="--i:2"><div class="pf-p__top" aria-hidden="true"><span class="pf-p__idx">03</span><span class="pf-p__bar"></span></div><h3 class="pf-p__title">Efficiency is a moral position.</h3><p class="pf-p__text">Every dollar absorbed by structure is a dollar that didn't reach the work. Waste is an ethics failure, not just an ops one.</p></li>
+    </ol>
+    </div>
+    <div class="pf-principles__scene pf-principles__scene--2 scene-flex" data-scene data-scene-name="Participation">
+    <ol class="pf-stack pf-stack--2" start="4">
+      <li class="pf-p cat-infra" style="--i:3"><div class="pf-p__top" aria-hidden="true"><span class="pf-p__idx">04</span><span class="pf-p__bar"></span></div><h3 class="pf-p__title">Participation over patronage.</h3><p class="pf-p__text">Donors, partners, volunteers and members are on the same side of the same effort.</p></li>
+      <li class="pf-p" style="--i:4"><div class="pf-p__top" aria-hidden="true"><span class="pf-p__idx">05</span><span class="pf-p__bar"></span></div><h3 class="pf-p__title">Build in the open.</h3><p class="pf-p__text">The model, the numbers, the mistakes. Once it's proven, the system itself goes to the sector.</p></li>
+    </ol>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · CLOSE (ink, coin rests) -->
+<section class="section cta-band pf-close" data-theme="dark" aria-labelledby="pf-close-h" data-scene data-scene-name="Our promise">
+  <span class="glow" style="--x:50%;--y:55%;--size:90vmax;--o:.6"></span>
+  <div class="container cta-band__inner">
+    <div class="dollar-anchor cta-logo" data-dollar="logo" data-dollar-size="companion" data-dollar-align="center"></div>
+    <h2 class="h-l" id="pf-close-h" data-reveal="split-lines">We won't promise every initiative is perfect. We'll promise to measure it, publish it, and tell you how we did or what we could have done better.</h2>
+    <div class="btn-row" data-reveal="up">
+      <a class="btn btn--primary btn--lg" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+      <a class="btn btn--link" href="/building-in-public/"><span class="btn__label">Follow the build</span></a>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="footer is-dark" id="footer" data-theme="dark">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a class="footer__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+        <p class="footer__tag">DAD · Aid, delivered.</p>
+      </div>
+      <nav class="footer__nav" aria-label="Footer">
+        <a href="/about/">About</a>
+        <a href="/how-it-works/">How It Works</a>
+        <a href="/programs/">Programs</a>
+        <a href="/proof/">The Proof</a>
+        <a href="/team/">Team</a>
+        <a href="/building-in-public/">Building in Public</a>
+        <a href="/transparency/">Transparency</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/contact/">Contact</a>
+        <a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a>
+        <a href="/movement/#careers">Careers</a>
+      </nav>
+    </div>
+    <div class="footer__mark" aria-hidden="true"><div class="dollar-anchor dollar-anchor--fill" data-dollar="logo" data-dollar-size="fill"></div></div>
+    <p class="footer__big" aria-hidden="true" data-reveal="split-chars">Aid, delivered.</p>
+    <div class="footer__legal">
+      <p>Dynamic Aid Delivery, INC. is a Delaware non-stock corporation.</p>
+      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a></p>
+    </div>
+  </div>
+</footer>
+
+<a class="btn btn--primary mobile-cta" href="/movement/" id="mobile-cta"><span class="btn__label">Join the Movement</span></a>
+<div class="cookie is-dark" id="cookie" role="region" aria-label="Cookie notice" hidden>
+  <p class="cookie__text">We use basic analytics to see what's working. No ads. No selling.</p>
+  <div class="cookie__actions">
+    <button class="btn btn--primary btn--sm" type="button" data-consent="accept"><span class="btn__label">Accept</span></button>
+    <button class="btn btn--ghost btn--sm" type="button" data-consent="decline"><span class="btn__label">Decline</span></button>
+  </div>
+</div>
+
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
+<div class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en" data-theme="dark" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Programs | DAD</title>
+<meta name="description" content="Our mission: end human suffering. Food, health, opportunities and infrastructure. The first programs go live in June 2027.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dynamicaid.org/programs/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DAD · Dynamic Aid Delivery">
+<meta property="og:title" content="Programs | DAD">
+<meta property="og:description" content="Our mission: end human suffering. Food, health, opportunities and infrastructure. The first programs go live in June 2027.">
+<meta property="og:url" content="https://dynamicaid.org/programs/">
+<meta property="og:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Programs | DAD">
+<meta name="twitter:description" content="Our mission: end human suffering. Food, health, opportunities and infrastructure. The first programs go live in June 2027.">
+<meta name="theme-color" content="#0E1E1E">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/site.css?v=c2c7328da2">
+<script>
+/* boot flags: runs before first paint */
+(function(){
+  var h=document.documentElement; h.classList.remove('no-js'); h.classList.add('js');
+  var rm=false; try{rm=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  if(rm) h.classList.add('reduced');
+  var seen=false; try{seen=sessionStorage.getItem('dad-pl')==='1';}catch(e){}
+  if(seen||rm) h.classList.add('no-pl');
+  /* the cookie chip's strip is reserved from the first paint, so nothing jumps when it slides in */
+  var cc=null; try{cc=localStorage.getItem('dad-consent');}catch(e){}
+  if(!cc) h.classList.add('has-cookie');
+  /* never leave content hidden if the app fails to boot */
+  setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
+})();
+</script>
+<script defer src="/vendor/gsap.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/SplitText.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/lenis.min.js?v=c2c7328da2"></script>
+<script type="module" src="/js/app.js?v=c2c7328da2"></script>
+<!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
+     home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
+     fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
+<link rel="modulepreload" href="/js/core/util.js?v=c2c7328da2">
+</head>
+<body data-page="programs" data-mobile-cta="on">
+<a class="skip-link" href="#swap">Skip to content</a>
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__mark">
+    <svg viewBox="-43 -4 366 108" focusable="false">
+      <g class="pl-glyph"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
+      <g class="pl-glyph pl-g2"><path fill="#F8F9FA" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/></g>
+      <g class="pl-glyph pl-g3"><g transform="translate(280,0) scale(-1,1)"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g></g>
+      <g class="pl-bar pl-b1"><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g></g>
+      <g class="pl-bar pl-b2"><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></g>
+    </svg>
+  </div>
+  <div class="preloader__bar"><i></i></div>
+  <p class="preloader__tag">Aid, delivered.</p>
+</div>
+
+<div class="route-bar" id="route-bar" aria-hidden="true"><i></i></div>
+<div class="flood" id="flood" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true" tabindex="-1"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+    <nav class="nav__links" aria-label="Primary">
+      <a class="nav__link" href="/about/" data-nav><span class="nav__roll" data-text="About">About</span></a>
+      <a class="nav__link" href="/how-it-works/" data-nav><span class="nav__roll" data-text="How It Works">How It Works</span></a>
+      <a class="nav__link" href="/programs/" data-nav aria-current="page"><span class="nav__roll" data-text="Programs">Programs</span></a>
+      <a class="nav__link" href="/proof/" data-nav><span class="nav__roll" data-text="The Proof">The Proof</span></a>
+      <a class="nav__link" href="/team/" data-nav><span class="nav__roll" data-text="Team">Team</span></a>
+      <a class="nav__link" href="/movement/" data-nav><span class="nav__roll" data-text="The Movement">The Movement</span></a>
+    </nav>
+    <a class="btn btn--primary btn--sm nav__cta" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+    <button class="nav__burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span></span><span></span></button>
+  </div>
+  <div class="nav__progress" aria-hidden="true"><i></i></div>
+</header>
+<div class="menu is-dark" id="menu" role="dialog" aria-modal="true" aria-label="Site menu" inert>
+  <div class="menu__bg" aria-hidden="true"></div>
+  <div class="menu__inner">
+    <nav class="menu__links" aria-label="Menu">
+      <a class="menu__link" href="/about/" data-nav><span class="menu__idx">01</span><span class="menu__txt">About</span></a>
+      <a class="menu__link" href="/how-it-works/" data-nav><span class="menu__idx">02</span><span class="menu__txt">How It Works</span></a>
+      <a class="menu__link" href="/programs/" data-nav aria-current="page"><span class="menu__idx">03</span><span class="menu__txt">Programs</span></a>
+      <a class="menu__link" href="/proof/" data-nav><span class="menu__idx">04</span><span class="menu__txt">The Proof</span></a>
+      <a class="menu__link" href="/team/" data-nav><span class="menu__idx">05</span><span class="menu__txt">Team</span></a>
+      <a class="menu__link" href="/movement/" data-nav><span class="menu__idx">06</span><span class="menu__txt">The Movement</span></a>
+    </nav>
+    <div class="menu__cta"><a class="btn btn--primary btn--lg" href="/movement/"><span class="btn__label">Join the Movement</span></a></div>
+    <nav class="menu__foot" aria-label="More">
+      <a href="/building-in-public/">Building in Public</a><a href="/transparency/">Transparency</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a><a href="/movement/#careers">Careers</a>
+    </nav>
+    <p class="menu__tag">Aid, delivered.</p>
+  </div>
+</div>
+
+<main id="swap" data-page="programs" data-module="/js/pages/programs.js?v=c2c7328da2" data-scenes tabindex="-1">
+<style>
+/* ---- PROGRAMS (page-scoped) ---- */
+[data-page="programs"] .pp-field { position: absolute; inset: 0; width: auto; height: auto; aspect-ratio: auto; opacity: .55; pointer-events: none; }
+[data-page="programs"] .pp-ghost { position: absolute; left: 50%; top: 0; width: 2px; height: 2px; aspect-ratio: auto; margin: 0; }
+[data-page="programs"] .prg-hero { overflow: hidden; overflow: clip; }
+[data-page="programs"] .prg-hero .pp-field { -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 98%); mask-image: linear-gradient(180deg, #000 55%, transparent 98%); }
+[data-page="programs"] .prg-hero .container { position: relative; z-index: 1; }
+[data-page="programs"] .prg-jump { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; list-style: none; }
+[data-page="programs"] .prg-jump a { text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+[data-page="programs"] .prg-jump .pill-tag { transition: background-color .5s var(--ease), color .5s var(--ease), transform .5s var(--ease); }
+[data-page="programs"] .prg-jump a:hover .pill-tag, [data-page="programs"] .prg-jump a:focus-visible .pill-tag { transform: translateY(-3px); }
+
+/* four categories: sticky morphing illustration + scrolling panels */
+[data-page="programs"] .prg-cats { padding-bottom: calc(var(--section-y) * .5); }
+[data-page="programs"] .prg-cats__grid { display: grid; grid-template-columns: 1fr; position: relative; }
+[data-page="programs"] .prg-stage { position: sticky; top: var(--nav-h); height: 42svh; z-index: 0; display: grid; place-items: center; pointer-events: none; }
+[data-page="programs"] .prg-stage__inner { position: relative; width: 100%; height: 100%; display: grid; place-items: center; }
+[data-page="programs"] .prg-stage__glow { position: absolute; inset: 8%; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--c, var(--red)) 22%, transparent), transparent 72%); transition: background 1.2s var(--ease); filter: blur(10px); }
+[data-page="programs"] .prg-stage .dots { width: min(100%, 64vh); height: 100%; aspect-ratio: auto; }
+[data-page="programs"] .prg-rail { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; gap: 8px; margin: 0; padding: 0; list-style: none; }
+[data-page="programs"] .prg-rail li { width: 28px; height: 3px; border-radius: 3px; background: var(--line-strong); overflow: hidden; position: relative; }
+[data-page="programs"] .prg-rail li::after { content: ""; position: absolute; inset: 0; background: var(--fg); transform: scaleX(0); transform-origin: 0 50%; transition: transform .9s var(--ease); }
+[data-page="programs"] .prg-rail li.is-on::after { transform: scaleX(1); }
+[data-page="programs"] .prg-panels { position: relative; z-index: 1; }
+[data-page="programs"] .prg-panel { min-height: 78svh; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 6svh; scroll-margin-top: 40svh; }
+[data-page="programs"] .prg-panel__card { display: grid; gap: 14px; padding: 20px 20px 22px; border-radius: var(--r-l); background: color-mix(in srgb, var(--bg) 84%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px var(--line-c); }
+[data-page="programs"] .prg-panel__idx { display: flex; align-items: center; gap: 12px; font: 500 var(--fs-mono)/1 var(--f-mono); letter-spacing: .24em; color: var(--fg-faint); }
+[data-page="programs"] .prg-panel__idx::after { content: ""; flex: 1; max-width: 120px; height: 1px; background: var(--c); transform: scaleX(0); transform-origin: 0 50%; transition: transform 1s var(--ease) .15s; }
+[data-page="programs"] .prg-panel.is-active .prg-panel__idx::after { transform: scaleX(1); }
+[data-page="programs"] .prg-panel__title { font: 700 clamp(56px, 9vw, 168px)/.9 var(--f-disp); letter-spacing: -.05em; color: var(--fg); margin: 0; }
+[data-page="programs"] .prg-panel__title b { color: var(--c); font-weight: 700; }
+[data-page="programs"] .prg-panel__text { font: 500 var(--fs-m)/1.12 var(--f-disp); letter-spacing: -.024em; color: var(--fg-mut); max-width: 18ch; margin: 0; }
+[data-page="programs"] .prg-panel__title, [data-page="programs"] .prg-panel__text, [data-page="programs"] .prg-panel__idx { transition: opacity .9s var(--ease), transform 1.1s var(--ease); }
+html.js:not(.reduced) [data-page="programs"] .prg-panel:not(.is-active) .prg-panel__title { opacity: .16; transform: translate3d(0, 24px, 0); }
+html.js:not(.reduced) [data-page="programs"] .prg-panel:not(.is-active) .prg-panel__text { opacity: 0; transform: translate3d(0, 32px, 0); }
+@media (max-width: 959px) {
+  [data-page="programs"] .prg-panel__card { transition: opacity .7s var(--ease), transform .9s var(--ease); }
+  html.js:not(.reduced) [data-page="programs"] .prg-panel:not(.is-active) .prg-panel__card { opacity: 0; transform: translate3d(0, 28px, 0); }
+}
+@media (min-width: 960px) {
+  [data-page="programs"] .prg-cats__grid { grid-template-columns: 1fr 1fr; gap: clamp(40px, 6vw, 120px); }
+  [data-page="programs"] .prg-stage { top: 0; height: 100vh; height: 100svh; order: 2; padding-top: var(--nav-h); }
+  [data-page="programs"] .prg-stage .dots { width: 100%; height: min(70vh, 100%); }
+  [data-page="programs"] .prg-rail { bottom: 9vh; justify-content: flex-start; padding-left: 8%; }
+  [data-page="programs"] .prg-panel { min-height: 100vh; min-height: 100svh; justify-content: center; padding-bottom: 0; scroll-margin-top: 0; }
+  [data-page="programs"] .prg-panel__card { background: none; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; padding: 0; gap: 22px; }
+  [data-page="programs"] .prg-panels { order: 1; }
+}
+
+/* built on evidence */
+[data-page="programs"] .prg-island { padding: clamp(14px, 2vw, 32px); }
+[data-page="programs"] .prg-map { position: relative; }
+[data-page="programs"] .prg-map .dots { --ar: 900 / 482; }
+[data-page="programs"] .prg-target { position: absolute; left: 52%; top: 46%; width: 2px; height: 2px; margin: -1px 0 0 -1px; pointer-events: none; }
+[data-page="programs"] .prg-island__foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line-c); }
+[data-page="programs"] .prg-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; list-style: none; margin: 0; padding: 0; }
+[data-page="programs"] .prg-legend li { display: inline-flex; align-items: center; gap: 8px; font: 500 12px/1.2 var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--fg-mut); }
+[data-page="programs"] .prg-legend i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); box-shadow: 0 0 10px var(--c); }
+[data-page="programs"] .prg-evidence__steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line-c); }
+[data-page="programs"] .prg-evidence__steps li { display: grid; grid-template-columns: 44px 1fr; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--line-c); color: var(--fg); font: 500 var(--fs-s)/1.3 var(--f-disp); letter-spacing: -.015em; }
+[data-page="programs"] .prg-evidence__steps li span { font: 500 var(--fs-mono)/2.1 var(--f-mono); letter-spacing: .2em; color: var(--accent-text); }
+
+/* three kinds */
+[data-page="programs"] .prg-kinds__head { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 24px; margin-bottom: clamp(40px, 5vw, 80px); }
+[data-page="programs"] .prg-kinds__coin { --da-w: clamp(150px, 20vw, 280px); margin: 0; }
+[data-page="programs"] .prg-kinds__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; position: relative; counter-reset: k; }
+[data-page="programs"] .prg-kinds__track { position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--line-c); display: none; }
+[data-page="programs"] .prg-kinds__track::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--red), var(--gold), var(--teal)); transform: scaleX(var(--p, 0)); transform-origin: 0 50%; }
+[data-page="programs"] .prg-kind { position: relative; display: grid; gap: 14px; align-content: start; padding: clamp(24px, 2.6vw, 40px); border-radius: var(--r-l); background: var(--card); box-shadow: inset 0 0 0 1px var(--line-c); transition: transform .8s var(--ease), box-shadow .8s var(--ease), background-color .8s var(--ease); }
+[data-page="programs"] .prg-kind__idx { font: 700 clamp(64px, 6vw, 112px)/.85 var(--f-disp); letter-spacing: -.06em; color: transparent; -webkit-text-stroke: 1.2px var(--c); }
+[data-page="programs"] .prg-kind__title { font: 700 var(--fs-m)/1.04 var(--f-disp); letter-spacing: -.03em; color: var(--fg); margin: 6px 0 0; }
+[data-page="programs"] .prg-kind p { margin: 0; color: var(--fg-mut); font-size: var(--fs-body); line-height: 1.55; }
+[data-page="programs"] .prg-kind p b { color: var(--fg); font-weight: 600; }
+[data-page="programs"] .prg-kind::after { content: ""; position: absolute; left: clamp(24px, 2.6vw, 40px); right: clamp(24px, 2.6vw, 40px); bottom: 0; height: 2px; background: var(--c); transform: scaleX(0); transform-origin: 0 50%; transition: transform .8s var(--ease); }
+@media (hover: hover) and (pointer: fine) {
+  [data-page="programs"] .prg-kind:hover { transform: translateY(-8px); background: var(--card-hi); box-shadow: inset 0 0 0 1px var(--line-strong), 0 40px 80px -40px var(--shadow-c); }
+  [data-page="programs"] .prg-kind:hover::after { transform: scaleX(1); }
+}
+@media (min-width: 900px) {
+  [data-page="programs"] .prg-kinds__list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 2vw, 28px); padding-top: 28px; }
+  [data-page="programs"] .prg-kinds__track { display: block; }
+  [data-page="programs"] .prg-kind:nth-child(3) { margin-top: 56px; }
+  [data-page="programs"] .prg-kind:nth-child(4) { margin-top: 112px; }
+}
+@media (max-width: 599px) {
+  [data-page="programs"] .prg-kinds__head { grid-template-columns: 1fr; }
+  [data-page="programs"] .prg-kinds__coin { --da-w: 150px; justify-self: end; margin-top: -8px; }
+}
+
+/* where we are */
+[data-page="programs"] .prg-now .split { align-items: center; }
+[data-page="programs"] .prg-now__coin { --da-w: clamp(240px, 36vw, 520px); }
+[data-page="programs"] .prg-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 520px; }
+[data-page="programs"] .prg-slot { position: relative; display: grid; gap: 10px; padding: 16px 18px; border-radius: var(--r-m); box-shadow: inset 0 0 0 1px var(--line-strong); overflow: hidden; }
+[data-page="programs"] .prg-slot::before { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--fg) 8%, transparent) 50%, transparent 70%) 0 0 / 250% 100%; animation: shimmer 3.2s linear infinite; }
+[data-page="programs"] .prg-slot .sk { width: var(--w); }
+[data-page="programs"] .prg-member { max-width: 640px; }
+[data-page="programs"] .prg-member .btn { margin-top: 14px; }
+
+/* ---- SCENES: one viewport per scroll (shared rules in scenes.css) ---- */
+[data-page="programs"].has-scenes .prg-panel { padding-block: var(--scene-pt) var(--scene-pb); }
+[data-page="programs"].has-scenes .prg-panel__title { font-size: clamp(48px, min(9vw, 15svh), 168px); }
+@media (max-width: 959px) {
+  /* the sticky illustration overlays each panel scene instead of taking its own space.
+     The panels pull up under it (not the stage pulling them), so the sticky stage stays
+     inside the grid and leaves with the last panel: no buildings or rail left hanging
+     over "Built on evidence". */
+  [data-page="programs"].has-scenes .prg-panels { margin-top: -42svh; }
+  [data-page="programs"].has-scenes .prg-panel { justify-content: flex-end; }
+}
+[data-page="programs"].has-scenes .prg-evidence .stack-l { --gap: clamp(14px, 2.6svh, 36px); }
+[data-page="programs"].has-scenes .prg-island { max-width: min(100%, calc((100svh - 300px) * 1.7)); margin-inline: auto; }
+@media (max-width: 959px) { [data-page="programs"].has-scenes .prg-evidence .split { gap: 20px; } }
+[data-page="programs"].has-scenes .prg-kinds__head { margin-bottom: clamp(16px, 3svh, 48px); }
+[data-page="programs"].has-scenes .prg-kinds__coin { --da-w: clamp(90px, min(20vw, 22svh), 240px); }
+[data-page="programs"].has-scenes .prg-kind__idx { font-size: clamp(48px, min(6vw, 9svh), 112px); }
+@media (min-width: 900px) {
+  [data-page="programs"].has-scenes .prg-kind:nth-child(3) { margin-top: clamp(20px, 4svh, 56px); }
+  [data-page="programs"].has-scenes .prg-kind:nth-child(4) { margin-top: clamp(40px, 8svh, 112px); }
+}
+[data-page="programs"].has-scenes .prg-now .stack-l { --gap: clamp(12px, 2.2svh, 30px); }
+[data-page="programs"].has-scenes .prg-now__coin { --da-w: clamp(120px, min(30vw, 44svh), 480px); }
+@media (max-width: 959px) { [data-page="programs"].has-scenes .prg-now__coin { --da-w: clamp(90px, 14svh, 160px); } }
+/* each kind's title in its own colour, the card a faint mist of it */
+[data-page="programs"] .prg-kind { --mist: radial-gradient(120% 120% at 0% 0%, color-mix(in srgb, var(--c) 12%, transparent), transparent 62%), linear-gradient(160deg, transparent 45%, color-mix(in srgb, var(--c) 5%, transparent)); background: var(--mist), var(--card); }
+[data-page="programs"] .prg-kind__title { color: var(--c-paper, var(--fg)); }
+@media (hover: hover) and (pointer: fine) { [data-page="programs"] .prg-kind:hover { background: var(--mist), var(--card-hi); } }
+/* the outlined 01/02/03 hold their own on warm paper */
+[data-page="programs"] .prg-kind__idx { -webkit-text-stroke: 2px var(--c); color: color-mix(in srgb, var(--c) 16%, transparent); }
+/* members: its own scene, set large */
+[data-page="programs"].has-scenes .prg-now__member { align-items: center; }
+[data-page="programs"].has-scenes .prg-now__main.is-scene { align-content: center; }
+[data-page="programs"].has-scenes .prg-member { max-width: 880px; padding: clamp(26px, 3.4vw, 56px) clamp(26px, 3.6vw, 64px); }
+[data-page="programs"].has-scenes .prg-member p { font: 500 var(--fs-m)/1.18 var(--f-disp); letter-spacing: -.02em; color: var(--fg); }
+[data-page="programs"].has-scenes .prg-member .btn--link { margin-top: clamp(16px, 2.6svh, 28px); }
+@media (max-width: 719px) {
+  [data-page="programs"].has-scenes .prg-kinds__head { grid-template-columns: 1fr auto; align-items: center; }
+  [data-page="programs"].has-scenes .prg-kinds__coin { --da-w: clamp(64px, 10svh, 96px); margin: 0; }
+  [data-page="programs"].has-scenes .prg-kinds__list { gap: 10px; }
+  [data-page="programs"].has-scenes .prg-kind { grid-template-columns: auto 1fr; column-gap: 14px; row-gap: 4px; padding: clamp(14px, 2.2svh, 20px) 18px; }
+  [data-page="programs"].has-scenes .prg-kind__idx { grid-row: span 2; font-size: clamp(38px, 6svh, 52px); }
+  [data-page="programs"].has-scenes .prg-kind__title { font-size: clamp(20px, min(5.6vw, 3.2svh), 26px); margin: 0; }
+  [data-page="programs"].has-scenes .prg-kind p { font-size: 14.5px; line-height: 1.45; }
+  [data-page="programs"].has-scenes .prg-slots { display: none; }
+}
+</style>
+
+<!-- 1 · HERO -->
+<section class="section section--hero prg-hero" data-theme="dark" aria-labelledby="prg-title" data-scene data-scene-name="Programs">
+  <div class="dots pp-field" data-dots="field" data-dots-start="instant" aria-hidden="true"></div>
+  <span class="glow" style="--x:74%;--y:48%;--o:.8"></span>
+  <div class="container">
+    <div class="split split--wide-text">
+      <div class="stack stack-l">
+        <p class="eyebrow" data-reveal="fade">Programs</p>
+        <h1 class="h-display" id="prg-title" data-reveal="split-lines">Our mission: <span class="hl">end human suffering.</span></h1>
+        <p class="lede measure-s" data-reveal="up" data-delay=".25">Big? Yes. That's the point. We start where it's concrete.</p>
+        <ul class="prg-jump" data-stagger="up" data-stagger-step=".07" aria-label="Program areas">
+          <li><a href="#food"><span class="pill-tag cat-food">Food</span></a></li>
+          <li><a href="#health"><span class="pill-tag cat-health">Health</span></a></li>
+          <li><a href="#opportunities"><span class="pill-tag cat-opps">Opportunities</span></a></li>
+          <li><a href="#infrastructure"><span class="pill-tag cat-infra">Infrastructure</span></a></li>
+        </ul>
+      </div>
+      <div class="dollar-anchor dollar-anchor--hero" data-dollar="spin"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · THE FOUR CATEGORIES (scroll-driven morph) -->
+<section class="section prg-cats" data-theme="light" aria-label="Food, health, opportunities and infrastructure">
+  <div class="dollar-anchor pp-ghost" data-dollar="ambient"></div>
+  <div class="container">
+    <div class="prg-cats__grid">
+      <div class="prg-stage cat-food" aria-hidden="true">
+        <div class="prg-stage__inner">
+          <span class="prg-stage__glow"></span>
+          <div class="dots" id="prg-morph" data-dots="food" data-dots-color="red"></div>
+          <ol class="prg-rail"><li class="is-on"></li><li></li><li></li><li></li></ol>
+        </div>
+      </div>
+      <div class="prg-panels">
+        <article class="prg-panel cat-food is-active" id="food" data-scene data-scene-name="Food" data-shape="food" data-color="red" data-cat="cat-food">
+          <div class="prg-panel__card">
+            <span class="prg-panel__idx" aria-hidden="true">01 / 04</span>
+            <h2 class="prg-panel__title">Food<b>.</b></h2>
+            <p class="prg-panel__text">That’s actually healthy, and plenty of it.</p>
+          </div>
+        </article>
+        <article class="prg-panel cat-health" id="health" data-scene data-scene-name="Health" data-shape="health" data-color="cyan" data-cat="cat-health">
+          <div class="prg-panel__card">
+            <span class="prg-panel__idx" aria-hidden="true">02 / 04</span>
+            <h2 class="prg-panel__title">Health<b>.</b></h2>
+            <p class="prg-panel__text">Everyone should have access to helpful &amp; holistic treatments. Not bandaids, lifelong transformation.</p>
+          </div>
+        </article>
+        <article class="prg-panel cat-opps" id="opportunities" data-scene data-scene-name="Opportunities" data-shape="opportunities" data-color="gold" data-cat="cat-opps">
+          <div class="prg-panel__card">
+            <span class="prg-panel__idx" aria-hidden="true">03 / 04</span>
+            <h2 class="prg-panel__title">Opportunities<b>.</b></h2>
+            <p class="prg-panel__text">Skills. Jobs. Stability. A way out forever.</p>
+          </div>
+        </article>
+        <article class="prg-panel cat-infra" id="infrastructure" data-scene data-scene-name="Infrastructure" data-shape="infrastructure" data-color="teal" data-cat="cat-infra">
+          <div class="prg-panel__card">
+            <span class="prg-panel__idx" aria-hidden="true">04 / 04</span>
+            <h2 class="prg-panel__title">Infrastructure<b>.</b></h2>
+            <p class="prg-panel__text">Local economic worker loops. Companies the workers own.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · BUILT ON EVIDENCE (map island, coin lands) -->
+<section class="section prg-evidence" data-theme="light" aria-labelledby="prg-evidence-h" data-scene data-scene-name="Built on evidence">
+  <div class="container">
+    <div class="split split--wide-visual">
+      <div class="stack stack-l">
+        <h2 class="eyebrow" id="prg-evidence-h" data-reveal="fade">Built on evidence, not instinct</h2>
+        <p class="h-m" data-reveal="split-lines">Every initiative starts from county-level data, has a published baseline, and is designed with experts who've done it before.</p>
+        <p class="lede" data-reveal="up" data-delay=".2">If it works, we scale it. If it doesn't, we say so and change it.</p>
+      </div>
+      <div class="split__visual">
+        <div class="island prg-island" data-reveal="scale">
+          <div class="prg-map">
+            <div class="dots" data-dots="map" data-dots-color="paper" aria-hidden="true"></div>
+            <span class="prg-target" id="prg-site" aria-hidden="true"></span>
+          </div>
+          <div class="prg-island__foot" aria-hidden="true">
+            <ul class="prg-legend">
+              <li class="cat-food"><i></i>Food</li>
+              <li class="cat-health"><i></i>Health</li>
+              <li class="cat-opps"><i></i>Opportunities</li>
+              <li class="cat-infra"><i></i>Infrastructure</li>
+            </ul>
+          </div>
+          <div class="dollar-anchor dollar-anchor--fill" data-dollar="ambient"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · THREE KINDS OF PROGRAM (coin splits three ways) -->
+<section class="section prg-kinds" data-theme="light" aria-labelledby="prg-kinds-h" data-scene data-scene-name="Three kinds">
+  <div class="container">
+    <div class="prg-kinds__head">
+      <h2 class="eyebrow" id="prg-kinds-h" data-reveal="fade">Three kinds of program</h2>
+      <div class="dollar-anchor prg-kinds__coin" data-dollar="ambient"></div>
+    </div>
+    <ol class="prg-kinds__list" data-stagger="up" data-stagger-step=".14">
+      <li class="prg-kinds__track" aria-hidden="true" data-progress data-progress-start="top 80%" data-progress-end="bottom 60%"></li>
+      <li class="prg-kind cat-food">
+        <span class="prg-kind__idx" aria-hidden="true">01</span>
+        <h3 class="prg-kind__title">HOME Initiatives.</h3>
+        <p><b>Ours.</b> Funded by donors, designed and run by DAD.</p>
+      </li>
+      <li class="prg-kind cat-opps">
+        <span class="prg-kind__idx" aria-hidden="true">02</span>
+        <h3 class="prg-kind__title">Corporate Initiatives.</h3>
+        <p>Co-built with a brand partner, or sponsored after a community vote.</p>
+      </li>
+      <li class="prg-kind cat-infra">
+        <span class="prg-kind__idx" aria-hidden="true">03</span>
+        <h3 class="prg-kind__title">Community Programs.</h3>
+        <p>City by city, run by DAD Impact Teams and volunteers.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- 5 · WHERE WE ARE (ink close, coin pools into the first program) -->
+<section class="section cta-band prg-now" data-theme="dark" aria-labelledby="prg-now-h">
+  <span class="glow" style="--x:72%;--y:50%;--size:80vmax;--o:.7"></span>
+  <div class="container">
+    <div class="split prg-now__main" data-scene data-scene-name="June 2027">
+      <div class="stack stack-l">
+        <p class="eyebrow" data-reveal="fade">Where we are</p>
+        <h2 class="h-xl" id="prg-now-h" data-reveal="split-lines">The first programs go live in <span class="hl">June 2027.</span></h2>
+        <p class="lede" data-reveal="up">One HOME Initiative. One Corporate Initiative. When they launch, each gets its own page and its own live ledger, right here.</p>
+        <div class="prg-slots" data-stagger="up" aria-hidden="true">
+          <div class="prg-slot"><b class="sk" style="--w:46%"></b><b class="sk" style="--w:78%;--sd:.3s"></b></div>
+          <div class="prg-slot"><b class="sk" style="--w:58%;--sd:.2s"></b><b class="sk" style="--w:66%;--sd:.5s"></b></div>
+        </div>
+        <div class="btn-row" data-reveal="up">
+          <a class="btn btn--primary btn--lg" href="/movement/#support" data-magnetic><span class="btn__label">Get notified when programs open</span></a>
+        </div>
+      </div>
+      <div class="dollar-anchor prg-now__coin" data-dollar="ambient"></div>
+    </div>
+    <div class="prg-now__member scene-flex" data-scene data-scene-name="Members">
+      <div class="callout prg-member" data-reveal="up">
+          <p>If you need support: the people in our programs are members, not "beneficiaries." Membership is free, and your story is never ours to publish without your permission.</p>
+          <a class="btn btn--link" href="/movement/#support"><span class="btn__label">Tell me when a program opens near me</span></a>
+        </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="footer is-dark" id="footer" data-theme="dark">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a class="footer__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+        <p class="footer__tag">DAD · Aid, delivered.</p>
+      </div>
+      <nav class="footer__nav" aria-label="Footer">
+        <a href="/about/">About</a>
+        <a href="/how-it-works/">How It Works</a>
+        <a href="/programs/">Programs</a>
+        <a href="/proof/">The Proof</a>
+        <a href="/team/">Team</a>
+        <a href="/building-in-public/">Building in Public</a>
+        <a href="/transparency/">Transparency</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/contact/">Contact</a>
+        <a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a>
+        <a href="/movement/#careers">Careers</a>
+      </nav>
+    </div>
+    <div class="footer__mark" aria-hidden="true"><div class="dollar-anchor dollar-anchor--fill" data-dollar="logo" data-dollar-size="fill"></div></div>
+    <p class="footer__big" aria-hidden="true" data-reveal="split-chars">Aid, delivered.</p>
+    <div class="footer__legal">
+      <p>Dynamic Aid Delivery, INC. is a Delaware non-stock corporation.</p>
+      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a></p>
+    </div>
+  </div>
+</footer>
+
+<a class="btn btn--primary mobile-cta" href="/movement/" id="mobile-cta"><span class="btn__label">Join the Movement</span></a>
+<div class="cookie is-dark" id="cookie" role="region" aria-label="Cookie notice" hidden>
+  <p class="cookie__text">We use basic analytics to see what's working. No ads. No selling.</p>
+  <div class="cookie__actions">
+    <button class="btn btn--primary btn--sm" type="button" data-consent="accept"><span class="btn__label">Accept</span></button>
+    <button class="btn btn--ghost btn--sm" type="button" data-consent="decline"><span class="btn__label">Decline</span></button>
+  </div>
+</div>
+
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
+<div class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

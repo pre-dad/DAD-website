@@ -1,0 +1,32 @@
+/* ---------------------------------------------------------------------
+   TOUCH PERFORMANCE (phones and tablets). Perf properties only, no layout.
+   On iOS the compositor is shared with the liquid drop's 60fps canvas, so a
+   layer that costs a full-screen pass per frame (an animated blend overlay,
+   a live backdrop blur, a filter blur in a transition) shows as a stutter.
+   Bundled last (build.py sorts extra CSS after the core files).
+   --------------------------------------------------------------------- */
+@media (hover: none) and (pointer: coarse) {
+  /* the film grain: a full-screen overlay blend re-composited over the canvas every frame (and
+     animated); at 3x on a phone it is not visible, so it is not drawn */
+  .grain { display: none; animation: none; }
+
+  /* live backdrop blurs: solid translucent surfaces instead */
+  .nav::before { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--bg) 93%, transparent); }
+  .ledger-card,
+  .cookie,
+  .gi-switch__track,
+  .scene-rail__label,
+  #swap[data-page] .gi-formcard,
+  #swap[data-page] .pg-formcard,
+  [data-page="problem"] .ph-left__label { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .cookie { background: rgba(10, 22, 22, .96); }
+
+  /* ambient glows: no endless drift (a blended 70-90vmax layer re-composited every frame) */
+  .glow { animation: none; }
+
+  /* reveals: no filter blur in transitions (each frame re-rasterizes the blurred text); the
+     opacity and transform motion is unchanged */
+  .js [data-reveal="blur"]:not(.is-in),
+  .js [data-page] [data-reveal="drop"]:not(.is-in),
+  [data-page="how-it-works"] .hw-step { filter: none; }
+}

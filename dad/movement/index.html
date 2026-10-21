@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en" data-theme="dark" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Movement | DAD</title>
+<meta name="description" content="Your move. Four ways in. Pick the one that's yours.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dynamicaid.org/movement/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DAD · Dynamic Aid Delivery">
+<meta property="og:title" content="The Movement | DAD">
+<meta property="og:description" content="Your move. Four ways in. Pick the one that's yours.">
+<meta property="og:url" content="https://dynamicaid.org/movement/">
+<meta property="og:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Movement | DAD">
+<meta name="twitter:description" content="Your move. Four ways in. Pick the one that's yours.">
+<meta name="theme-color" content="#0E1E1E">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/site.css?v=c2c7328da2">
+<script>
+/* boot flags: runs before first paint */
+(function(){
+  var h=document.documentElement; h.classList.remove('no-js'); h.classList.add('js');
+  var rm=false; try{rm=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  if(rm) h.classList.add('reduced');
+  var seen=false; try{seen=sessionStorage.getItem('dad-pl')==='1';}catch(e){}
+  if(seen||rm) h.classList.add('no-pl');
+  /* the cookie chip's strip is reserved from the first paint, so nothing jumps when it slides in */
+  var cc=null; try{cc=localStorage.getItem('dad-consent');}catch(e){}
+  if(!cc) h.classList.add('has-cookie');
+  /* never leave content hidden if the app fails to boot */
+  setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
+})();
+</script>
+<script defer src="/vendor/gsap.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/SplitText.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/lenis.min.js?v=c2c7328da2"></script>
+<script type="module" src="/js/app.js?v=c2c7328da2"></script>
+<!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
+     home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
+     fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
+<link rel="modulepreload" href="/js/core/util.js?v=c2c7328da2">
+</head>
+<body data-page="get-involved" data-mobile-cta="on">
+<a class="skip-link" href="#swap">Skip to content</a>
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__mark">
+    <svg viewBox="-43 -4 366 108" focusable="false">
+      <g class="pl-glyph"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
+      <g class="pl-glyph pl-g2"><path fill="#F8F9FA" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/></g>
+      <g class="pl-glyph pl-g3"><g transform="translate(280,0) scale(-1,1)"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g></g>
+      <g class="pl-bar pl-b1"><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g></g>
+      <g class="pl-bar pl-b2"><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></g>
+    </svg>
+  </div>
+  <div class="preloader__bar"><i></i></div>
+  <p class="preloader__tag">Aid, delivered.</p>
+</div>
+
+<div class="route-bar" id="route-bar" aria-hidden="true"><i></i></div>
+<div class="flood" id="flood" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true" tabindex="-1"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+    <nav class="nav__links" aria-label="Primary">
+      <a class="nav__link" href="/about/" data-nav><span class="nav__roll" data-text="About">About</span></a>
+      <a class="nav__link" href="/how-it-works/" data-nav><span class="nav__roll" data-text="How It Works">How It Works</span></a>
+      <a class="nav__link" href="/programs/" data-nav><span class="nav__roll" data-text="Programs">Programs</span></a>
+      <a class="nav__link" href="/proof/" data-nav><span class="nav__roll" data-text="The Proof">The Proof</span></a>
+      <a class="nav__link" href="/team/" data-nav><span class="nav__roll" data-text="Team">Team</span></a>
+      <a class="nav__link" href="/movement/" data-nav aria-current="page"><span class="nav__roll" data-text="The Movement">The Movement</span></a>
+    </nav>
+    <a class="btn btn--primary btn--sm nav__cta" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+    <button class="nav__burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span></span><span></span></button>
+  </div>
+  <div class="nav__progress" aria-hidden="true"><i></i></div>
+</header>
+<div class="menu is-dark" id="menu" role="dialog" aria-modal="true" aria-label="Site menu" inert>
+  <div class="menu__bg" aria-hidden="true"></div>
+  <div class="menu__inner">
+    <nav class="menu__links" aria-label="Menu">
+      <a class="menu__link" href="/about/" data-nav><span class="menu__idx">01</span><span class="menu__txt">About</span></a>
+      <a class="menu__link" href="/how-it-works/" data-nav><span class="menu__idx">02</span><span class="menu__txt">How It Works</span></a>
+      <a class="menu__link" href="/programs/" data-nav><span class="menu__idx">03</span><span class="menu__txt">Programs</span></a>
+      <a class="menu__link" href="/proof/" data-nav><span class="menu__idx">04</span><span class="menu__txt">The Proof</span></a>
+      <a class="menu__link" href="/team/" data-nav><span class="menu__idx">05</span><span class="menu__txt">Team</span></a>
+      <a class="menu__link" href="/movement/" data-nav aria-current="page"><span class="menu__idx">06</span><span class="menu__txt">The Movement</span></a>
+    </nav>
+    <div class="menu__cta"><a class="btn btn--primary btn--lg" href="/movement/"><span class="btn__label">Join the Movement</span></a></div>
+    <nav class="menu__foot" aria-label="More">
+      <a href="/building-in-public/">Building in Public</a><a href="/transparency/">Transparency</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a><a href="/movement/#careers">Careers</a>
+    </nav>
+    <p class="menu__tag">Aid, delivered.</p>
+  </div>
+</div>
+
+<main id="swap" data-page="get-involved" data-module="/js/pages/get-involved.js?v=c2c7328da2" data-scenes tabindex="-1">
+<!-- HERO: ink. Masked headline, ambient field, the coin spinning. Mobile gets the chips here. -->
+<section class="section section--hero gi-hero" data-theme="dark" data-scene data-scene-name="Your move">
+  <span class="glow" style="--x:74%;--y:46%;--size:80vmax;--o:.7"></span>
+  <div class="dots dots--bg" data-dots="field" data-dots-color="paper" data-dots-density="0.8" aria-hidden="true"></div>
+  <div class="container">
+    <div class="split split--wide-text">
+      <div class="stack stack-l">
+        <p class="eyebrow" data-reveal="fade">The movement</p>
+        <h1 class="h-display" data-reveal="split-lines">Your move.</h1>
+        <p class="lede measure-s" data-reveal="up" data-delay=".25">Four ways in. Pick the one that's yours.</p>
+        <div class="btn-row" data-reveal="up" data-delay=".35"><a class="btn btn--primary btn--lg" href="/give/" data-magnetic><span class="btn__label">Donate now</span></a></div>
+        <nav class="gi-chips" aria-label="Ways to get involved" data-stagger="up" data-stagger-step="0.06">
+          <a class="gi-chip c-red" href="#give"><span class="gi-chip__idx">01</span>Give</a>
+          <a class="gi-chip c-cyan" href="#partner"><span class="gi-chip__idx">02</span>Partners</a>
+          <a class="gi-chip c-gold" href="#support"><span class="gi-chip__idx">03</span>Get support</a>
+          <a class="gi-chip c-teal" href="#volunteer"><span class="gi-chip__idx">04</span>Volunteer</a>
+          <a class="gi-chip" href="#careers"><span class="gi-chip__idx">05</span>Work with us</a>
+        </nav>
+      </div>
+      <div class="dollar-anchor dollar-anchor--hero gi-hero__coin" data-dollar="spin" data-dollar-size="1"></div>
+    </div>
+  </div>
+</section>
+
+<div class="gi-body">
+  <!-- desktop sticky switcher (hidden on touch/mobile, where the hero chips do the job) -->
+  <nav class="gi-switch" aria-label="Jump to a section">
+    <div class="gi-switch__track">
+      <span class="gi-switch__ind" aria-hidden="true"></span>
+      <a class="gi-switch__link" href="#give" data-gi="give"><span class="gi-switch__idx">01</span>Give</a>
+      <a class="gi-switch__link" href="#partner" data-gi="partner"><span class="gi-switch__idx">02</span>Partners</a>
+      <a class="gi-switch__link" href="#support" data-gi="support"><span class="gi-switch__idx">03</span>Get support</a>
+      <a class="gi-switch__link" href="#volunteer" data-gi="volunteer"><span class="gi-switch__idx">04</span>Volunteer</a>
+      <a class="gi-switch__link" href="#careers" data-gi="careers"><span class="gi-switch__idx">05</span>Work with us</a>
+    </div>
+  </nav>
+
+  <!-- 01 GIVE: floods to paper. Text scrolls while the form + coin stay put on desktop. -->
+  <section class="section gi-sec gi-give" id="give" data-theme="light" data-gi-sec="give">
+    <div class="container">
+      <div class="gi-give__grid">
+        <div class="gi-give__text">
+          <div class="gi-give__part stack stack-l scene-flex" data-scene data-scene-name="Give">
+          <p class="eyebrow" data-reveal="fade">01 · Give</p>
+          <h2 class="h-l" data-reveal="split-lines">About a dollar a day. Watch every cent of it work.</h2>
+          <p class="h-s gi-give__price" data-reveal="up"><span class="gi-num" data-reveal="count" data-count-to="30" data-count-prefix="$">$30</span> a month. That's a dollar a day, give or take. We charge the round number, and we'll always tell you exactly what it is.</p>
+          <p class="body measure" data-reveal="up">Giving is open. Give, or join the app waitlist, before January 2027 and you're a Founding Donor. Permanently. The badge goes on your profile the day the app opens, and it never comes off.</p>
+          <div class="btn-row" data-reveal="up"><a class="btn btn--primary btn--lg" href="/give/" data-magnetic><span class="btn__label">Donate now</span></a></div>
+          </div>
+          <div class="gi-give__part stack stack-l scene-flex" data-scene data-scene-name="What you get">
+          <div class="gi-get">
+            <h3 class="mono-label gi-get__label" data-reveal="fade">What you get</h3>
+            <ul class="list-check" data-stagger="up">
+              <li><span>Your own invite link, so you can bring your people</span></li>
+              <li><span>A live view of what your dollar, and your network, funded</span></li>
+              <li><span>Streaks and milestones for showing up</span></li>
+              <li><span>Cancel any time, in two clicks</span></li>
+            </ul>
+          </div>
+          </div>
+        </div>
+        <aside class="gi-give__aside scene-flex" data-scene data-scene-media="(max-width: 1039px)" data-scene-name="Join the list">
+          <div class="gi-give__sticky">
+            <div class="dollar-anchor gi-give__coin" data-dollar="ambient"></div>
+            <div class="gi-map gi-give__map" aria-hidden="true">
+              <div class="dots" data-dots="map" data-dots-color="ink" data-dots-density="0.9" data-dots-arcs="off" style="--ar:1.86"></div>
+            </div>
+            <div class="gi-formcard" data-reveal="up">
+              <form class="form" data-form="founding" action="/api/submit.php" method="post">
+                <div class="form__row form__row--2">
+                  <div class="field"><input class="field__input" name="first_name" type="text" autocomplete="given-name" placeholder=" " required><label class="field__label">First name</label></div>
+                  <div class="field"><input class="field__input" name="email" type="email" autocomplete="email" inputmode="email" placeholder=" " required><label class="field__label">Email</label></div>
+                </div>
+                <button class="btn btn--primary btn--lg" type="submit" data-magnetic><span class="btn__label">Join the Waitlist</span></button>
+                <p class="form__note">Not ready to give? Join before January and you're still a Founding Donor. One email a month, max. We never sell your data. Unsubscribe any time.</p>
+              </form>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 PARTNERS: the coin bursts into particles (many contributors, one program); two cards slide in from opposite sides. -->
+  <section class="section gi-sec gi-partner" id="partner" data-theme="light" data-gi-sec="partner" data-scene data-scene-media="(min-width: 720px)" data-scene-name="Partners">
+    <div class="container">
+      <div class="gi-partner__grid">
+        <div class="scene-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Partners">
+        <p class="eyebrow mb-m gi-partner__eyebrow" data-reveal="fade">02 · Partners</p>
+        <article class="card gi-pcard gi-pcard--program c-cyan" data-reveal="left">
+          <div class="gi-pcard__art illus gi-pcard__art--hs" style="--ar:1"><div class="dots" data-dots="handshake" aria-hidden="true"></div></div>
+          <h2 class="h-m">Program Partners</h2>
+          <p>Program partners help us execute specific programs. It helps us keep our overhead low, while utilizing existing infrastructure, expertise and amplifying your abilities to make an impact.</p>
+        </article>
+        </div>
+        <div class="scene-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Corporate Partners">
+        <article class="island gi-pcard gi-pcard--corp" data-reveal="up" data-delay=".1">
+          <div class="gi-pcard__split">
+            <div class="stack">
+              <p class="mono-label gi-pcard__kicker">Corporate Partners</p>
+              <h2 class="h-l" data-reveal="split-lines">Build the initiative your brand is known for.</h2>
+            </div>
+            <div class="gi-pcard__coin">
+              <div class="dots" data-dots="loop" data-dots-color="multi" aria-hidden="true"></div>
+              <div class="dollar-anchor dollar-anchor--fill" data-dollar="ambient"></div>
+            </div>
+          </div>
+          <div class="gi-pcard__body">
+            <p class="body">Two offers, and only two. Co-build a major initiative with us, in your category, for your audience, run by DAD. Or sponsor a community-voted initiative: the public picks the cause and you show up for it.</p>
+            <p class="body">Either way, you get one set of verified numbers, published live, that your board, your customers, the press and a regulator all see at the same time.</p>
+          </div>
+          <div class="btn-row">
+            <a class="btn btn--primary btn--lg btn--arrow" href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog" data-magnetic><span class="btn__label">Partner with us</span></a>
+          </div>
+        </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 GET SUPPORT: the coin steps aside; the US map dots light up "near you". -->
+  <section class="section gi-sec gi-support" id="support" data-theme="light" data-gi-sec="support" data-scene data-scene-media="(min-width: 720px)" data-scene-name="Get support">
+    <div class="dollar-anchor dollar-anchor--s gi-hide-anchor" data-dollar="ambient"></div>
+    <div class="container">
+      <div class="split gi-support__grid">
+        <div class="scene-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Get support">
+        <div class="stack stack-l">
+          <p class="eyebrow" data-reveal="fade">03 · Get support</p>
+          <h2 class="h-l" data-reveal="split-lines">Our first programs open in June 2027.</h2>
+          <p class="lede measure" data-reveal="up">The people in our programs are members, not "beneficiaries." Membership is free. It always will be.</p>
+          <p class="body measure" data-reveal="up">Tell us where you are and we'll let you know when a program opens near you. That's all we'll use it for.</p>
+        </div>
+        </div>
+        <div class="gi-support__side scene-flex" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Near you">
+          <div class="gi-map" aria-hidden="true">
+            <div class="dots" data-dots="map" data-dots-color="ink" data-dots-density="0.9" style="--ar:1.86"></div>
+          </div>
+          <div class="gi-formcard" data-reveal="up">
+            <form class="form" data-form="support" action="/api/submit.php" method="post">
+              <div class="field"><input class="field__input" name="first_name" type="text" autocomplete="given-name" placeholder=" " required><label class="field__label">First name</label></div>
+              <div class="form__row gi-row-contact">
+                <div class="field"><input class="field__input" name="email_or_phone" type="text" autocomplete="email" placeholder=" " required><label class="field__label">Email or phone</label></div>
+                <div class="field"><input class="field__input" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern="[0-9]{5}" placeholder=" " required><label class="field__label">ZIP code</label></div>
+              </div>
+              <button class="btn btn--primary" type="submit"><span class="btn__label">Tell me when</span></button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 VOLUNTEER: a dark island where the network dots assemble into a team. -->
+  <section class="section gi-sec gi-volunteer" id="volunteer" data-theme="light" data-gi-sec="volunteer" data-scene data-scene-name="Volunteer">
+    <div class="dollar-anchor dollar-anchor--s gi-hide-anchor" data-dollar="ambient"></div>
+    <div class="container">
+      <div class="island gi-vol" data-reveal="scale">
+        <span class="glow glow--teal" style="--x:85%;--y:20%;--size:60vmax;--o:.5"></span>
+        <div class="gi-vol__grid">
+          <div class="stack stack-l gi-vol__text">
+            <p class="eyebrow" data-reveal="fade">04 · Volunteer</p>
+            <h2 class="h-l" data-reveal="split-lines">Impact Teams are coming to cities.</h2>
+            <p class="body measure" data-reveal="up">Community Programs are run on the ground by DAD Impact Teams and volunteers. Get on the list and we'll call you first when one starts near you.</p>
+            <form class="form" data-form="volunteer" action="/api/submit.php" method="post" data-reveal="up">
+              <div class="form__row form__row--3">
+                <div class="field"><input class="field__input" name="first_name" type="text" autocomplete="given-name" placeholder=" " required><label class="field__label">First name</label></div>
+                <div class="field"><input class="field__input" name="email" type="email" autocomplete="email" inputmode="email" placeholder=" " required><label class="field__label">Email</label></div>
+                <div class="field"><input class="field__input" name="city" type="text" autocomplete="address-level2" placeholder=" " required><label class="field__label">City</label></div>
+              </div>
+              <button class="btn btn--primary" type="submit"><span class="btn__label">Count me in</span></button>
+            </form>
+          </div>
+          <div class="gi-vol__art" aria-hidden="true">
+            <div class="dots" data-dots="people" data-dots-color="multi" data-dots-density="1.1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 WORK WITH US: back to ink for the close. Open seats write themselves in; the coin comes to rest. -->
+  <section class="section gi-sec gi-careers cta-band" id="careers" data-theme="dark" data-gi-sec="careers" data-scene data-scene-name="Work with us">
+    <span class="glow" style="--x:20%;--y:70%;--size:80vmax;--o:.55"></span>
+    <div class="container">
+      <div class="split split--wide-text">
+        <div class="stack stack-l">
+          <p class="eyebrow" data-reveal="fade">05 · Work with us</p>
+          <h2 class="h-xl" data-reveal="split-lines">A few seats left that matter. High performers only.</h2>
+          <p class="lede measure" data-reveal="up">We're AI-native from the first hire: small teams, real ownership, every hour aimed at the work.</p>
+          <div class="gi-seats">
+            <p class="mono-label gi-seats__label" data-reveal="fade">Open seats:</p>
+            <ul class="gi-seats__list" data-stagger="left" data-stagger-step="0.12">
+              <li><span class="gi-seats__dot" aria-hidden="true"></span>Impact Operations Director</li>
+              <li><span class="gi-seats__dot" aria-hidden="true"></span>General Counsel</li>
+              <li><span class="gi-seats__dot" aria-hidden="true"></span>Head of Product</li>
+            </ul>
+          </div>
+          <div class="btn-row" data-reveal="up">
+            <a class="btn btn--primary btn--lg btn--arrow" href="mailto:careers@dynamicaid.org" data-magnetic><span class="btn__label">See open roles</span></a>
+          </div>
+        </div>
+        <div class="dollar-anchor gi-careers__coin" data-dollar="ambient"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+</main>
+<footer class="footer is-dark" id="footer" data-theme="dark">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a class="footer__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+        <p class="footer__tag">DAD · Aid, delivered.</p>
+      </div>
+      <nav class="footer__nav" aria-label="Footer">
+        <a href="/about/">About</a>
+        <a href="/how-it-works/">How It Works</a>
+        <a href="/programs/">Programs</a>
+        <a href="/proof/">The Proof</a>
+        <a href="/team/">Team</a>
+        <a href="/building-in-public/">Building in Public</a>
+        <a href="/transparency/">Transparency</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/contact/">Contact</a>
+        <a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a>
+        <a href="/movement/#careers">Careers</a>
+      </nav>
+    </div>
+    <div class="footer__mark" aria-hidden="true"><div class="dollar-anchor dollar-anchor--fill" data-dollar="logo" data-dollar-size="fill"></div></div>
+    <p class="footer__big" aria-hidden="true" data-reveal="split-chars">Aid, delivered.</p>
+    <div class="footer__legal">
+      <p>Dynamic Aid Delivery, INC. is a Delaware non-stock corporation.</p>
+      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a></p>
+    </div>
+  </div>
+</footer>
+
+<a class="btn btn--primary mobile-cta" href="/movement/" id="mobile-cta"><span class="btn__label">Join the Movement</span></a>
+<div class="cookie is-dark" id="cookie" role="region" aria-label="Cookie notice" hidden>
+  <p class="cookie__text">We use basic analytics to see what's working. No ads. No selling.</p>
+  <div class="cookie__actions">
+    <button class="btn btn--primary btn--sm" type="button" data-consent="accept"><span class="btn__label">Accept</span></button>
+    <button class="btn btn--ghost btn--sm" type="button" data-consent="decline"><span class="btn__label">Decline</span></button>
+  </div>
+</div>
+
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
+<div class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

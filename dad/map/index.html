@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DAD Impact Map</title>
+<link rel="stylesheet" href="css/app.css?v=4dd640d4">
+</head>
+<body>
+
+<div id="boot">
+  <div class="boot-inner">
+    <div class="boot-mark">
+      <svg viewBox="-43 -4 366 108" role="img" aria-label="DAD wordmark">
+        <path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/>
+        <path fill="#F8F9FA" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/>
+        <g transform="translate(280,0) scale(-1,1)"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
+        <rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/>
+        <rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/>
+      </svg>
+    </div>
+    <div class="boot-text">Loading impact data<span class="dots"><i>.</i><i>.</i><i>.</i></span></div>
+    <div class="boot-err" id="boot-err"></div>
+  </div>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <svg class="brand-logo" viewBox="-43 -4 366 108" role="img" aria-label="DAD">
+      <path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/>
+      <path fill="#F8F9FA" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/>
+      <g transform="translate(280,0) scale(-1,1)"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
+      <rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/>
+      <rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/>
+    </svg>
+    <span class="brand-title">Impact Map</span>
+  </div>
+
+  <div class="modes" role="tablist" aria-label="Map mode">
+    <button class="mode-btn is-active" data-mode="single" role="tab">Single layer</button>
+    <button class="mode-btn" data-mode="index" role="tab">Need Index</button>
+    <button class="mode-btn" data-mode="gap" role="tab">Need vs. Supply</button>
+  </div>
+
+  <div class="topbar-right">
+    <div class="search-wrap">
+      <input id="search" type="search" placeholder="Find a county…" autocomplete="off" spellcheck="false">
+      <div id="search-results" class="search-results" hidden></div>
+    </div>
+    <button class="btn" id="btn-shortlist">Shortlist <span class="pill" id="shortlist-count">0</span></button>
+    <button class="btn" id="btn-sources">Sources</button>
+    <button class="btn btn-cancel-search" id="btn-cancel-search">Cancel</button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- ------------------------------------------------ left: layer controls -->
+  <aside class="panel panel-left" id="panel-left">
+    <div class="sheet-head">
+      <span class="sheet-grip"></span>
+      <span class="sheet-title">Layers &amp; filters</span>
+      <button class="sheet-close" data-close-sheet aria-label="Close">Done</button>
+    </div>
+    <div class="panel-scroll">
+
+      <section class="block" id="block-single">
+        <h2 class="block-title">Layers</h2>
+        <p class="block-hint">Pick one measure to colour the map.</p>
+        <div id="layer-list" class="layer-list"></div>
+      </section>
+
+      <section class="block" id="block-index" hidden>
+        <h2 class="block-title">Need Index weights</h2>
+        <p class="block-hint">
+          Drag to change what "need" means. The national ranking recomputes as you drag.
+        </p>
+        <div class="index-actions">
+          <button class="btn btn-sm" data-preset="balanced">Balanced</button>
+          <button class="btn btn-sm" data-preset="food">Food</button>
+          <button class="btn btn-sm" data-preset="health">Health</button>
+          <button class="btn btn-sm" data-preset="water">Water</button>
+          <button class="btn btn-sm" data-preset="clear">Clear</button>
+        </div>
+        <div id="weight-list" class="weight-list"></div>
+      </section>
+
+      <section class="block" id="block-gap" hidden>
+        <h2 class="block-title">Need vs. Supply</h2>
+        <p class="block-hint">
+          High need where few organisations are already working. This is the
+          siting view — it finds underserved places, not just needy ones.
+        </p>
+        <div id="gap-controls" class="gap-controls"></div>
+      </section>
+
+      <section class="block">
+        <h2 class="block-title">Filters</h2>
+        <label class="field">
+          <span class="field-label">Minimum population</span>
+          <input type="range" id="filter-pop" min="0" max="6" step="1" value="0">
+          <output id="filter-pop-out">Any size</output>
+        </label>
+        <label class="checkline">
+          <input type="checkbox" id="filter-complete">
+          <span>Only counties with complete data</span>
+        </label>
+      </section>
+
+    </div>
+  </aside>
+
+  <!-- ---------------------------------------------------------- the map -->
+  <section class="map-wrap">
+    <div id="coverage-warning" class="coverage-warning" hidden></div>
+
+    <div class="map-head">
+      <h1 id="map-title">—</h1>
+      <p id="map-sub">—</p>
+    </div>
+
+    <div class="state-chip">
+      <label for="state-select">View</label>
+      <select id="state-select"><option value="">All states</option></select>
+    </div>
+
+    <div id="map" class="map"></div>
+
+    <div class="map-foot">
+      <div id="legend" class="legend"></div>
+      <div class="map-tools">
+        <button class="btn btn-sm" id="btn-reset-zoom">Reset view</button>
+        <button class="btn btn-sm" id="btn-png">Save PNG</button>
+      </div>
+    </div>
+
+    <div id="tooltip" class="tooltip" hidden></div>
+  </section>
+
+  <!-- ------------------------------------------------ right: detail/rank -->
+  <aside class="panel panel-right" id="panel-right">
+    <div class="sheet-head">
+      <span class="sheet-grip"></span>
+      <span class="sheet-title" id="sheet-title-right">Ranking</span>
+      <button class="sheet-close" data-close-sheet aria-label="Close">Done</button>
+    </div>
+    <div class="panel-scroll">
+
+      <!-- default: the live ranking -->
+      <div id="rank-view">
+        <section class="block">
+          <div class="rank-head">
+            <h2 class="block-title" id="rank-title">Top 25</h2>
+            <button class="btn btn-sm" id="btn-export">Export CSV</button>
+          </div>
+          <div id="ranking" class="ranking"></div>
+        </section>
+      </div>
+
+      <!-- swapped in when a county is selected -->
+      <div id="county-view" hidden>
+        <button class="btn btn-back" id="btn-back">
+          <span aria-hidden="true">←</span> Back to ranking
+        </button>
+        <div id="detail" class="detail"></div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- tap-away layer behind an open sheet (mobile only) -->
+  <div class="sheet-scrim" id="sheet-scrim" data-close-sheet></div>
+
+</main>
+
+<!-- ------------------------------------------------- mobile tab bar -->
+<nav class="mobile-bar" id="mobile-bar">
+  <button data-sheet="layers">Layers</button>
+  <button data-sheet="rank">Ranking</button>
+  <button data-sheet="search">Search</button>
+  <button data-sheet="shortlist">Pinned <span class="pill" id="shortlist-count-m">0</span></button>
+  <button data-sheet="sources">Sources</button>
+</nav>
+
+<!-- ------------------------------------------------------------- modals -->
+<div class="modal" id="modal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modal-close" aria-label="Close">×</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script src="vendor/d3.v7.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="js/app.js?v=4dd640d4"></script>
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en" data-theme="dark" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Team | DAD</title>
+<meta name="description" content="This isn't a charity built by just charity people. It's built by people who've scaled technology, companies, brands and audiences. Now they're doing it for the people who need them most.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dynamicaid.org/team/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DAD · Dynamic Aid Delivery">
+<meta property="og:title" content="Team | DAD">
+<meta property="og:description" content="This isn't a charity built by just charity people. It's built by people who've scaled technology, companies, brands and audiences. Now they're doing it for the people who need them most.">
+<meta property="og:url" content="https://dynamicaid.org/team/">
+<meta property="og:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://dynamicaid.org/assets/img/og-share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Team | DAD">
+<meta name="twitter:description" content="This isn't a charity built by just charity people. It's built by people who've scaled technology, companies, brands and audiences. Now they're doing it for the people who need them most.">
+<meta name="theme-color" content="#0E1E1E">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/site.css?v=c2c7328da2">
+<script>
+/* boot flags: runs before first paint */
+(function(){
+  var h=document.documentElement; h.classList.remove('no-js'); h.classList.add('js');
+  var rm=false; try{rm=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  if(rm) h.classList.add('reduced');
+  var seen=false; try{seen=sessionStorage.getItem('dad-pl')==='1';}catch(e){}
+  if(seen||rm) h.classList.add('no-pl');
+  /* the cookie chip's strip is reserved from the first paint, so nothing jumps when it slides in */
+  var cc=null; try{cc=localStorage.getItem('dad-consent');}catch(e){}
+  if(!cc) h.classList.add('has-cookie');
+  /* never leave content hidden if the app fails to boot */
+  setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
+})();
+</script>
+<script defer src="/vendor/gsap.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/SplitText.min.js?v=c2c7328da2"></script>
+<script defer src="/vendor/lenis.min.js?v=c2c7328da2"></script>
+<script type="module" src="/js/app.js?v=c2c7328da2"></script>
+<!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
+     home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
+     fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
+<link rel="modulepreload" href="/js/core/util.js?v=c2c7328da2">
+</head>
+<body data-page="team" data-mobile-cta="on">
+<a class="skip-link" href="#swap">Skip to content</a>
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__mark">
+    <svg viewBox="-43 -4 366 108" focusable="false">
+      <g class="pl-glyph"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
+      <g class="pl-glyph pl-g2"><path fill="#F8F9FA" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/></g>
+      <g class="pl-glyph pl-g3"><g transform="translate(280,0) scale(-1,1)"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g></g>
+      <g class="pl-bar pl-b1"><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g></g>
+      <g class="pl-bar pl-b2"><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></g>
+    </svg>
+  </div>
+  <div class="preloader__bar"><i></i></div>
+  <p class="preloader__tag">Aid, delivered.</p>
+</div>
+
+<div class="route-bar" id="route-bar" aria-hidden="true"><i></i></div>
+<div class="flood" id="flood" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true" tabindex="-1"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+    <nav class="nav__links" aria-label="Primary">
+      <a class="nav__link" href="/about/" data-nav><span class="nav__roll" data-text="About">About</span></a>
+      <a class="nav__link" href="/how-it-works/" data-nav><span class="nav__roll" data-text="How It Works">How It Works</span></a>
+      <a class="nav__link" href="/programs/" data-nav><span class="nav__roll" data-text="Programs">Programs</span></a>
+      <a class="nav__link" href="/proof/" data-nav><span class="nav__roll" data-text="The Proof">The Proof</span></a>
+      <a class="nav__link" href="/team/" data-nav aria-current="page"><span class="nav__roll" data-text="Team">Team</span></a>
+      <a class="nav__link" href="/movement/" data-nav><span class="nav__roll" data-text="The Movement">The Movement</span></a>
+    </nav>
+    <a class="btn btn--primary btn--sm nav__cta" href="/movement/" data-magnetic><span class="btn__label">Join the Movement</span></a>
+    <button class="nav__burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><span></span><span></span></button>
+  </div>
+  <div class="nav__progress" aria-hidden="true"><i></i></div>
+</header>
+<div class="menu is-dark" id="menu" role="dialog" aria-modal="true" aria-label="Site menu" inert>
+  <div class="menu__bg" aria-hidden="true"></div>
+  <div class="menu__inner">
+    <nav class="menu__links" aria-label="Menu">
+      <a class="menu__link" href="/about/" data-nav><span class="menu__idx">01</span><span class="menu__txt">About</span></a>
+      <a class="menu__link" href="/how-it-works/" data-nav><span class="menu__idx">02</span><span class="menu__txt">How It Works</span></a>
+      <a class="menu__link" href="/programs/" data-nav><span class="menu__idx">03</span><span class="menu__txt">Programs</span></a>
+      <a class="menu__link" href="/proof/" data-nav><span class="menu__idx">04</span><span class="menu__txt">The Proof</span></a>
+      <a class="menu__link" href="/team/" data-nav aria-current="page"><span class="menu__idx">05</span><span class="menu__txt">Team</span></a>
+      <a class="menu__link" href="/movement/" data-nav><span class="menu__idx">06</span><span class="menu__txt">The Movement</span></a>
+    </nav>
+    <div class="menu__cta"><a class="btn btn--primary btn--lg" href="/movement/"><span class="btn__label">Join the Movement</span></a></div>
+    <nav class="menu__foot" aria-label="More">
+      <a href="/building-in-public/">Building in Public</a><a href="/transparency/">Transparency</a><a href="/faq/">FAQ</a><a href="/contact/">Contact</a><a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a><a href="/movement/#careers">Careers</a>
+    </nav>
+    <p class="menu__tag">Aid, delivered.</p>
+  </div>
+</div>
+
+<main id="swap" data-page="team" data-module="" data-scenes tabindex="-1">
+<style>
+/* ---------- TEAM (page-scoped) ---------- */
+[data-page="team"] .tm-hero h1 { max-width: 11em; }
+[data-page="team"] .tm-hero .lede { max-width: 30em; }
+[data-page="team"] .tm-net { position: relative; width: 100%; max-width: 640px; margin-inline: auto; aspect-ratio: 1.4; }
+[data-page="team"] .tm-net__coin { position: absolute; left: 50%; top: 50%; width: clamp(96px, 11vw, 160px); transform: translate(-50%, -50%); margin: 0; }
+[data-page="team"] .tm-hero__faces { display: flex; align-items: center; margin-top: 4px; }
+[data-page="team"] .tm-hero__faces img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--bg); margin-left: -10px; filter: grayscale(.25); }
+[data-page="team"] .tm-hero__faces img:first-child { margin-left: 0; }
+
+/* leadership */
+/* arcs sweep in, photo irises open */
+[data-page="team"] .person__av img { clip-path: circle(50% at 50% 50%); transition: clip-path 1.3s var(--ease), filter .6s var(--ease), transform .8s var(--ease); }
+.js [data-page="team"] .person[data-reveal]:not(.is-in) .person__av img { clip-path: circle(0% at 50% 50%); }
+.js [data-page="team"] .person[data-reveal] .person__av .arc { transition: opacity 1s var(--ease) .35s; }
+.js [data-page="team"] .person[data-reveal]:not(.is-in) .person__av .arc { opacity: 0; }
+html.reduced [data-page="team"] .person__av img { clip-path: none; }
+@media (hover: hover) {
+  [data-page="team"] .person .person__av .arc { transition: inset .6s var(--ease), opacity .6s var(--ease); }
+  [data-page="team"] .person:hover .person__av .arc { inset: -8px; opacity: 1; }
+  [data-page="team"] .person:hover .person__av .arc--2 { inset: -15px; }
+}
+[data-page="team"] .tm-ticker { margin-top: clamp(64px, 7vw, 112px); }
+
+/* governance (ink) */
+[data-page="team"] .tm-gov__cols { display: grid; gap: clamp(56px, 6vw, 80px); }
+@media (min-width: 960px) {
+  [data-page="team"] .tm-gov__cols { grid-template-columns: 1fr 1fr; column-gap: 0; }
+  [data-page="team"] .tm-gov__col + .tm-gov__col { border-left: 1px solid var(--line-c); padding-left: clamp(40px, 5vw, 80px); }
+  [data-page="team"] .tm-gov__col:first-child { padding-right: clamp(40px, 5vw, 80px); }
+}
+[data-page="team"] .tm-gov__h { font: 500 var(--fs-mono)/1.3 var(--f-mono); letter-spacing: .28em; text-transform: uppercase; margin-bottom: clamp(28px, 3vw, 44px); display: flex; align-items: center; gap: 14px; }
+[data-page="team"] .tm-gov__h::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: .35; transform-origin: left; transition: transform 1.4s var(--ease) .2s; }
+.js [data-page="team"] .tm-gov__h[data-reveal]:not(.is-in)::after { transform: scaleX(0); }
+[data-page="team"] .tm-gov__col--board .tm-gov__h { color: var(--gold); }
+[data-page="team"] .tm-gov__col--adv .tm-gov__h { color: var(--cyan); }
+[data-page="team"] .tm-gov__list { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(32px, 3.4vw, 44px); }
+[data-page="team"] .tm-gov__list .person { align-items: center; }
+[data-page="team"] .tm-gov__col--board .person { --arc: var(--gold); --arc2: var(--red); }
+[data-page="team"] .tm-gov__col--adv .person { --arc: var(--cyan); --arc2: var(--teal); }
+[data-page="team"] .tm-gov__list li:nth-child(2) { --t1: 12s; --t2: 17s; }
+[data-page="team"] .tm-gov__list li:nth-child(3) { --t1: 10s; --t2: 15s; }
+[data-page="team"] .tm-gov__col--adv .pill-tag { --c: var(--cyan); margin: 10px 0 12px; }
+[data-page="team"] .tm-gov__list .person__title { color: var(--gold); }
+[data-page="team"] .tm-gov__close { margin-top: clamp(80px, 10vw, 160px); display: grid; gap: clamp(28px, 3vw, 40px); justify-items: center; text-align: center; }
+[data-page="team"] .tm-gov__close .dollar-anchor { --da-w: clamp(110px, 13svh, 150px); }
+[data-page="team"] .tm-gov__close h2 { max-width: 15em; margin-inline: auto; }
+[data-page="team"].has-scenes .tm-gov__close.is-scene { align-items: center; }
+
+/* ---- SCENES (shared rules in scenes.css) ---- */
+[data-page="team"].has-scenes .tm-lead .dollar-anchor--s { top: var(--scene-pt, 0px) !important; }
+[data-page="team"].has-scenes .tm-lead .team-grid { row-gap: clamp(26px, 4svh, 56px); }
+[data-page="team"].has-scenes .tm-ticker { margin-top: 0; }
+[data-page="team"].has-scenes .tm-gov__cols { gap: clamp(28px, 5svh, 80px); }
+[data-page="team"].has-scenes .tm-gov__list { gap: clamp(18px, 3svh, 44px); }
+[data-page="team"].has-scenes .tm-gov__h { margin-bottom: clamp(16px, 3svh, 44px); }
+[data-page="team"].has-scenes .tm-gov__close { margin-top: 0; }
+[data-page="team"].has-scenes .tm-gov .dollar-anchor--s { position: absolute; margin: 0 !important; right: var(--gutter); }
+[data-page="team"].has-scenes .tm-gov__close .dollar-anchor { --da-w: clamp(96px, 13svh, 150px); }
+/* desktop: the leadership grid set smaller, so it sits in the frame instead of filling it */
+@media (min-width: 1024px) {
+  [data-page="team"].has-scenes .tm-lead .team-grid--lead { width: min(100%, 1120px); margin-inline: auto; column-gap: clamp(28px, 3vw, 48px); row-gap: clamp(18px, 3.2svh, 36px); }
+  [data-page="team"].has-scenes .tm-lead .team-grid--lead .person { gap: 18px; }
+  [data-page="team"].has-scenes .tm-lead .team-grid--lead .person__av { --sz: clamp(76px, min(3vw + 40px, 10.5svh), 96px); }
+  [data-page="team"].has-scenes .tm-lead .team-grid--lead .person__name { font-size: clamp(18px, .5vw + 12px, 21px); }
+  [data-page="team"].has-scenes .tm-lead .team-grid--lead .person__title { margin: 5px 0 6px; }
+  [data-page="team"].has-scenes .tm-lead .team-grid--lead .person__bio { font-size: 16px; line-height: 1.42; }
+}
+/* where we come from: its own composed scene, label and logos set large */
+[data-page="team"].has-scenes .tm-ticker-scene { align-items: stretch; }
+[data-page="team"].has-scenes .tm-ticker-scene .ticker { --lu: clamp(1px, .08vw + .62px, 1.8px); border-top: 0; padding-top: 0; gap: clamp(28px, 6svh, 64px); }
+[data-page="team"].has-scenes .tm-ticker-scene .ticker__label { justify-self: center; font-size: clamp(14px, .55vw + 9px, 19px); color: var(--fg); letter-spacing: .24em; }
+[data-page="team"].has-scenes .tm-ticker-scene .ticker__rows { gap: clamp(24px, 5svh, 56px); }
+[data-page="team"].has-scenes .tm-ticker-scene .ticker__toggle { top: -8px; }
+/* the headline spans both governance columns (the .scene-m wrappers are boxless above phone width) */
+[data-page="team"] .tm-gov__cols .section-head { grid-column: 1 / -1; }
+@media (min-width: 960px) {
+  [data-page="team"] .tm-gov__cols { row-gap: 0; }
+  [data-page="team"] .tm-gov__col--adv { border-left: 1px solid var(--line-c); padding-left: clamp(40px, 5vw, 80px); }
+  [data-page="team"] .tm-gov__col--board { padding-right: clamp(40px, 5vw, 80px); }
+}
+@media (max-width: 719px) {
+  [data-page="team"].has-scenes .tm-net { max-width: min(100%, 36svh); }
+  [data-page="team"].has-scenes .tm-hero .split { gap: 12px; }
+  [data-page="team"].has-scenes .tm-gov__list { gap: clamp(16px, 2.6svh, 28px); }
+  /* phones: faces only (photo, name, title), large; bios stay on desktop */
+  [data-page="team"].has-scenes .tm-gov__list .person__av { --sz: clamp(92px, 14svh, 130px); }
+  [data-page="team"] .tm-gov__list .person__bio { display: none; }
+  [data-page="team"] .tm-gov__list .person__name { font-size: clamp(22px, min(6.2vw, 3.3svh), 28px); }
+  [data-page="team"] .tm-gov__col--adv .pill-tag { margin: 8px 0 0; }
+}
+@media (min-width: 1024px) { [data-page="team"] .section--hero .h-display { font-size: clamp(56px, 6.2vw, 96px); } [data-page="team"] .person__bio { line-height: 1.45; } [data-page="team"] .team-grid { row-gap: clamp(16px, 2.2vh, 28px); } }
+</style>
+
+<!-- 1 · HERO -->
+<section class="section section--hero tm-hero" data-theme="dark" id="top" data-scene data-scene-name="The team">
+  <span class="glow glow--cyan" style="--x:74%;--y:46%;--size:70vmax;--o:.45"></span>
+  <span class="glow" style="--x:10%;--y:96%;--size:52vmax;--o:.45;--t:28s"></span>
+  <div class="container">
+    <div class="split">
+      <div class="stack stack-l">
+        <p class="eyebrow" data-reveal="fade">The team</p>
+        <h1 class="h-display" data-reveal="split-lines">This isn't a charity built by <span class="hl">just charity people.</span></h1>
+        <p class="lede" data-reveal="up" data-delay=".35">It's built by people who've scaled technology, companies, brands and audiences. Now they're doing it for the people who need them most.</p>
+        <a class="tm-hero__faces" href="#leadership" data-reveal="up" data-delay=".55" aria-label="Leadership">
+          <img src="/assets/team/chris-watley.webp" alt="" width="640" height="640" decoding="async">
+          <img src="/assets/team/rabetanety-andri.webp" alt="" width="640" height="640" decoding="async">
+          <img src="/assets/team/sean-coe.webp" alt="" width="640" height="640" decoding="async">
+          <img src="/assets/team/lukasz-orlowski.webp" alt="" width="640" height="640" decoding="async">
+          <img src="/assets/team/colin-fitzpatrick.webp" alt="" width="640" height="640" decoding="async">
+          <img src="/assets/team/tim-kingery.webp" alt="" width="640" height="640" decoding="async">
+          <img src="/assets/team/robbie-norris.webp" alt="" width="640" height="640" decoding="async">
+          <img src="/assets/team/burcu-paker.webp" alt="" width="640" height="640" decoding="async">
+          <img src="/assets/team/fang-zhang.webp" alt="" width="640" height="640" decoding="async">
+        </a>
+      </div>
+      <div class="split__visual">
+        <div class="tm-net">
+          <div class="dollar-anchor tm-net__coin" data-dollar="orbit9" data-dollar-size="hero" data-dollar-align="center"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · LEADERSHIP + LOGO TICKER -->
+<section class="section tm-lead" data-theme="light" id="leadership">
+  <div class="container">
+    <div class="tm-lead__grid scene-flex" data-scene data-scene-media="(min-width: 720px)" data-scene-name="Leadership">
+    <h2 class="sr-only">Leadership</h2>
+    <div class="dollar-anchor dollar-anchor--s" data-dollar="ambient" style="position:absolute;right:var(--gutter);top:0" aria-hidden="true"></div>
+    <ul class="team-grid team-grid--lead hide-mobile" role="list" data-stagger="up" data-stagger-step=".09">
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/chris-watley.webp" alt="Chris Watley" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Chris Watley</h3><p class="person__title">Founder &amp; CEO</p><p class="person__bio">A decade scaling companies: building and running teams of 100+, managing nationwide boots-on-the-ground operations, and being a father for 17 years.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/rabetanety-andri.webp" alt="Rabetanety Andri" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Rabetanety Andri</h3><p class="person__title">Chief Financial &amp; Operating Officer</p><p class="person__bio">18 years running finance and operations at Amazon, P&amp;G and 1inch.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/sean-coe.webp" alt="Sean Coe" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Sean Coe</h3><p class="person__title">Director of Technology</p><p class="person__bio">25 years across technology, product and cybersecurity. Founder, CTO, and co-inventor of two AI/ML technologies.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/lukasz-orlowski.webp" alt="Lukasz Orlowski" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Lukasz Orlowski</h3><p class="person__title">Director of AI</p><p class="person__bio">MIT Technology Review Innovator Under 35. Intel infrastructure; strategy for ventures valued over $1B.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/colin-fitzpatrick.webp" alt="Colin Fitzpatrick" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Colin Fitzpatrick</h3><p class="person__title">Director of Partnerships</p><p class="person__bio">Ecosystem strategy inside Oracle, Salesforce and HubSpot. AI-native builder; $10M+ raised.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/tim-kingery.webp" alt="Tim Kingery" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Tim Kingery</h3><p class="person__title">Director of Growth</p><p class="person__bio">13+ years leading marketing teams across startups, tech and a publicly traded agency.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/robbie-norris.webp" alt="Robbie Norris" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Robbie Norris</h3><p class="person__title">Director of Media</p><p class="person__bio">Award-winning filmmaker from MTV. Sundance-screened. Directed Jamie Foxx, Mark Wahlberg and Chris Pratt.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/burcu-paker.webp" alt="Burcu Paker" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Burcu Paker</h3><p class="person__title">Chief of Staff</p><p class="person__bio">Eight years as Chief of Staff, turning complex ideas into systems that scale: strategy, technology and execution.</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/fang-zhang.webp" alt="Fang Zhang" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Fang Zhang</h3><p class="person__title">Lead Engineer</p><p class="person__bio">Full-stack at Amazon, TikTok and Snap, building systems that serve hundreds of millions of users.</p></div></li>
+    </ul>
+    <div class="scene-m tm-lead-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Leadership">
+    <ul class="team-grid team-grid--lead team-m hide-desktop" role="list" data-stagger="up" data-stagger-step=".1">
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/chris-watley.webp" alt="Chris Watley" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Chris Watley</h3><p class="person__title">Founder &amp; CEO</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/rabetanety-andri.webp" alt="Rabetanety Andri" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Rabetanety Andri</h3><p class="person__title">Chief Financial &amp; Operating Officer</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/sean-coe.webp" alt="Sean Coe" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Sean Coe</h3><p class="person__title">Director of Technology</p></div></li>
+    </ul>
+    </div>
+    <div class="scene-m tm-lead-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Leadership, 2 of 3">
+    <ul class="team-grid team-grid--lead team-m hide-desktop" role="list" data-stagger="up" data-stagger-step=".1">
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/lukasz-orlowski.webp" alt="Lukasz Orlowski" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Lukasz Orlowski</h3><p class="person__title">Director of AI</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/colin-fitzpatrick.webp" alt="Colin Fitzpatrick" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Colin Fitzpatrick</h3><p class="person__title">Director of Partnerships</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/tim-kingery.webp" alt="Tim Kingery" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Tim Kingery</h3><p class="person__title">Director of Growth</p></div></li>
+    </ul>
+    </div>
+    <div class="scene-m tm-lead-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Leadership, 3 of 3">
+    <ul class="team-grid team-grid--lead team-m hide-desktop" role="list" data-stagger="up" data-stagger-step=".1">
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/robbie-norris.webp" alt="Robbie Norris" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Robbie Norris</h3><p class="person__title">Director of Media</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/burcu-paker.webp" alt="Burcu Paker" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Burcu Paker</h3><p class="person__title">Chief of Staff</p></div></li>
+      <li class="person"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/fang-zhang.webp" alt="Fang Zhang" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h3 class="person__name">Fang Zhang</h3><p class="person__title">Lead Engineer</p></div></li>
+    </ul>
+    </div>
+    </div>
+    <div class="tm-ticker-scene scene-flex" data-scene data-scene-name="Where we come from">
+      <div class="tm-ticker hide-mobile" data-reveal="fade"><div class="ticker" data-ticker>
+  <p class="ticker__label eyebrow">Our team comes from</p>
+  <div class="ticker__rows">
+    <div class="ticker__viewport">
+      <ul class="ticker__track" role="list">
+        <li><img src="/assets/logos/00-salesforce.png" alt="Salesforce" width="400" height="281" style="--h:41" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/01-hubspot.png" alt="HubSpot" width="298" height="109" style="--h:38" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/02-amazon.png" alt="Amazon" width="480" height="145" style="--h:32" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/03-intel.png" alt="Intel" width="288" height="190" style="--h:48" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/04-samsung.png" alt="Samsung" width="400" height="72" style="--h:22" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/05b-tiktok.svg" alt="TikTok" width="986" height="291" style="--h:33" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/05-snapchat.png" alt="Snapchat" width="342" height="104" style="--h:34" loading="lazy" decoding="async"></li>
+      </ul>
+    </div>
+    <div class="ticker__viewport ticker__viewport--rev">
+      <ul class="ticker__track" role="list">
+        <li><img src="/assets/logos/06-j-p-morgan.png" alt="J.P. Morgan" width="600" height="122" style="--h:30" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/07-mtv.png" alt="MTV" width="600" height="380" style="--h:40" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/08-netflix.png" alt="Netflix" width="600" height="163" style="--h:29" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/09-bloomberg.png" alt="Bloomberg" width="600" height="122" style="--h:28" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/12-pg.png" alt="P&amp;G" width="297" height="136" style="--h:32" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/10-dartmouth.png" alt="Dartmouth" width="552" height="129" style="--h:36" loading="lazy" decoding="async"></li>
+        <li><img src="/assets/logos/11-lockheed.png" alt="Lockheed Martin" width="756" height="104" style="--h:28" loading="lazy" decoding="async"></li>
+      </ul>
+    </div>
+  </div>
+  <button class="ticker__toggle" type="button" aria-pressed="false" aria-label="Pause logo ticker"><span aria-hidden="true"></span></button>
+</div>
+</div>
+      <div class="tm-logos hide-desktop" data-reveal="fade"><!-- Static logo module (phones): a dark panel, white logos in a grid. Desktop keeps the ticker. -->
+<div class="logo-panel is-dark">
+  <p class="logo-panel__label">Our team comes from</p>
+  <ul class="logo-panel__grid" role="list">
+    <li><img src="/assets/logos/00-salesforce.png" alt="Salesforce" width="400" height="281" style="--h:41" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/01-hubspot.png" alt="HubSpot" width="298" height="109" style="--h:38" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/02-amazon.png" alt="Amazon" width="480" height="145" style="--h:32" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/03-intel.png" alt="Intel" width="288" height="190" style="--h:48" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/04-samsung.png" alt="Samsung" width="400" height="72" style="--h:22" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/05b-tiktok.svg" alt="TikTok" width="986" height="291" style="--h:33" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/05-snapchat.png" alt="Snapchat" width="342" height="104" style="--h:34" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/06-j-p-morgan.png" alt="J.P. Morgan" width="600" height="122" style="--h:30" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/07-mtv.png" alt="MTV" width="600" height="380" style="--h:40" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/08-netflix.png" alt="Netflix" width="600" height="163" style="--h:29" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/09-bloomberg.png" alt="Bloomberg" width="600" height="122" style="--h:28" loading="lazy" decoding="async"></li>
+    <li><img src="/assets/logos/12-pg.png" alt="P&amp;G" width="297" height="136" style="--h:32" loading="lazy" decoding="async"></li>
+    <li class="is-wide"><img src="/assets/logos/10-dartmouth.png" alt="Dartmouth" width="552" height="129" style="--h:40" loading="lazy" decoding="async"></li>
+    <li class="is-wide"><img src="/assets/logos/11-lockheed.png" alt="Lockheed Martin" width="756" height="104" style="--h:34" loading="lazy" decoding="async"></li>
+  </ul>
+</div>
+</div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · GOVERNANCE (ink close) -->
+<section class="section tm-gov" data-theme="dark" id="governance">
+  <span class="glow glow--gold" style="--x:6%;--y:10%;--size:64vmax;--o:.35;--t:26s"></span>
+  <span class="glow glow--cyan" style="--x:96%;--y:70%;--size:64vmax;--o:.3;--t:30s"></span>
+  <div class="container">
+    <div class="tm-gov__main scene-flex" data-scene data-scene-media="(min-width: 720px)" data-scene-name="Governance">
+    <div class="tm-gov__cols">
+    <div class="scene-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Governance">
+    <div class="section-head">
+      <h2 class="h-l" data-reveal="split-lines">The people who hold us to it.</h2>
+    </div>
+      <div class="tm-gov__col tm-gov__col--board">
+        <h3 class="tm-gov__h" data-reveal="fade">Board of Directors</h3>
+        <ul class="tm-gov__list" role="list" data-stagger="up" data-stagger-step=".12">
+          <li class="person person--lg"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/chris-watley.webp" alt="Chris Watley" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h4 class="person__name">Chris Watley</h4><p class="person__title">Founder &amp; CEO</p></div></li>
+          <li class="person person--lg"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/todd-haselhorst.webp" alt="Todd Haselhorst" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h4 class="person__name">Todd Haselhorst</h4><p class="person__bio">Seven-time founder, three exits. Enterprise and operations technology.</p></div></li>
+          <li class="person person--lg"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/sam-yim.webp" alt="Samuel Yim" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h4 class="person__name">Samuel Yim</h4><p class="person__bio">Global regulatory and compliance: digital assets, financial services.</p></div></li>
+        </ul>
+      </div>
+    </div>
+    <div class="scene-m" data-scene data-scene-media="(max-width: 719px)" data-scene-name="Advisory Board">
+      <div class="tm-gov__col tm-gov__col--adv">
+        <h3 class="tm-gov__h" data-reveal="fade" data-delay=".15">Advisory Board</h3>
+        <ul class="tm-gov__list" role="list" data-stagger="up" data-stagger-step=".12">
+          <li class="person person--lg"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/niall-dennehy.webp" alt="Niall Dennehy" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h4 class="person__name">Niall Dennehy</h4><span class="pill-tag">Transparency</span><p class="person__bio">Co-founder and COO of AID:Tech. Founder and CEO, NestiFi.</p></div></li>
+          <li class="person person--lg"><div class="person__av"><span class="arc"></span><span class="arc arc--2"></span><img src="/assets/team/jay-wong.webp" alt="Jay Wong" width="400" height="400" loading="eager" fetchpriority="low" decoding="async"></div><div class="person__body"><h4 class="person__name">Jay Wong</h4><span class="pill-tag">Talent</span><p class="person__bio">Venture partner. Top-tier talent headhunter across AI and Web3.</p></div></li>
+        </ul>
+      </div>
+    </div>
+    </div>
+    </div>
+    <div class="dollar-anchor dollar-anchor--s" data-dollar="ambient" style="margin-top:-80px" aria-hidden="true"></div>
+    <div class="tm-gov__close scene-flex" data-scene data-scene-name="Work with us">
+      <div class="dollar-anchor tm-gov__logo" data-dollar="logo" data-dollar-size="companion" data-dollar-align="center"></div>
+      <h2 class="h-l" data-reveal="split-lines">A board that governs. <span class="hl">An advisory board that challenges.</span></h2>
+      <div class="btn-row center" data-reveal="up" data-delay=".2">
+        <a class="btn btn--primary btn--lg btn--arrow" href="/movement/#careers" data-magnetic><span class="btn__label">Work with us</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="footer is-dark" id="footer" data-theme="dark">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a class="footer__logo" href="/" aria-label="DAD, Dynamic Aid Delivery: home"><svg class="logo" viewBox="-8 -4 345 108" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><g class="ml"><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/></g><g class="ml l2"><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></g></svg>
+</a>
+        <p class="footer__tag">DAD · Aid, delivered.</p>
+      </div>
+      <nav class="footer__nav" aria-label="Footer">
+        <a href="/about/">About</a>
+        <a href="/how-it-works/">How It Works</a>
+        <a href="/programs/">Programs</a>
+        <a href="/proof/">The Proof</a>
+        <a href="/team/">Team</a>
+        <a href="/building-in-public/">Building in Public</a>
+        <a href="/transparency/">Transparency</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/contact/">Contact</a>
+        <a href="/movement/?partner=1" data-no-router data-partner-open aria-haspopup="dialog">Partners</a>
+        <a href="/movement/#careers">Careers</a>
+      </nav>
+    </div>
+    <div class="footer__mark" aria-hidden="true"><div class="dollar-anchor dollar-anchor--fill" data-dollar="logo" data-dollar-size="fill"></div></div>
+    <p class="footer__big" aria-hidden="true" data-reveal="split-chars">Aid, delivered.</p>
+    <div class="footer__legal">
+      <p>Dynamic Aid Delivery, INC. is a Delaware non-stock corporation.</p>
+      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a></p>
+    </div>
+  </div>
+</footer>
+
+<a class="btn btn--primary mobile-cta" href="/movement/" id="mobile-cta"><span class="btn__label">Join the Movement</span></a>
+<div class="cookie is-dark" id="cookie" role="region" aria-label="Cookie notice" hidden>
+  <p class="cookie__text">We use basic analytics to see what's working. No ads. No selling.</p>
+  <div class="cookie__actions">
+    <button class="btn btn--primary btn--sm" type="button" data-consent="accept"><span class="btn__label">Accept</span></button>
+    <button class="btn btn--ghost btn--sm" type="button" data-consent="decline"><span class="btn__label">Decline</span></button>
+  </div>
+</div>
+
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
+<div class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>
