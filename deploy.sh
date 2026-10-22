@@ -69,6 +69,7 @@ EXCLUDES=(
   "--exclude=deploy.sh"
   "--exclude=DEPLOY.md"
   "--exclude=.DS_Store"
+  "--exclude=deploy/"            # pull-based deploy tooling dir (scripts, cron, README); sibling of dad/, excluded defensively
   # --- PHP test tooling (dev-only; never shipped). NOTE: vendor/ is NOT excluded
   #     on purpose — it holds the shipped frontend JS (gsap.min.js etc.). ---
   "--exclude=tests/"
@@ -84,6 +85,7 @@ EXCLUDES=(
   #     Defensive extra globs in case any of those ever sit outside tests-e2e.
   #     Still NO vendor/ exclude — dad/vendor/ holds the shipped frontend JS. ---
   #     NOTE: any future pull-based deploy script MUST mirror these same excludes.
+  #     deploy/pull-deploy.sh now mirrors this exact exclude set (kept in sync).
   "--exclude=tests-e2e/"
   "--exclude=playwright*.config.*"
   "--exclude=playwright-report/"

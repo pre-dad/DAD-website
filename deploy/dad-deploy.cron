@@ -1,0 +1,28 @@
+# dad-deploy.cron — pull-based deploy schedule for the DAD website.
+#
+# Each box installs ONLY its own line (staging box -> the staging line; prod box
+# -> the prod line). Do NOT install both on one box. See deploy/README.md for the
+# full per-box install (copy deploy/ scripts, chmod +x, create /var/log/dad-deploy,
+# set up /var/www/shared/config.php and the release dirs, then install the line
+# below with `crontab -e`).
+#
+# Every 3 minutes cron runs pull-deploy.sh. If origin/<branch> has not moved it
+# exits 0 quietly (no deploy); when it moves, it syncs/builds, fixes perms, runs
+# the Tier 2 smoke test, and (staging) leaves the preview live even on smoke
+# failure or (prod) only swaps the live symlink when smoke passes. All stdout and
+# stderr is appended to /var/log/dad-deploy/cron.log; the script also logs to
+# /var/log/dad-deploy/deploy.log and to syslog/journald via `logger`.
+#
+# The box firewall stays LOCKED: this is pull-based, so GitHub never connects in.
+#
+# Paths below assume the layout documented in deploy/README.md:
+#   - scripts installed at /home/admin/deploy/
+#   - checkout (bare-ish working repo) at /home/admin/dad-main-website
+#   - staging webroot: /var/www/html (a plain dir)
+#   - prod webroot:    /var/www/html (a SYMLINK to a release dir under /var/www/releases)
+
+# ---- STAGING BOX (preview at staging.dynamicaid.org) -- install THIS line only:
+*/3 * * * * /home/admin/deploy/pull-deploy.sh --branch staging --webroot /var/www/html --repo /home/admin/dad-main-website --mode staging >> /var/log/dad-deploy/cron.log 2>&1
+
+# ---- PROD BOX (live at dynamicaid.org) ---------------- install THIS line only:
+*/3 * * * * /home/admin/deploy/pull-deploy.sh --branch main --webroot /var/www/html --repo /home/admin/dad-main-website --mode prod >> /var/log/dad-deploy/cron.log 2>&1
