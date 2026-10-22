@@ -35,6 +35,16 @@ _local-data/
 **/*.jsonl
 
 # --------------------------------------------------------------------------
+# PHP TEST TOOLING — installed PHPUnit vendor + caches (dev-only, never shipped)
+# NOTE: composer.json, composer.lock, phpunit.xml and dad/tests/ stay TRACKED;
+# this only ignores the installed vendor dir and PHPUnit's caches. Do NOT add a
+# `dad/vendor` rule — that holds the shipped frontend JS (gsap.min.js etc.).
+# --------------------------------------------------------------------------
+dad/.phpunit-vendor/
+dad/.phpunit.cache/
+**/.phpunit.result.cache
+
+# --------------------------------------------------------------------------
 # NON-SITE APPS — migrated/retired separately, out of this repo (per decision)
 # --------------------------------------------------------------------------
 dad/decksend/

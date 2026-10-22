@@ -1,0 +1,19 @@
+{
+    "name": "dad/website-tests",
+    "description": "Dev-only test tooling for the DAD marketing site form-submission backend. Not shipped to the live site.",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5 || ^11.0"
+    },
+    "config": {
+        "vendor-dir": ".phpunit-vendor",
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

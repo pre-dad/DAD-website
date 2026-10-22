@@ -69,6 +69,15 @@ EXCLUDES=(
   "--exclude=deploy.sh"
   "--exclude=DEPLOY.md"
   "--exclude=.DS_Store"
+  # --- PHP test tooling (dev-only; never shipped). NOTE: vendor/ is NOT excluded
+  #     on purpose — it holds the shipped frontend JS (gsap.min.js etc.). ---
+  "--exclude=tests/"
+  "--exclude=.phpunit-vendor/"
+  "--exclude=.phpunit.cache/"
+  "--exclude=.phpunit.result.cache"
+  "--exclude=composer.json"
+  "--exclude=composer.lock"
+  "--exclude=phpunit.xml"
 )
 
 # shellcheck disable=SC2054  # the comma is inside the single --chmod=D755,F644 flag value, not an array separator
