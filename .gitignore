@@ -45,6 +45,22 @@ dad/.phpunit.cache/
 **/.phpunit.result.cache
 
 # --------------------------------------------------------------------------
+# TIER 3 E2E TOOLING — installed Node deps + Playwright output (dev/CI-only).
+# The specs, playwright.config.ts, package.json, package-lock.json, router.php
+# and ci-setup-config.sh stay TRACKED; this only ignores installed/generated
+# artifacts. Do NOT add a blanket `dad/tests-e2e/` rule (it would untrack the
+# specs) and do NOT add a `dad/vendor/` rule (shipped frontend JS).
+# --------------------------------------------------------------------------
+dad/tests-e2e/node_modules/
+dad/tests-e2e/playwright-report/
+dad/tests-e2e/test-results/
+dad/tests-e2e/.cache/
+# CI temp data dir lives under $RUNNER_TEMP / mktemp (outside the repo); this is
+# a defensive catch only if the setup script is ever pointed inside the tree.
+dad/dad-ci-data-*/
+dad/api/config.php.ci-backup
+
+# --------------------------------------------------------------------------
 # NON-SITE APPS — migrated/retired separately, out of this repo (per decision)
 # --------------------------------------------------------------------------
 dad/decksend/

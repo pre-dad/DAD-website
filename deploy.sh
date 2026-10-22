@@ -78,6 +78,16 @@ EXCLUDES=(
   "--exclude=composer.json"
   "--exclude=composer.lock"
   "--exclude=phpunit.xml"
+  # --- Tier 3 E2E tooling (dev/CI-only; never shipped). The whole tests-e2e/
+  #     dir covers the specs, playwright config, package.json/lock, node_modules,
+  #     playwright-report/, test-results/, router.php and ci-setup-config.sh.
+  #     Defensive extra globs in case any of those ever sit outside tests-e2e.
+  #     Still NO vendor/ exclude — dad/vendor/ holds the shipped frontend JS. ---
+  #     NOTE: any future pull-based deploy script MUST mirror these same excludes.
+  "--exclude=tests-e2e/"
+  "--exclude=playwright*.config.*"
+  "--exclude=playwright-report/"
+  "--exclude=test-results/"
 )
 
 # shellcheck disable=SC2054  # the comma is inside the single --chmod=D755,F644 flag value, not an array separator
