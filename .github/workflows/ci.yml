@@ -53,6 +53,7 @@ jobs:
   e2e-a11y:
     name: E2E + a11y (Playwright + axe)
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
 
@@ -76,7 +77,12 @@ jobs:
 
       - name: Install Playwright Chromium
         working-directory: dad/tests-e2e
-        run: npx playwright install --with-deps chromium
+        # Browser only — no `--with-deps`. The `--with-deps` flag shells out to apt-get,
+        # which hung ~7.5 min on the ubuntu-latest runner (apt lock / mirror stall). The
+        # runner image already ships the shared libs headless Chromium needs. The step
+        # timeout below bounds it so a future stall fails fast instead of burning minutes.
+        timeout-minutes: 5
+        run: npx playwright install chromium
 
       - name: Write throwaway CI config
         working-directory: dad
