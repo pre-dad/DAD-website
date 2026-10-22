@@ -10,13 +10,16 @@
 # It NEVER reads or copies the real config.php or the real data dir.
 #
 # Usage:
-#   bash tests-e2e/ci-setup-config.sh --ci       # run from dad/
+#   bash tests-e2e/ci-setup-config.sh --ci       # run from dad/ (write throwaway config)
 #   bash tests-e2e/ci-setup-config.sh --force    # alias for --ci
+#   bash tests-e2e/ci-setup-config.sh --restore  # restore the backed-up real config
 #
 # LOCAL-DEV GUARD: if dad/api/config.php already exists and no --ci/--force flag
 # is passed, this refuses (so a developer's real config is never clobbered). With
-# the flag, an existing config.php is backed up to config.php.ci-backup and
-# restored would be manual — the flag is an explicit "yes, overwrite" for CI.
+# the flag, an existing real config is backed up to config.php.ci-backup FIRST.
+# Run with --restore afterwards to put the real config back (local dev). In CI
+# there is no real config.php, so --ci just writes the throwaway one and there is
+# nothing to restore.
 
 set -euo pipefail
 
@@ -24,14 +27,29 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DAD_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 CONFIG="$DAD_DIR/api/config.php"
+BACKUP="$CONFIG.ci-backup"
 
 FORCE=0
+RESTORE=0
 for arg in "$@"; do
   case "$arg" in
     --ci|--force) FORCE=1 ;;
+    --restore) RESTORE=1 ;;
     *) echo "ci-setup-config.sh: unknown arg '$arg'" >&2; exit 2 ;;
   esac
 done
+
+# --restore: put the real config back from the backup this script made.
+if [[ "$RESTORE" -eq 1 ]]; then
+  if [[ -f "$BACKUP" ]]; then
+    mv -f "$BACKUP" "$CONFIG"
+    echo "ci-setup-config.sh: restored real config.php from backup"
+  else
+    echo "ci-setup-config.sh: no backup to restore (config.php.ci-backup absent)." >&2
+    echo "Nothing done. (In CI there is no real config to restore — this is fine.)" >&2
+  fi
+  exit 0
+fi
 
 if [[ -f "$CONFIG" && "$FORCE" -ne 1 ]]; then
   echo "ci-setup-config.sh: $CONFIG already exists." >&2
@@ -41,8 +59,14 @@ if [[ -f "$CONFIG" && "$FORCE" -ne 1 ]]; then
 fi
 
 if [[ -f "$CONFIG" && "$FORCE" -eq 1 ]]; then
-  cp -p "$CONFIG" "$CONFIG.ci-backup"
-  echo "ci-setup-config.sh: backed up existing config.php -> config.php.ci-backup"
+  # Preserve the existing (real) config so --restore can put it back. Don't
+  # clobber a backup from an earlier run that may hold the only real copy.
+  if [[ ! -f "$BACKUP" ]]; then
+    cp -p "$CONFIG" "$BACKUP"
+    echo "ci-setup-config.sh: backed up existing config.php -> config.php.ci-backup (run --restore to put it back)"
+  else
+    echo "ci-setup-config.sh: keeping existing config.php.ci-backup (not overwriting the saved real config)"
+  fi
 fi
 
 # Fresh, unguessable temp data dir OUTSIDE the repo tree.
