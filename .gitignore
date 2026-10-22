@@ -54,3 +54,12 @@ dad/DAD-Convo Deck.html
 # --- local working notes (env facts, account id) — never commit ---
 MIGRATION-NOTES.local.md
 *.local.md
+
+# --- agent/workflow working files (plans, reviews) — never commit ---
+.agents/
+**/ses-and-deploy-plan.md
+**/ses-review.md
+**/ses-review.json
+**/*-plan.md
+**/*-review.md
+**/*-review.json
