@@ -4,17 +4,7 @@ declare(strict_types=1);
 
 define('SITE_API', 1);
 
-const SITE_TYPES      = ['founding', 'updates', 'support', 'volunteer', 'contact', 'partner'];
-const SITE_LIST_TYPES = ['founding', 'updates'];          // mailing lists: deduped by email, carry an unsubscribe token
-const SITE_TOPICS     = ['Giving', 'Partnership', 'Press', 'Careers', 'Something else'];
-const SITE_TYPE_LABELS = [
-  'founding'  => 'Founding Donor',
-  'updates'   => 'Build updates',
-  'support'   => 'Get support',
-  'volunteer' => 'Volunteer',
-  'contact'   => 'Message',
-  'partner'   => 'Partner',
-];
+require __DIR__ . '/constants.php';
 
 // The real config.php is created at deploy. Without it we load the sample so pages can still
 // render a clean "not configured" state; site_configured() stays false and nothing is stored.

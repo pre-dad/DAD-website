@@ -1,4 +1,4 @@
-// The 16 canonical pages from sitemap.xml. Shared by the specs.
+// The canonical pages listed in sitemap.xml.
 export const CANONICAL_PAGES: string[] = [
   '/',
   '/about/',

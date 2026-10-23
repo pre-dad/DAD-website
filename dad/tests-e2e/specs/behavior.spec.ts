@@ -55,7 +55,7 @@ test('home: founding form round-trip shows success UI', async ({ page }) => {
 });
 
 // ---------------------------------------------------------------------------
-// Bounded internal broken-link check across the 16 pages.
+// Internal broken-link check across the canonical pages.
 // Collect same-origin <a href> values; skip external hosts, mailto/tel,
 // javascript:, and pure #fragments. Each unique internal link must return 200
 // (or the one known 301: /get-involved/ -> /movement/).

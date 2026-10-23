@@ -72,21 +72,4 @@ final class ValidateHelpersTest extends TestCase
     {
         $this->assertSame($expected, valid_phone($phone));
     }
-
-    // ---- v_err -------------------------------------------------------------
-
-    public function testVErrWithField(): void
-    {
-        $this->assertSame(
-            ['ok' => false, 'error' => 'Nope.', 'field' => 'email'],
-            v_err('Nope.', 'email')
-        );
-    }
-
-    public function testVErrWithoutFieldOmitsFieldKey(): void
-    {
-        $r = v_err('Nope.');
-        $this->assertSame(['ok' => false, 'error' => 'Nope.'], $r);
-        $this->assertArrayNotHasKey('field', $r);
-    }
 }

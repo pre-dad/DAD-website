@@ -69,6 +69,9 @@ if [[ -f "$CONFIG" && "$FORCE" -eq 1 ]]; then
   fi
 fi
 
+# The admin e2e spec opens /api/admin/?setup=ci-setup-key; this is its hash.
+SETUP_KEY_SHA256="$(printf '%s' 'ci-setup-key' | php -r 'echo hash("sha256", stream_get_contents(STDIN));')"
+
 # Fresh, unguessable temp data dir OUTSIDE the repo tree.
 DATA_DIR="$(mktemp -d "${TMPDIR:-/tmp}/dad-ci-data-XXXXXXXX")"
 echo "ci-setup-config.sh: SITE_DATA_DIR = $DATA_DIR"
@@ -85,7 +88,7 @@ const SITE_BASE = 'http://127.0.0.1:8080';
 
 const SITE_DATA_DIR = '$DATA_DIR';
 
-const SITE_SETUP_KEY_SHA256 = '';
+const SITE_SETUP_KEY_SHA256 = '$SETUP_KEY_SHA256';
 
 const SITE_NOTIFY_TO        = 'team@example.com';
 const SITE_NOTIFY_TYPES     = ['founding', 'updates', 'support', 'volunteer', 'contact', 'partner'];
