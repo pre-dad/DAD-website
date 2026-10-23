@@ -1,4 +1,3 @@
-# DAD static site (IONOS / Apache)
 Options -Indexes
 DirectoryIndex index.html index.php
 ErrorDocument 404 /404.html
@@ -13,13 +12,11 @@ RedirectMatch 301 ^/get-involved/?$ /movement/
   AddType application/javascript .js .mjs
 </IfModule>
 
-# The impact-ledger view ships as an extension-less file; force its content type
-# so Apache serves it as HTML (otherwise it may be sent as octet-stream/download).
+# Extension-less page: without this Apache may send it as a download.
 <Files "impactledger">
   ForceType text/html
 </Files>
 
-# text assets ship ~75% smaller compressed (site.css 150KB -> ~30KB)
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript text/javascript application/json image/svg+xml application/xml
 </IfModule>
@@ -27,6 +24,9 @@ RedirectMatch 301 ^/get-involved/?$ /movement/
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on'"
   <FilesMatch "\.(html)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
