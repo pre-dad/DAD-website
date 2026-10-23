@@ -24,12 +24,14 @@ if ($uri === '/get-involved' || $uri === '/get-involved/') {
 
 $full = $root . $uri;
 
-// 2) DirectoryIndex: map a directory request to its index.html.
+// 2) DirectoryIndex index.html index.php
 if (is_dir($full)) {
     $idx = rtrim($uri, '/') . '/index.html';
     if (is_file($root . $idx)) {
         $uri  = $idx;
         $full = $root . $uri;
+    } elseif (is_file($full . '/index.php')) {
+        return false;
     }
 }
 
