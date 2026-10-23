@@ -10,7 +10,7 @@ function db(): PDO {
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
   ]);
-  // Rollback journal (not WAL): shared hosting storage may be a network filesystem.
+  // Rollback journal, not WAL: site.sqlite stays one self-contained file, so copying it is a backup.
   $pdo->exec('PRAGMA busy_timeout = 5000');
   $ver = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
   if ($ver < 1) {

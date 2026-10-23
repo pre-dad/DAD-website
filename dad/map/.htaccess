@@ -21,7 +21,6 @@
 
 DirectoryIndex index.html
 
-# --- password protection ---------------------------------------------------
-# Turn this on from your host's control panel, NOT by editing this file.
-# In IONOS: Hosting -> your package -> Directory Protection -> protect the
-# folder you uploaded to. It writes the password file for you.
+# --- access -----------------------------------------------------------------
+# Public but not linked from the site. To require a password, add HTTP basic auth
+# here (AuthType Basic with an AuthUserFile kept outside the webroot).

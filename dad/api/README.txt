@@ -1,65 +1,52 @@
 DAD WEBSITE FORMS API
 =====================
 PHP 8 + SQLite backend for every form on dynamicaid.org (Founding Donor waitlist,
-build updates, get support, volunteer, contact, partner). Same hosting pattern as DeckSend:
-IONOS shared hosting, PHP mail(), data folder outside anything a deploy can wipe.
-
-Nothing here is live until it is deployed. Locally, PHP is not used at all:
-serve.py (website root) fakes /api/submit.php and /api/health.php and writes to
-05 - DAD/website/_local-data/submissions.jsonl.
+build updates, get support, volunteer, contact, partner). It runs under Apache on
+the AWS Lightsail boxes and sends email through Amazon SES. To run it locally, see
+"Run it locally" in the repo's README.md.
 
 
 WHAT IS WHERE (on the server)
 -----------------------------
   /api/submit.php          every form posts here (JSON in, JSON out)
   /api/unsubscribe.php     one-click unsubscribe link used in emails
+  /api/donor.php           Stripe donor lookup for the post-donation page
   /api/health.php          {"ok":true} when config + database are working
   /api/admin/              private dashboard (password)
-  /api/config.php          settings (you create it, see below). Web access blocked.
+  /api/config.php          settings. A symlink to /var/www/shared/config.php, which
+                           lives outside the deployed tree. Web access blocked.
   /api/lib/                helpers. Web access blocked.
-  /<SITE_DATA_DIR>/        the data folder, BESIDE /api in the webroot, e.g.
-                           /dad-site-data-1a2b3c4d5e6f7a8b/site.sqlite
-                           Created automatically on the first form post, locked with
-                           "Require all denied". It is outside /api on purpose:
-                           deploy.sh mirrors with --delete, so data inside /api would
-                           be wiped on every redeploy.
+  SITE_DATA_DIR            the data folder: /var/dad-data on the boxes, outside the
+                           deployed tree so no deploy can touch it. Holds
+                           site.sqlite and, optionally, stripe.key. A relative name
+                           (e.g. dad-site-data-1a2b3c4d5e6f7a8b) also works: the
+                           folder is then created beside /api and locked with
+                           "Require all denied".
 
 
-BEFORE THE FIRST DEPLOY: CREATE config.php
-------------------------------------------
-1. Copy api/config.sample.php to api/config.php IN THE VAULT
-   (05 - DAD/website/api/config.php). Keep it in the vault so every deploy
-   carries it. It holds no secrets: only addresses, a folder name and a hash.
+FIRST-TIME SETUP: CREATE config.php
+-----------------------------------
+1. On the box, copy api/config.sample.php to /var/www/shared/config.php
+   (deploy/README.md has the permissions). It is never committed.
 
-2. Pick an unguessable data folder name and put it in SITE_DATA_DIR:
-     python3 -c "import secrets; print('dad-site-data-' + secrets.token_hex(8))"
+2. Set SITE_DATA_DIR to the data folder ('/var/dad-data' on the boxes), SITE_BASE
+   to the site's URL, and the SES SMTP settings (SITE_SMTP_*).
 
 3. Make a one-time setup key. Give the KEY to Chris privately; put only its
-   HASH in SITE_SETUP_KEY_SHA256. Never write the key itself in the vault.
-     python3 -c "import secrets; print(secrets.token_urlsafe(24))"
+   HASH in SITE_SETUP_KEY_SHA256. Never write the key itself down anywhere else.
+     openssl rand -hex 24
      printf '%s' 'PASTE-THE-KEY' | shasum -a 256
 
 4. Check SITE_NOTIFY_TO (default chris@dynamicaid.org) and SITE_MAIL_FROM
    (default hello@dynamicaid.org). hello@ must be a real mailbox: donors will
    reply to the confirmation email.
 
+config.php is read on every request, so edits take effect at once: no deploy.
 
-DEPLOY (only when Chris says go)
---------------------------------
-  chmod 644 every file first (the server cannot read 600 files):
-    find "05 - DAD/website/api" -type f -exec chmod 644 {} \;
-  Deploy just this folder, from the vault root:
-    .claude/bin/deploy.sh "05 - DAD/website/api/" api
 
-  !! NEVER mirror the whole site to the webroot with --delete
-     (deploy.sh <dist>/ with no subpath). That deletes every folder at the root
-     that is not in dist/: /decksend, /view, the DeckSend data folder, and this
-     data folder with every sign-up in it. Deploy the site folder by folder, or
-     run lftp mirror WITHOUT --delete for the root, or with
-     --exclude-glob 'dad-site-data-*' --exclude-glob 'ds-data-*'
-     --exclude decksend/ --exclude view/
-
-  After deploying:
+DEPLOY
+------
+  Deploys are automatic: see deploy/README.md. After the first deploy to a box:
     1. https://dynamicaid.org/api/health.php      must show {"ok":true}
     2. https://dynamicaid.org/api/admin/?setup=THE-KEY
        Chris creates his password (12+ characters). The link then stops working.
@@ -72,7 +59,6 @@ DEPLOY (only when Chris says go)
     5. Submit the Founding Donor form once with a real Gmail address. Check the
        email lands in the inbox, the Unsubscribe link works, and Gmail shows its
        own "Unsubscribe" button (that is the one-click header).
-
 
 DAY TO DAY
 ----------
@@ -134,28 +120,26 @@ EMAILS PAGE: CHANGE WHAT THE AUTOMATIC EMAILS SAY
 
 CHANGE THE NOTIFICATION ADDRESS
 -------------------------------
-  Edit SITE_NOTIFY_TO in api/config.php, then redeploy api. To stop alerts for
-  one form type, remove it from SITE_NOTIFY_TYPES (it is still saved and shown
-  in the dashboard).
+  Edit SITE_NOTIFY_TO in config.php. To stop alerts for one form type, remove it
+  from SITE_NOTIFY_TYPES (it is still saved and shown in the dashboard).
 
 
 LOST PASSWORD
 -------------
-  Make a NEW setup key (step 3 above), put its hash in config.php, redeploy, open
+  Make a NEW setup key (step 3 above), put its hash in config.php, and open
   https://dynamicaid.org/api/admin/?setup=NEW-KEY. Each key works once; setting a
   new password signs out every old session.
 
 
 EMAIL DELIVERY
 --------------
-  Uses PHP mail() on IONOS (same as DeckSend). Before launch:
-  - SPF for dynamicaid.org must include IONOS, DKIM should be on in the IONOS
-    mail settings, and a DMARC record should exist, or Gmail may junk the
-    confirmation email.
-  - IONOS limits how much mail() can send. SITE_MAX_CONFIRMATIONS_PER_HOUR (200)
-    caps confirmations; anything over the cap is still saved and the dashboard
-    shows how many were held back. At real volume, move confirmations to a
-    transactional email service.
+  Sends through Amazon SES over SMTP (SITE_SMTP_HOST etc. in config.php). With
+  SITE_SMTP_HOST blank it falls back to PHP mail().
+  - SES needs the dynamicaid.org domain verified (DKIM records in Cloudflare),
+    SPF and DMARC records, and production access, or mail stays sandboxed or
+    lands in spam.
+  - SITE_MAX_CONFIRMATIONS_PER_HOUR (200) caps confirmation emails; anything over
+    the cap is still saved and the dashboard shows how many were held back.
   - The monthly update is NOT sent from here. Export the mailing list CSV and use
     the unsubscribe link in each row.
 
@@ -171,12 +155,13 @@ WHAT IS STORED (and what is not)
   email_templates: the wording saved on the Emails page (no personal data).
   The IP salt is generated on the server and lives only in the database.
 
-  BACKUP: download <SITE_DATA_DIR>/site.sqlite over SFTP now and then. It is the
-  only copy.
+  BACKUP: site.sqlite is the only copy. Take a consistent copy on the box with
+    sqlite3 /var/dad-data/site.sqlite ".backup /tmp/site-backup.sqlite"
+  and download that over SFTP now and then.
 
 
-THE CONTRACT (what the site's JavaScript and serve.py's mock must match)
-------------------------------------------------------------------------
+THE CONTRACT (what the site's JavaScript relies on)
+---------------------------------------------------
   POST /api/submit.php   Content-Type: application/json
     {type, first_name?, name?, email?, phone?, zip?, city?, topic?, message?,
      company?, note?, ref?, page, website:"", ts_open:<ms since epoch when the form rendered>}
@@ -189,7 +174,7 @@ THE CONTRACT (what the site's JavaScript and serve.py's mock must match)
     contact:            name + email + topic + message
                         topic: Giving | Partnership | Press | Careers | Something else
     partner:            name + email + company (160 max) + note (optional, 2,000 max)
-                        Sent from the "Partner with us" modal (src/js/core/partner-modal.js).
+                        Sent from the "Partner with us" modal (js/core/partner-modal.js).
                         Sends a confirmation to the person and an alert to the team
                         with Reply-To set to the person.
     200 {ok:true, id, type}       id = 10-char referral code

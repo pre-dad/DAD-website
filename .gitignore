@@ -1,28 +1,14 @@
-# ==========================================================================
-# DAD website (dynamicaid.org) — private repo: CoachCoe/dad-main-website
-# The repo root is this `website/` folder; the site lives under `dad/`.
-# This file keeps ALL secrets and live data out of git, and limits the repo
-# to the marketing site + its /api (the non-site PHP apps are excluded).
-# ==========================================================================
-
-# --- OS cruft ---
+# OS cruft
 .DS_Store
-**/.DS_Store
 
-# --------------------------------------------------------------------------
-# SECRETS — never commit (defense in depth: catch-all + explicit)
-# --------------------------------------------------------------------------
+# Secrets: never commit (config.sample.php is the tracked template)
 **/config.php
 !**/config.sample.php
 **/stripe.key
 .env
 .env.*
-**/.env
-**/.env.*
 
-# --------------------------------------------------------------------------
-# LIVE DATA — sign-ups, IP salt, DeckSend data (the ONLY copy; back up via SFTP)
-# --------------------------------------------------------------------------
+# Live data: the sign-ups database is the only copy; back it up from the server
 dad/dad-site-data-*/
 dad/ds-data-*/
 dad/ds-stage-*/
@@ -30,62 +16,30 @@ dad/ds-stage-*/
 **/*.sqlite3
 **/*.db
 
-# --- local dev mock output (if serve.py is added later) ---
-_local-data/
-**/*.jsonl
-
-# --------------------------------------------------------------------------
-# PHP TEST TOOLING — installed PHPUnit vendor + caches (dev-only, never shipped)
-# NOTE: composer.json, composer.lock, phpunit.xml and dad/tests/ stay TRACKED;
-# this only ignores the installed vendor dir and PHPUnit's caches. Do NOT add a
-# `dad/vendor` rule — that holds the shipped frontend JS (gsap.min.js etc.).
-# --------------------------------------------------------------------------
+# Installed tooling and test output. Do not ignore dad/vendor/: it is the site's shipped JS.
+node_modules/
 dad/.phpunit-vendor/
 dad/.phpunit.cache/
-**/.phpunit.result.cache
-
-# --------------------------------------------------------------------------
-# TIER 3 E2E TOOLING — installed Node deps + Playwright output (dev/CI-only).
-# The specs, playwright.config.ts, package.json, package-lock.json, router.php
-# and ci-setup-config.sh stay TRACKED; this only ignores installed/generated
-# artifacts. Do NOT add a blanket `dad/tests-e2e/` rule (it would untrack the
-# specs) and do NOT add a `dad/vendor/` rule (shipped frontend JS).
-# --------------------------------------------------------------------------
-node_modules/
 dad/tests-e2e/playwright-report/
 dad/tests-e2e/test-results/
 dad/tests-e2e/.cache/
-# CI temp data dir lives under $RUNNER_TEMP / mktemp (outside the repo); this is
-# a defensive catch only if the setup script is ever pointed inside the tree.
 dad/dad-ci-data-*/
 dad/api/config.php.ci-backup
 
-# --------------------------------------------------------------------------
-# NON-SITE APPS — migrated/retired separately, out of this repo (per decision)
-# --------------------------------------------------------------------------
+# Other apps that share the old webroot locally but live outside this repo
 dad/decksend/
 dad/view/
 dad/r1-prd/
 dad/living-org-chart/
 dad/convodeckv2/
-
-# --------------------------------------------------------------------------
-# STAGING / DETRITUS — not part of the deployable site
-# --------------------------------------------------------------------------
 dad/preview-*/
 dad/probe-*/
 dad/deck-1-*/
 dad/DAD-Convo Deck.html
 
-# --- local working notes (env facts, account id) — never commit ---
-MIGRATION-NOTES.local.md
+# Working notes and agent files: never commit
 *.local.md
-
-# --- agent/workflow working files (plans, reviews) — never commit ---
 .agents/
-**/ses-and-deploy-plan.md
-**/ses-review.md
-**/ses-review.json
 **/*-plan.md
 **/*-review.md
 **/*-review.json
