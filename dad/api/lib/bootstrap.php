@@ -51,7 +51,11 @@ function site_data_dir(): string {
   if (!is_dir($d) && !@mkdir($d, 0750, true) && !is_dir($d)) {
     throw new RuntimeException('Cannot create the data folder');
   }
-  if (!is_file($d . '/.htaccess')) @file_put_contents($d . '/.htaccess', "Require all denied\n");
-  if (!is_file($d . '/index.html')) @file_put_contents($d . '/index.html', '');
+  foreach (['/.htaccess' => "Require all denied\n", '/index.html' => ''] as $suffix => $contents) {
+    $path = $d . $suffix;
+    if (!is_file($path) && file_put_contents($path, $contents, LOCK_EX) === false) {
+      throw new RuntimeException('Cannot protect the data folder');
+    }
+  }
   return $d;
 }
