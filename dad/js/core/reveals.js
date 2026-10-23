@@ -55,7 +55,12 @@ function splitReveal(el, type) {
       wordsClass: 'sw',
       charsClass: 'sc',
       mask: kind === 'chars' ? 'lines' : kind === 'words' ? 'lines' : 'lines',
-      aria: 'auto',
+      // aria:'none' leaves the host element's own text in the a11y tree (no
+      // aria-label added to the <p>, no aria-hidden on the split pieces). A <p>
+      // has no role that permits aria-label, so aria:'auto' produced an
+      // aria-prohibited-attr violation; 'none' preserves the accessible name
+      // (the element's text) without the prohibited attribute.
+      aria: 'none',
     });
     const targets = split[kind];
     gsap.set(targets, kind === 'chars' ? { yPercent: 115, rotate: 8, transformOrigin: '0% 100%' } : { yPercent: 112 });
@@ -87,8 +92,15 @@ function splitReveal(el, type) {
 }
 
 function buildOdometer(el, finalText) {
-  el.setAttribute('aria-label', finalText);
+  // The visible digit columns below are decorative (aria-hidden), so the
+  // accessible name must come from real text. A <p> has no role permitting
+  // aria-label, so instead of el.setAttribute('aria-label', ...) we append a
+  // visually-hidden .sr-only span carrying the number for screen readers.
   el.textContent = '';
+  const srLabel = document.createElement('span');
+  srLabel.className = 'sr-only';
+  srLabel.textContent = finalText;
+  el.appendChild(srLabel);
   const cols = [];
   for (const ch of finalText) {
     if (/\d/.test(ch)) {
@@ -143,7 +155,9 @@ function countReveal(el) {
     };
   }
   const st = { v: 0 };
-  el.setAttribute('aria-label', finalText);
+  // No aria-label here: a <p> has no role permitting it (aria-prohibited-attr).
+  // The element's own text is the accessible name, and onComplete restores the
+  // exact finalText, so the resting announcement is correct without the attr.
   el.textContent = fmt(0, el);
   return {
     play() {
