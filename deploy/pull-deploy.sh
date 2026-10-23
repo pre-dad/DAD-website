@@ -1,78 +1,28 @@
 #!/usr/bin/env bash
 #
-# pull-deploy.sh — pull-based deploy for the DAD website, run ON a box by cron.
+# pull-deploy.sh: run by cron on a box. When origin/<branch> has moved it deploys
+# dad/ and runs the smoke test. deploy/README.md covers install, logs and rollback.
 #
-# The box pulls from GitHub on a schedule (no inbound SSH from GitHub; the box
-# firewall stays locked). Every few minutes cron runs this; if origin/<branch>
-# moved, it syncs/builds, fixes perms, runs the smoke test, and either
-# publishes (prod) or leaves it live (staging). See deploy/README.md for the
-# full install + rollback story.
-#
-# Usage:
 #   pull-deploy.sh --branch <staging|main> --webroot /var/www/html \
 #                  --repo ~admin/dad-main-website --mode <staging|prod>
 #
-# MODES
-#   staging  (log-on-fail / preview only)
-#     rsync dad/ -> webroot (--delete, excludes from rsync-excludes), fix
-#     perms, smoke-test the local site. If smoke FAILS: LOG + ALERT but leave the
-#     deploy in place (NO auto-rollback — it's only a preview) and exit non-zero.
-#   prod     (atomic release-dir swap)
-#     webroot is a SYMLINK to a release dir. Build a NEW candidate release dir,
-#     fix perms, smoke-test the candidate on a temp localhost port, and ONLY if
-#     smoke PASSES atomically repoint the symlink (ln -sfn is atomic on Linux).
-#     Keep the PREVIOUS release dir for a one-command rollback and prune all but
-#     the newest $DAD_RELEASES_KEPT release dirs. If smoke FAILS:
-#     DISCARD the candidate, leave the live symlink untouched, LOG + ALERT with
-#     the prior good commit noted, exit non-zero (no live rollback needed —
-#     nothing was swapped).
+# staging: rsync into the webroot. A failed smoke test alerts but leaves the
+#          preview in place.
+# prod:    the webroot is a symlink to a release dir. Build a new release, smoke
+#          test it on a local php -S, and only then repoint the symlink (atomic).
+#          A failed candidate is deleted and the live site is never touched.
 #
-# BOTH MODES
-#   - git fetch origin <branch>; if local HEAD == origin/<branch>, log "no change"
-#     and exit 0 quietly.
-#   - BEFORE changing anything, write the current (pre-deploy) commit hash to the
-#     state file $DAD_DEPLOY_LOG_DIR/last-good (for one-command rollback context).
-#   - checkout <branch> + reset --hard origin/<branch>.
-#   - Log every run (timestamp, before->after commit, smoke result) to
-#     $DAD_DEPLOY_LOG_DIR/deploy.log via BOTH `logger` (journald/syslog) and file.
-#   - NEVER touch the data dir ($DAD_DATA_DIR = /var/dad-data), config.php, or
-#     *.sqlite. These live OUTSIDE the swapped tree (see CONFIG/DATA DESIGN).
+# config.php and the database live outside every synced or swapped tree (the
+# release's api/config.php is a symlink to the shared config), so no deploy can
+# overwrite or delete them.
 #
-# CONFIG / DATA DESIGN (config.php and data live OUTSIDE the deploy tree)
-#   The ONLY copy of live sign-ups and the server-only secrets must survive every
-#   deploy and (on prod) every atomic swap, so they live outside the tree that
-#   gets synced/swapped:
-#     * config.php lives at a fixed SHARED path, $DAD_SHARED_CONFIG
-#       (default /var/www/shared/config.php). Each release/webroot gets a SYMLINK
-#       at api/config.php -> $DAD_SHARED_CONFIG. The rsync HARD-excludes
-#       api/config.php so it never overwrites or deletes the symlink/target.
-#     * the data dir stays at the absolute path $DAD_DATA_DIR
-#       (default /var/dad-data) and is referenced by SITE_DATA_DIR as an ABSOLUTE
-#       path inside the shared config. api/lib/bootstrap.php already supports an
-#       absolute SITE_DATA_DIR, so nothing in the release tree points at it.
-#   Result: a staging rsync --delete and a prod symlink swap can never move, wipe,
-#   or overwrite config.php or the data dir — they are not inside what we touch.
-#
-# ENV OVERRIDES (production uses the defaults; overrides exist so the LOCAL logic
-# dry-run can redirect the /var/... paths into temp dirs — see deploy/README.md):
-#   DAD_DEPLOY_LOG_DIR   default /var/log/dad-deploy
-#   DAD_DATA_DIR         default /var/dad-data          (never touched; documented)
-#   DAD_SHARED_CONFIG    default /var/www/shared/config.php
-#   DAD_RELEASE_ROOT     default /var/www/releases       (prod candidate/release dirs)
-#   DAD_RELEASES_KEPT    default 5                       (release dirs kept on prod)
-#   DAD_SMOKE_TEST       default <dir of this script>/smoke-test.sh
-#   DAD_SMOKE_PORT       default 8181                    (prod candidate temp port)
-#   DAD_PHP_BIN          default php                     (box PHP for candidate serve)
-#   DAD_SMOKE_ROUTER     default <repo>/dad/tests-e2e/router.php (candidate serve
-#                        router; on the box Apache serves the live site, so the
-#                        candidate is smoke-tested via a short-lived php -S — this
-#                        and the real Apache swap are the box-only pieces).
+# Overrides (the defaults are the box layout; overrides let the script run
+# against temp dirs): DAD_DEPLOY_LOG_DIR, DAD_SHARED_CONFIG, DAD_RELEASE_ROOT,
+# DAD_RELEASES_KEPT, DAD_SMOKE_TEST, DAD_SMOKE_PORT, DAD_PHP_BIN, DAD_SMOKE_ROUTER.
 
 set -euo pipefail
 
-# ---- defaults (overridable via env; see header) -------------------------------
 DAD_DEPLOY_LOG_DIR="${DAD_DEPLOY_LOG_DIR:-/var/log/dad-deploy}"
-DAD_DATA_DIR="${DAD_DATA_DIR:-/var/dad-data}"
 DAD_SHARED_CONFIG="${DAD_SHARED_CONFIG:-/var/www/shared/config.php}"
 DAD_RELEASE_ROOT="${DAD_RELEASE_ROOT:-/var/www/releases}"
 DAD_RELEASES_KEPT="${DAD_RELEASES_KEPT:-5}"
@@ -115,10 +65,9 @@ case "$REPO" in
     REPO="$HOME/${REPO#"$_tilde"/}" ;;
   "$_tilde"*/*)
     _user="${REPO%%/*}"; _user="${_user#"$_tilde"}"; _rest="${REPO#*/}"
-    _home="$(eval echo "$_tilde$_user")"; REPO="$_home/$_rest" ;;
+    _home="$(getent passwd "$_user" | cut -d: -f6)"; REPO="$_home/$_rest" ;;
 esac
 
-# Candidate serve router for prod smoke (box-only). Default lives in the repo tree.
 DAD_SMOKE_ROUTER="${DAD_SMOKE_ROUTER:-$REPO/dad/tests-e2e/router.php}"
 
 # ---- logging / alerting -------------------------------------------------------
@@ -137,8 +86,7 @@ log() {
   logger -t dad-deploy -- "$line" 2>/dev/null || true
 }
 
-# alert MESSAGE -> stderr + logger (priority err) + ALERT marker file. Used when a
-# smoke test fails so the box operator notices (and the cron log shows it too).
+# alert MESSAGE -> stderr + logger (priority err) + the ALERT file the operator watches.
 alert() {
   ALERTED=1
   local line
@@ -151,11 +99,8 @@ alert() {
 
 mkdir -p "$DAD_DEPLOY_LOG_DIR" 2>/dev/null || true
 
-# ---- fix perms on a served tree ----------------------------------------------
-# dirs 755, files 644. api/config.php is a SYMLINK to the shared config set to
-# 640 admin:www-data (done on the shared file, see README); we do NOT chmod the
-# symlink target here. chown admin:www-data on the tree is best-effort (needs
-# privileges on the box; harmless/no-op in the local dry-run).
+# -type f skips the api/config.php symlink, so the shared config keeps its own 640 mode.
+# chown needs root on the box and is a harmless no-op elsewhere.
 fix_perms() {
   local root="$1"
   find "$root" -type d -not -path '*/.git/*' -exec chmod 755 {} + 2>/dev/null || true
@@ -163,7 +108,6 @@ fix_perms() {
   chown -R admin:www-data "$root" 2>/dev/null || true
 }
 
-# Ensure api/config.php in a served tree is a symlink to the shared config.
 link_shared_config() {
   local root="$1"
   if [[ -d "$root/api" ]]; then
@@ -185,7 +129,6 @@ prune_releases() {
 # ---- main ---------------------------------------------------------------------
 cd "$REPO"
 
-# Fetch the target branch without merging.
 git fetch origin "$BRANCH" --quiet
 
 BEFORE="$(git rev-parse HEAD)"

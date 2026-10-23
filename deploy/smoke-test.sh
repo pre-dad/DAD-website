@@ -1,40 +1,14 @@
 #!/usr/bin/env bash
 #
-# smoke-test.sh — post-deploy smoke test for the DAD website.
+# smoke-test.sh: post-deploy HTTP checks against a running copy of the site (the
+# box's Apache, a prod candidate on php -S, or a local dev server). Needs only curl.
 #
-# Runs a handful of HTTP assertions against a LOCALLY-serving copy of the site to
-# prove a deploy did not break the live surface area donors touch. It is called
-# by pull-deploy.sh right after a sync/build, and can be run by hand against any
-# base URL (e.g. a localhost php -S dev server, or http://127.0.0.1/ on the box).
-#
-# Usage:
 #   smoke-test.sh --base-url http://127.0.0.1:PORT [--form]
 #
-# Checks (fail fast — the first failure exits non-zero with a clear message):
-#   CORE (always):
-#     GET /api/health.php     -> 200 and body contains  "ok":true
-#     GET /                    -> 200
-#     GET /about/              -> 200
-#     GET /give/               -> 200
-#     GET /faq/                -> 200
-#     GET /movement/           -> 200
-#     GET /get-involved/       -> 301, Location ends with /movement/
-#     GET /nonexistent-xyz     -> 404, body contains  This dollar went missing  (branded 404)
-#     GET /impactledger        -> 200, Content-Type contains text/html
-#   OPTIONAL (--form):
-#     POST /api/submit.php  a founding submission -> 200 and body contains  "ok":true
-#
-# --form behaviour (documented decision): the POST is BEST-EFFORT by nature (the
-# anti-bot fields — honeypot, min-fill time, Origin — can be fiddly across
-# environments). BUT when --form is EXPLICITLY passed the caller is asking for it,
-# so a --form failure DOES fail the whole run (non-zero exit). If you want the
-# form check to be advisory only, simply don't pass --form; then only the CORE
-# checks gate the deploy. The founding row is sent with email
-# smoke-test@example.com — example.com is a SITE_QUIET_DOMAIN, so the row is SAVED
-# but NO email is sent. That quiet test row is harmless and is cleanable from the
-# admin dashboard ("@example.com" submissions).
-#
-# Dependencies: curl only. No jq, no python, no external deps. POSIX-friendly bash.
+# Checks health, key pages, the /get-involved/ redirect, the branded 404 and the
+# impactledger content type, stopping at the first failure. --form also posts a
+# Founding Donor sign-up as smoke-test@example.com: example.com is a quiet domain,
+# so the row is saved (once; repeats dedupe) but no email is sent.
 
 set -euo pipefail
 
@@ -64,7 +38,6 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -n "$BASE_URL" ]] || usage
-# Normalise: drop any trailing slash so we can append paths cleanly.
 BASE_URL="${BASE_URL%/}"
 
 FAILURES=0
@@ -72,25 +45,21 @@ FAILURES=0
 pass() { printf 'PASS  %s\n' "$1"; }
 fail() { printf 'FAIL  %s\n' "$1" >&2; FAILURES=$((FAILURES + 1)); }
 
-# Abort immediately on a CORE failure (fail fast — do not mask later problems).
 core_fail() {
   fail "$1"
   printf '\nSMOKE TEST FAILED (core check): %s\n' "$1" >&2
   exit 1
 }
 
-# ---- helpers ------------------------------------------------------------------
-# http_status URL  -> prints the numeric HTTP status (no redirect following).
+# Neither helper follows redirects.
 http_status() {
   curl -s -o /dev/null -w '%{http_code}' "$1"
 }
 
-# http_body URL  -> prints the response body (no redirect following).
 http_body() {
   curl -s "$1"
 }
 
-# ---- CORE: health -------------------------------------------------------------
 check_health() {
   local url="$BASE_URL/api/health.php" code body
   code="$(http_status "$url")"
@@ -102,7 +71,6 @@ check_health() {
   esac
 }
 
-# ---- CORE: pages return 200 ---------------------------------------------------
 check_page_200() {
   local path="$1" code
   code="$(http_status "$BASE_URL$path")"
@@ -110,7 +78,6 @@ check_page_200() {
   pass "GET $path -> 200"
 }
 
-# ---- CORE: /get-involved/ -> 301 to /movement/ --------------------------------
 check_redirect() {
   local path="/get-involved/" out code loc
   # %{redirect_url} is the Location curl would follow; we do NOT follow it.
@@ -124,7 +91,6 @@ check_redirect() {
   esac
 }
 
-# ---- CORE: branded 404 --------------------------------------------------------
 check_404() {
   local path="/nonexistent-xyz" code body
   code="$(http_status "$BASE_URL$path")"
@@ -136,7 +102,6 @@ check_404() {
   esac
 }
 
-# ---- CORE: impactledger served as text/html -----------------------------------
 check_impactledger() {
   local path="/impactledger" code ctype
   code="$(http_status "$BASE_URL$path")"
@@ -150,7 +115,6 @@ check_impactledger() {
   esac
 }
 
-# ---- OPTIONAL: founding form POST ---------------------------------------------
 now_ms() {
   # Prefer ms precision; fall back to seconds*1000 where %3N is unsupported (BSD date).
   local ms
@@ -199,7 +163,6 @@ check_impactledger
 
 if [[ "$DO_FORM" -eq 1 ]]; then
   if ! check_form; then
-    # --form was explicitly requested, so a failure fails the run (see header).
     printf '\nSMOKE TEST FAILED (--form founding POST)\n' >&2
     exit 1
   fi
