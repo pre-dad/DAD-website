@@ -4,7 +4,7 @@
 //    sticky anchors) changes state split -> pool -> reform -> spin
 //  - "how we choose" steps, donor feed rows light up on the reading line
 //  - compare table: the DAD column wins row by row
-import { coinStage, readText, activeOnLine, fitScene } from './ph-util.js?v=4c23125c85';
+import { coinStage, readText, activeOnLine, fitScene } from './ph-util.js?v=e09c939d0f';
 
 let cleanups = [];
 

@@ -673,16 +673,6 @@ select.field__input { padding-right: 48px; cursor: pointer; }
 .field__err:empty { display: none; }
 .form__hp { position: absolute !important; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 .form__note { font-size: 14px; line-height: 1.55; color: var(--fg-faint); max-width: 60ch; }
-/* A11y (WCAG AA contrast): the muted field label / helper tokens (--fg-faint,
-   --fg-mut) are set for the DARK theme. In a nested light section
-   (section[data-theme="light"]) the light-theme token block
-   (html[data-theme="light"], .is-light) does NOT apply, so these kept their
-   dark light-gray values and fell to ~1.1-1.2:1 on the light form card. Scope a
-   darker muted color to the light form context only — this never touches
-   dark-theme muted text, which already passes at rest. #3E4746 is the light
-   theme's own --fg-mut and clears 4.5:1 on the card (~4.9:1). */
-[data-theme="light"] .field__label,
-[data-theme="light"] .form__note { color: #3E4746; }
 .form__status { font: 500 14px/1.45 var(--f-sans); color: var(--err); }
 .form__status:empty { display: none; }
 .form .btn[type="submit"] { justify-self: start; }

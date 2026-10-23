@@ -10,7 +10,7 @@
 //   data-count-prefix / data-count-suffix
 // data-parallax="0.2"         gentle scroll parallax (+ moves slower, - moves faster)
 // data-progress               element gets --p 0..1 scrubbed while it crosses the viewport
-import { $$, html, prefersReduced } from './util.js?v=4c23125c85';
+import { $$, html, prefersReduced } from './util.js?v=e09c939d0f';
 
 let ctx = null;
 let killers = [];

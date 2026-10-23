@@ -41,7 +41,7 @@ for (const path of A11Y_PAGES) {
 
     const blocking = results.violations
       .filter((v) => v.impact === 'critical' || v.impact === 'serious')
-      .map((v) => `[${v.impact}] ${v.id}: ${v.help} (${v.nodes.length} node(s))`);
+      .map((v) => `[${v.impact}] ${v.id}: ${v.help}\n${v.nodes.map((n) => `  ${n.target.join(' ')}: ${n.failureSummary}`).join('\n')}`);
     expect(blocking, `critical/serious a11y violations on ${path}`).toEqual([]);
   });
 }

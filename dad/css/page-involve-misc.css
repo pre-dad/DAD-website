@@ -16,6 +16,17 @@
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
+[data-theme="light"] :is(.gi-formcard, .pg-formcard) {
+  --fg: #0E1E1E;
+  --fg-mut: #3E4746;
+  --fg-faint: #59615F;
+  --line-c: rgba(14, 30, 30, .1);
+  --line-strong: rgba(14, 30, 30, .24);
+  --card: #FFFAF4;
+  --card-hi: #FFFDF9;
+  --shadow-c: rgba(74, 44, 20, .14);
+  color: var(--fg-mut);
+}
 #swap[data-page] .gi-formcard .form-success,
 #swap[data-page] .pg-formcard .form-success { padding: 0; background: none; box-shadow: none; }
 
