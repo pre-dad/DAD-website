@@ -10,7 +10,7 @@
 //  · Follow the dollar: steps light up as they pass (the liquid drop shows each step)
 //  · Ledger: map rain + Open Ledger deck live in core/ledger.js
 //  · Programs fan into place (the leadership grid uses the shared reveals)
-import * as theme from '../core/theme.js?v=c2c7328da2';
+import * as theme from '../core/theme.js?v=f5d5bbea69';
 
 const DESK = '(min-width: 960px) and (pointer: fine)';
 

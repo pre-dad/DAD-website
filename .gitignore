@@ -51,7 +51,7 @@ dad/.phpunit.cache/
 # artifacts. Do NOT add a blanket `dad/tests-e2e/` rule (it would untrack the
 # specs) and do NOT add a `dad/vendor/` rule (shipped frontend JS).
 # --------------------------------------------------------------------------
-dad/tests-e2e/node_modules/
+node_modules/
 dad/tests-e2e/playwright-report/
 dad/tests-e2e/test-results/
 dad/tests-e2e/.cache/

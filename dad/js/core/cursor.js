@@ -1,7 +1,7 @@
 // Desktop-only cursor follower. The native cursor stays visible everywhere;
 // the follower is a soft ring that grows over interactive elements and can
 // show a short label: <a data-cursor="Read">.
-import { html, isFinePointer, prefersReduced } from './util.js?v=c2c7328da2';
+import { html, isFinePointer, prefersReduced } from './util.js?v=f5d5bbea69';
 
 export function init() {
   const el = document.getElementById('cursor');
