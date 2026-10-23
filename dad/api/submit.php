@@ -35,7 +35,7 @@ function reply(int $status, array $data, array $headers = []): void {
   exit;
 }
 
-/** Success copy from copy-v1.1.txt SYSTEM COPY, for the no-JS result page. */
+/** Success copy for the no-JS result page; same wording as SUCCESS in js/core/forms.js. */
 function result_html(string $type, string $id, string $back): string {
   $logo = ui_logo();
   $home = '<div class="acts"><a class="btn btn--ghost" href="' . h($back) . '"><span class="arr">&larr;</span> Back to dynamicaid.org</a></div>';
@@ -50,9 +50,9 @@ function result_html(string $type, string $id, string $back): string {
       return $logo . '<h1>You\'re on the list.</h1><p>When an Impact Team forms in your city, you\'ll hear from us first.</p>' . $home;
     case 'contact':
       return $logo . '<h1>Message received.</h1><p>A real person from the founding team will reply.</p>' . $home;
-    case 'partner':   // same copy as SUCCESS.partner in src/js/core/forms.js
+    case 'partner':
       return $logo . '<h1>We\'ll be in touch.</h1><p>A real person from the founding team will reply to you directly. Check your inbox for a note from us.</p>' . $home;
-    default: // 'updates' has no success copy of its own in the copy file
+    default:
       return $logo . '<h1>You\'re on the list.</h1>' . $home;
   }
 }

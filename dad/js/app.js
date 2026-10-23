@@ -2,22 +2,21 @@
 // tier -> Lenis -> Dollar -> Dots -> mountPage(main). Router swaps pages and
 // calls unmountPage/mountPage. Every module is defensive: a failure in one
 // never blocks the content.
-import { detectTier } from './core/tier.js?v=f5d5bbea69';
-import { html, isTouch, prefersReduced } from './core/util.js?v=f5d5bbea69';
-import * as theme from './core/theme.js?v=f5d5bbea69';
-import * as reveals from './core/reveals.js?v=f5d5bbea69';
-import * as router from './core/router.js?v=f5d5bbea69';
-import * as nav from './core/nav.js?v=f5d5bbea69';
-import * as preloader from './core/preloader.js?v=f5d5bbea69';
-import * as forms from './core/forms.js?v=f5d5bbea69';
-import * as partnerModal from './core/partner-modal.js?v=f5d5bbea69';
-import * as cookie from './core/cookie.js?v=f5d5bbea69';
-import * as ticker from './core/ticker.js?v=f5d5bbea69';
-import * as cursor from './core/cursor.js?v=f5d5bbea69';
-import * as magnetic from './core/magnetic.js?v=f5d5bbea69';
-import * as ui from './core/ui.js?v=f5d5bbea69';
-import * as scenes from './core/scenes.js?v=f5d5bbea69';
-import * as ledger from './core/ledger.js?v=f5d5bbea69';
+import { detectTier } from './core/tier.js?v=4c23125c85';
+import { html, isTouch, prefersReduced } from './core/util.js?v=4c23125c85';
+import * as theme from './core/theme.js?v=4c23125c85';
+import * as reveals from './core/reveals.js?v=4c23125c85';
+import * as router from './core/router.js?v=4c23125c85';
+import * as nav from './core/nav.js?v=4c23125c85';
+import * as preloader from './core/preloader.js?v=4c23125c85';
+import * as forms from './core/forms.js?v=4c23125c85';
+import * as partnerModal from './core/partner-modal.js?v=4c23125c85';
+import * as cookie from './core/cookie.js?v=4c23125c85';
+import * as ticker from './core/ticker.js?v=4c23125c85';
+import * as magnetic from './core/magnetic.js?v=4c23125c85';
+import * as ui from './core/ui.js?v=4c23125c85';
+import * as scenes from './core/scenes.js?v=4c23125c85';
+import * as ledger from './core/ledger.js?v=4c23125c85';
 
 const gsap = window.gsap;
 const ST = window.ScrollTrigger;
@@ -122,8 +121,8 @@ function unmountPage(el) {
 async function loadModules() {
   const opts = { tier, reduced };
   const [dm, tm] = await Promise.allSettled([
-    import('./dollar/dollar.js?v=f5d5bbea69'),
-    import('./dots/dots.js?v=f5d5bbea69'),
+    import('./dollar/dollar.js?v=4c23125c85'),
+    import('./dots/dots.js?v=4c23125c85'),
   ]);
   if (dm.status === 'fulfilled' && dm.value?.Dollar) {
     try {
@@ -169,7 +168,6 @@ function boot() {
   safe('theme-init', () => theme.init({ getDollar: () => dollar }));
   safe('nav', () => nav.init());
   safe('partner-modal-init', () => partnerModal.init());
-  // custom cursor removed (Chris, 2026-10-11): the native pointer is used everywhere
   safe('cookie', () => cookie.init(ready));
   safe('ui-global', () => ui.enhanceButtons(document.body));
   safe('magnetic-global', () => magnetic.bindGlobal(document.getElementById('nav')));

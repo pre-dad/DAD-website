@@ -1331,43 +1331,6 @@ html.has-cookie main.has-scenes { --scene-pb: clamp(72px, 9svh, 88px); }
 html.has-cookie .footer { padding-bottom: calc(clamp(28px, 3vw, 40px) + 64px + env(safe-area-inset-bottom)); }
 
 /* ---------------------------------------------------------------------
-   CURSOR (desktop pointer only)
-   --------------------------------------------------------------------- */
-.cursor { position: fixed; left: 0; top: 0; z-index: var(--z-cursor); pointer-events: none; display: none; }
-html.has-cursor .cursor { display: block; }
-.cursor__dot {
-  position: absolute;
-  left: -18px;
-  top: -18px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 1px var(--fg);
-  opacity: .0;
-  transform: scale(.3);
-  transition: transform .5s var(--ease), opacity .3s, background-color .3s, box-shadow .3s;
-}
-.cursor.is-active .cursor__dot { opacity: .5; transform: scale(.32); background: var(--fg); }
-.cursor.is-hover .cursor__dot { transform: scale(1.5); opacity: 1; background: color-mix(in srgb, var(--accent) 14%, transparent); box-shadow: inset 0 0 0 1px var(--accent); }
-.cursor.is-label .cursor__dot { transform: scale(2.4); opacity: 1; background: var(--red); box-shadow: none; }
-.cursor.is-down .cursor__dot { transform: scale(.9); }
-.cursor.is-hidden .cursor__dot { opacity: 0; transform: scale(0); }
-.cursor__label {
-  position: absolute;
-  left: 0;
-  top: 0;
-  transform: translate(-50%, -50%) scale(.6);
-  font: 600 10.5px/1 var(--f-mono);
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--ink);
-  opacity: 0;
-  white-space: nowrap;
-  transition: opacity .3s, transform .5s var(--ease);
-}
-.cursor.is-label .cursor__label { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-
-/* ---------------------------------------------------------------------
    REVEALS (initial states; reveals.js adds .is-in)
    --------------------------------------------------------------------- */
 .js [data-reveal] { transition: opacity 1.1s var(--ease), transform 1.3s var(--ease), clip-path 1.4s var(--ease), filter 1.1s var(--ease); transition-delay: calc(var(--delay, 0s) + var(--i, 0) * var(--stagger, .08s)); }

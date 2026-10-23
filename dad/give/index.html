@@ -24,7 +24,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=f5d5bbea69">
+<link rel="stylesheet" href="/css/site.css?v=4c23125c85">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -40,15 +40,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=f5d5bbea69"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=f5d5bbea69"></script>
-<script defer src="/vendor/SplitText.min.js?v=f5d5bbea69"></script>
-<script defer src="/vendor/lenis.min.js?v=f5d5bbea69"></script>
-<script type="module" src="/js/app.js?v=f5d5bbea69"></script>
+<script defer src="/vendor/gsap.min.js?v=4c23125c85"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=4c23125c85"></script>
+<script defer src="/vendor/SplitText.min.js?v=4c23125c85"></script>
+<script defer src="/vendor/lenis.min.js?v=4c23125c85"></script>
+<script type="module" src="/js/app.js?v=4c23125c85"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=f5d5bbea69">
+<link rel="modulepreload" href="/js/core/util.js?v=4c23125c85">
 </head>
 <body data-page="give" data-mobile-cta="off">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -195,7 +195,6 @@
   </div>
 </div>
 
-<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
 <div class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>

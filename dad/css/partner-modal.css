@@ -1,5 +1,5 @@
 /* =====================================================================
-   "Partner with us" modal (src/js/core/partner-modal.js).
+   "Partner with us" modal (js/core/partner-modal.js).
    Native <dialog> in the top layer, warm-paper panel (.is-light), ink backdrop.
    Phone: a bottom sheet that scrolls inside itself. No sideways scroll anywhere.
    ===================================================================== */

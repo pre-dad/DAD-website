@@ -11,7 +11,7 @@
 //           from the lit sites onto the register rows of the same colour; each row lights as its line lands.
 //   step 2  Overview to the front.   step 3  Outcomes to the front.  (Window DOM order = shuffle order.)
 // Reduced motion: the sites are lit at once and the three windows sit stacked in the flow.
-import { html, $, $$, clamp, prefersReduced } from './util.js?v=f5d5bbea69';
+import { html, $, $$, clamp, prefersReduced } from './util.js?v=4c23125c85';
 
 let items = [];
 const SVGNS = 'http://www.w3.org/2000/svg';

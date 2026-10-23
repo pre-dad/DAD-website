@@ -1,8 +1,8 @@
 // The liquid drop's render worker: owns the WebGL context (an OffscreenCanvas transferred from the
 // page) and its own animation loop, so a busy main thread never stalls the liquid. The page only
 // posts what it measured (destinations, scroll-relative rects, state changes, theme); see dollar.js.
-import { Engine, N_PRIMS, tierQ, dispatch, hostTick } from './engine.js?v=f5d5bbea69';
-import { View } from './gl.js?v=f5d5bbea69';
+import { Engine, N_PRIMS, tierQ, dispatch, hostTick } from './engine.js?v=4c23125c85';
+import { View } from './gl.js?v=4c23125c85';
 
 let eng = null, last = 0, paced = false, lastTick = -1e9;
 const emit = (type, data) => postMessage({ type, data });
