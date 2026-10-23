@@ -8,7 +8,7 @@
 #
 # Every 3 minutes cron runs pull-deploy.sh. If origin/<branch> has not moved it
 # exits 0 quietly (no deploy); when it moves, it syncs/builds, fixes perms, runs
-# the Tier 2 smoke test, and (staging) leaves the preview live even on smoke
+# the smoke test, and (staging) leaves the preview live even on smoke
 # failure or (prod) only swaps the live symlink when smoke passes. All stdout and
 # stderr is appended to /var/log/dad-deploy/cron.log; the script also logs to
 # /var/log/dad-deploy/deploy.log and to syslog/journald via `logger`.

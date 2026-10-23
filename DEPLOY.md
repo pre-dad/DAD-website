@@ -1,8 +1,13 @@
-# Deploying the DAD marketing site to Lightsail
+# Manual deploy to Lightsail
 
-`deploy.sh` syncs the marketing site (`dad/`) to an AWS Lightsail instance over
-SSH using `rsync`. It is deliberately cautious: it shows you a dry run first and
-never touches the server without explicit confirmation.
+Routine deploys are automatic: each box pulls its branch on a schedule (see
+[`deploy/README.md`](deploy/README.md)). `deploy.sh` is the manual push from a
+laptop for one-off syncs and emergencies. It syncs the site (`dad/`) to a
+Lightsail box over SSH with `rsync`, shows a dry run first, and never touches the
+server without explicit confirmation.
+
+It needs rsync 3.x. macOS ships `openrsync`, which lacks `--chmod`; install the
+real one with `brew install rsync`. The script stops with that message otherwise.
 
 ## Usage
 
@@ -14,16 +19,15 @@ Examples:
 
 ```
 # Dry run, then prompt before the real sync:
-./deploy.sh bitnami@1.2.3.4
+./deploy.sh admin@1.2.3.4
 
 # Explicit webroot, skip the prompt with --go:
-./deploy.sh bitnami@1.2.3.4 /opt/bitnami/apache/htdocs --go
+./deploy.sh admin@1.2.3.4 /var/www/html --go
 ```
 
-- `<ssh-target>` — the SSH login, e.g. `bitnami@<lightsail-ip>`.
-- `[remote-webroot]` — defaults to the Bitnami LAMP webroot
-  `/opt/bitnami/apache/htdocs`. Override it as the second argument if your
-  instance serves from a different path.
+- `<ssh-target>` — the SSH login, e.g. `admin@<lightsail-ip>`.
+- `[remote-webroot]` — defaults to `/var/www/html`. On prod that is a symlink to
+  the live release directory, so a manual sync edits the live release in place.
 - `--go` — skip the interactive prompt (useful for a scripted run). Without it
   you get a `y/N` prompt after the dry run.
 
@@ -46,28 +50,13 @@ happens after you confirm.
 
 ## Safety guarantees
 
-The sync uses `--delete` so the webroot stays a clean mirror of `dad/`. To make
-that safe, these paths are **hard-excluded** so `--delete` can never wipe or
-overwrite them, and they are never uploaded over the server's copies:
-
-| Excluded pattern      | Why |
-|-----------------------|-----|
-| `dad-site-data-*/`    | Live sign-ups SQLite DB — the **only** copy. Lives beside `/api` for exactly this reason. |
-| `ds-data-*/`          | DeckSend data folder, if present at the webroot. |
-| `ds-stage-*/`         | DeckSend staging data folder. |
-| `api/config.php`      | Server-only config, created at first deploy. Not in git. |
-| `**/stripe.key`       | Server-only secret. |
-| `*.sqlite`            | Any SQLite database file. |
-| `*.sqlite3`           | Any SQLite database file. |
-| `*.db`                | Any database file. |
-
-This enforces the rule in `dad/api/README.txt`: the data folder lives **beside**
-`/api` precisely because "deploy.sh mirrors with --delete, so data inside /api
-would be wiped on every redeploy." These excludes are what keep that promise.
-
-Repo-only files are also excluded from upload: `.git/`, `.gitignore`,
-`*.local.md`, `SITE-ASSESSMENT.md`, `MIGRATION-NOTES*`, `deploy.sh`, `DEPLOY.md`,
-and `.DS_Store`.
+The sync uses `--delete` so the webroot stays a clean mirror of `dad/`. Both this
+script and `deploy/pull-deploy.sh` read their excludes from
+[`deploy/rsync-excludes`](deploy/rsync-excludes), and an excluded path is never
+uploaded or deleted. That list covers the live data folder (`dad-site-data-*/`,
+the **only** copy of the sign-ups), `api/config.php`, `stripe.key`, any SQLite
+file, and the repo-only test tooling. The data folder lives beside `/api`, outside
+anything a sync replaces, for exactly this reason.
 
 ## Post-deploy checklist
 

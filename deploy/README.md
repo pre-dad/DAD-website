@@ -1,7 +1,7 @@
 # DAD pull-based deploy automation
 
 This directory holds the **pull-based** deploy automation for the DAD website plus
-the Tier 2 post-deploy smoke test. It is tooling, **not** part of the served site
+the post-deploy smoke test. It is tooling, **not** part of the served site
 (the served site is `dad/`); both `deploy.sh` and `pull-deploy.sh` exclude this
 `deploy/` dir from every sync.
 
@@ -38,7 +38,8 @@ feature branches ──PR──▶ staging ──▶ staging box ──▶ stagi
 | File | Purpose |
 |------|---------|
 | `pull-deploy.sh` | Core pull-deploy, run ON a box by cron. Modes `staging` / `prod`. |
-| `smoke-test.sh`  | Tier 2 post-deploy smoke test (curl-only HTTP assertions). |
+| `smoke-test.sh`  | Post-deploy smoke test (curl-only HTTP assertions). |
+| `rsync-excludes` | Paths every sync skips (and so never deletes): live data, secrets, test tooling. Shared with `../deploy.sh`. |
 | `dad-deploy.cron`| The two cron lines (each box installs only its own). |
 | `README.md`      | This document. |
 
@@ -67,7 +68,8 @@ Do this once on each box (staging and prod). Run as the deploy user (`admin`).
 ### 1. Put the scripts on the box
 
 ```sh
-# copy the whole deploy/ dir to /home/admin/deploy/ (e.g. via the checkout below)
+# copy the whole deploy/ dir to /home/admin/deploy/ (e.g. via the checkout below);
+# pull-deploy.sh reads rsync-excludes from its own directory
 chmod +x /home/admin/deploy/pull-deploy.sh /home/admin/deploy/smoke-test.sh
 ```
 
@@ -121,7 +123,9 @@ sudo ln -sfn /var/www/releases/<first-release> /var/www/html
 
 On prod, `/var/www/html` must be a **symlink** to a release dir. `pull-deploy.sh`
 builds each new release under `/var/www/releases/`, smoke-tests it, and only then
-repoints the symlink (atomic). The previous release dir is kept for rollback.
+repoints the symlink (atomic). The previous release dir is kept for rollback, and
+only the newest five `<timestamp>-<commit>` release dirs are kept
+(`DAD_RELEASES_KEPT`). A candidate that fails at any step is deleted.
 
 ### 6. Install the cron line (only this box's line)
 
@@ -141,8 +145,10 @@ journalctl -t dad-deploy                   # the same lines via logger (syslog/j
 cat     /var/log/dad-deploy/last-good      # the commit that was live BEFORE the most recent deploy
 ```
 
-A smoke failure writes to `ALERT`, logs at priority `err` via `logger`, and makes the
-cron run exit non-zero (so it stands out in `cron.log`).
+Any failed deploy (smoke test, rsync, build) writes one line to `ALERT`, logs at
+priority `err` via `logger`, and makes the cron run exit non-zero (so it stands out
+in `cron.log`). The box does not retry a failed commit: push a fix, or reset the
+checkout to the previous commit so the next run redeploys it.
 
 ## Manual rollback (prod) — one command
 
@@ -161,10 +167,9 @@ let the next cron run redeploy the fixed branch, or run `deploy.sh` manually.
 
 ## What is verifiable only on the box
 
-The local verification (see `../.agents/tasks/verification.md`) proves the control
-flow, exclude set, smoke call, and swap-vs-log branching against temp dirs. These
-pieces are genuinely **box-only** and are exercised during the prod build, not
-locally:
+The control flow, exclude list, smoke call, release pruning and swap-vs-alert
+branching can be exercised locally against temp dirs with the `DAD_*` overrides in
+`pull-deploy.sh`. These pieces only exist on a box:
 
 - real Apache file ownership/perms (`chown admin:www-data`, mod_php serving);
 - `logger` → syslog/journald output;

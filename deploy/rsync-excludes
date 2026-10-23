@@ -1,0 +1,28 @@
+# rsync --exclude-from list for syncing dad/ to a webroot, used by deploy.sh and pull-deploy.sh.
+# The sync runs with --delete, so anything excluded here is also never deleted on the server.
+
+# Live data and server-only secrets: the sign-ups database is the only copy.
+dad-site-data-*/
+ds-data-*/
+ds-stage-*/
+api/config.php
+**/stripe.key
+*.sqlite
+*.sqlite3
+*.db
+
+# Repo-only files
+.git/
+.gitignore
+*.local.md
+.DS_Store
+
+# Test tooling (vendor/ is NOT excluded: it holds the site's shipped JS libraries)
+tests/
+tests-e2e/
+.phpunit-vendor/
+.phpunit.cache/
+.phpunit.result.cache
+composer.json
+composer.lock
+phpunit.xml

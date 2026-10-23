@@ -4,7 +4,7 @@
 #
 # The box pulls from GitHub on a schedule (no inbound SSH from GitHub; the box
 # firewall stays locked). Every few minutes cron runs this; if origin/<branch>
-# moved, it syncs/builds, fixes perms, runs the Tier 2 smoke test, and either
+# moved, it syncs/builds, fixes perms, runs the smoke test, and either
 # publishes (prod) or leaves it live (staging). See deploy/README.md for the
 # full install + rollback story.
 #
@@ -14,14 +14,15 @@
 #
 # MODES
 #   staging  (log-on-fail / preview only)
-#     rsync dad/ -> webroot (--delete, same HARD excludes as deploy.sh), fix
+#     rsync dad/ -> webroot (--delete, excludes from rsync-excludes), fix
 #     perms, smoke-test the local site. If smoke FAILS: LOG + ALERT but leave the
 #     deploy in place (NO auto-rollback — it's only a preview) and exit non-zero.
 #   prod     (atomic release-dir swap)
 #     webroot is a SYMLINK to a release dir. Build a NEW candidate release dir,
 #     fix perms, smoke-test the candidate on a temp localhost port, and ONLY if
 #     smoke PASSES atomically repoint the symlink (ln -sfn is atomic on Linux).
-#     Keep the PREVIOUS release dir for a one-command rollback. If smoke FAILS:
+#     Keep the PREVIOUS release dir for a one-command rollback and prune all but
+#     the newest $DAD_RELEASES_KEPT release dirs. If smoke FAILS:
 #     DISCARD the candidate, leave the live symlink untouched, LOG + ALERT with
 #     the prior good commit noted, exit non-zero (no live rollback needed —
 #     nothing was swapped).
@@ -58,6 +59,7 @@
 #   DAD_DATA_DIR         default /var/dad-data          (never touched; documented)
 #   DAD_SHARED_CONFIG    default /var/www/shared/config.php
 #   DAD_RELEASE_ROOT     default /var/www/releases       (prod candidate/release dirs)
+#   DAD_RELEASES_KEPT    default 5                       (release dirs kept on prod)
 #   DAD_SMOKE_TEST       default <dir of this script>/smoke-test.sh
 #   DAD_SMOKE_PORT       default 8181                    (prod candidate temp port)
 #   DAD_PHP_BIN          default php                     (box PHP for candidate serve)
@@ -73,6 +75,7 @@ DAD_DEPLOY_LOG_DIR="${DAD_DEPLOY_LOG_DIR:-/var/log/dad-deploy}"
 DAD_DATA_DIR="${DAD_DATA_DIR:-/var/dad-data}"
 DAD_SHARED_CONFIG="${DAD_SHARED_CONFIG:-/var/www/shared/config.php}"
 DAD_RELEASE_ROOT="${DAD_RELEASE_ROOT:-/var/www/releases}"
+DAD_RELEASES_KEPT="${DAD_RELEASES_KEPT:-5}"
 DAD_SMOKE_PORT="${DAD_SMOKE_PORT:-8181}"
 DAD_PHP_BIN="${DAD_PHP_BIN:-php}"
 
@@ -115,48 +118,6 @@ case "$REPO" in
     _home="$(eval echo "$_tilde$_user")"; REPO="$_home/$_rest" ;;
 esac
 
-# ---- HARD EXCLUDES ------------------------------------------------------------
-# MUST mirror deploy.sh exactly (patterns relative to dad/, since we sync dad/'s
-# CONTENTS). deploy.sh says: "any future pull-based deploy script MUST mirror
-# these same excludes." vendor/ is intentionally NOT excluded — dad/vendor/ holds
-# the SHIPPED frontend JS (gsap.min.js etc.). Plus a defensive exclude for the new
-# deploy/ tooling dir (it's a sibling of dad/, so the dad/-rooted rsync never
-# reaches it, but the exclude keeps intent explicit and the two lists in sync).
-EXCLUDES=(
-  # --- NEVER wipe server data / secrets ---
-  "--exclude=dad-site-data-*/"
-  "--exclude=ds-data-*/"
-  "--exclude=ds-stage-*/"
-  "--exclude=api/config.php"     # symlink to the shared config; never overwrite
-  "--exclude=**/stripe.key"
-  "--exclude=*.sqlite"
-  "--exclude=*.sqlite3"
-  "--exclude=*.db"
-  # --- repo-only / non-deployable ---
-  "--exclude=.git/"
-  "--exclude=.gitignore"
-  "--exclude=*.local.md"
-  "--exclude=SITE-ASSESSMENT.md"
-  "--exclude=MIGRATION-NOTES*"
-  "--exclude=deploy.sh"
-  "--exclude=DEPLOY.md"
-  "--exclude=.DS_Store"
-  "--exclude=deploy/"            # the deploy tooling dir (defensive; sibling of dad/)
-  # --- PHP test tooling (dev-only; never shipped). vendor/ NOT excluded. ---
-  "--exclude=tests/"
-  "--exclude=.phpunit-vendor/"
-  "--exclude=.phpunit.cache/"
-  "--exclude=.phpunit.result.cache"
-  "--exclude=composer.json"
-  "--exclude=composer.lock"
-  "--exclude=phpunit.xml"
-  # --- Tier 3 E2E tooling (dev/CI-only; never shipped). ---
-  "--exclude=tests-e2e/"
-  "--exclude=playwright*.config.*"
-  "--exclude=playwright-report/"
-  "--exclude=test-results/"
-)
-
 # Candidate serve router for prod smoke (box-only). Default lives in the repo tree.
 DAD_SMOKE_ROUTER="${DAD_SMOKE_ROUTER:-$REPO/dad/tests-e2e/router.php}"
 
@@ -179,6 +140,7 @@ log() {
 # alert MESSAGE -> stderr + logger (priority err) + ALERT marker file. Used when a
 # smoke test fails so the box operator notices (and the cron log shows it too).
 alert() {
+  ALERTED=1
   local line
   line="$(ts) [$MODE/$BRANCH] ALERT: $*"
   printf '%s\n' "$line" >&2
@@ -209,6 +171,17 @@ link_shared_config() {
   fi
 }
 
+# Release dirs are named <timestamp>-<commit>, so a reverse sort is newest first.
+# The live and previous releases, and any hand-made dir, are never pruned.
+prune_releases() {
+  local live="$1" prev="${2%/}" dir n=0
+  while IFS= read -r dir; do
+    n=$((n + 1))
+    [[ $n -le $DAD_RELEASES_KEPT || "$dir" == "$live" || "$dir" == "$prev" ]] && continue
+    rm -rf -- "$dir"
+  done < <(find "$DAD_RELEASE_ROOT" -mindepth 1 -maxdepth 1 -type d -name '[0-9]*-*' | sort -r)
+}
+
 # ---- main ---------------------------------------------------------------------
 cd "$REPO"
 
@@ -223,6 +196,20 @@ if [[ "$BEFORE" == "$AFTER" ]]; then
   exit 0
 fi
 
+ALERTED=0
+SMOKE_PID=""
+CANDIDATE=""
+PUBLISHED=0
+# Any failure from here on alerts once, and a prod candidate that was never published is discarded.
+on_exit() {
+  local rc=$?
+  [[ -n "$SMOKE_PID" ]] && kill "$SMOKE_PID" 2>/dev/null
+  [[ -n "$CANDIDATE" && "$PUBLISHED" -eq 0 ]] && rm -rf -- "$CANDIDATE"
+  [[ $rc -ne 0 && "$ALERTED" -eq 0 ]] && alert "deploy FAILED (exit $rc) at ${AFTER:0:12}; live site untouched on prod. See cron.log"
+  return 0
+}
+trap on_exit EXIT
+
 # Record the pre-deploy commit BEFORE we touch anything (rollback context).
 printf '%s\n' "$BEFORE" > "$LAST_GOOD" 2>/dev/null || true
 log "deploying $BRANCH: ${BEFORE:0:12} -> ${AFTER:0:12} (prior good commit recorded in $LAST_GOOD)"
@@ -231,10 +218,10 @@ log "deploying $BRANCH: ${BEFORE:0:12} -> ${AFTER:0:12} (prior good commit recor
 git checkout "$BRANCH" --quiet
 git reset --hard "origin/$BRANCH" --quiet
 
-SRC="$REPO/dad/"   # trailing slash: sync the CONTENTS of dad/, mirrors deploy.sh
+SRC="$REPO/dad/"
 
 # shellcheck disable=SC2054  # the comma is inside the single --chmod=D755,F644 flag value, not an array separator
-RSYNC_FLAGS=(-a --delete --chmod=D755,F644 "${EXCLUDES[@]}")
+RSYNC_FLAGS=(-a --delete --chmod=D755,F644 --exclude-from="$SELF_DIR/rsync-excludes")
 
 if [[ "$MODE" == "staging" ]]; then
   # ---- STAGING: rsync into the live webroot, smoke-test, log-on-fail ----------
@@ -262,17 +249,10 @@ fix_perms "$CANDIDATE"
 
 # Smoke-test the CANDIDATE before publishing. Apache serves the live symlink, so
 # the candidate is served by a short-lived localhost php -S (box-only piece).
-SMOKE_PID=""
-cleanup_candidate_server() {
-  [[ -n "$SMOKE_PID" ]] && kill "$SMOKE_PID" 2>/dev/null || true
-}
-trap cleanup_candidate_server EXIT
-
 "$DAD_PHP_BIN" -S "127.0.0.1:$DAD_SMOKE_PORT" -t "$CANDIDATE" "$DAD_SMOKE_ROUTER" \
   >"$DAD_DEPLOY_LOG_DIR/candidate-serve.log" 2>&1 &
 SMOKE_PID="$!"
 
-# Wait for the candidate server to answer health before testing.
 CANDIDATE_URL="http://127.0.0.1:$DAD_SMOKE_PORT"
 for _ in 1 2 3 4 5 6 7 8 9 10; do
   if curl -fsS "$CANDIDATE_URL/api/health.php" 2>/dev/null | grep -q '"ok":true'; then
@@ -281,17 +261,14 @@ for _ in 1 2 3 4 5 6 7 8 9 10; do
   sleep 0.5
 done
 
-if "$DAD_SMOKE_TEST" --base-url "$CANDIDATE_URL" --form; then
-  cleanup_candidate_server; SMOKE_PID=""
-  PREV_RELEASE="$(readlink "$WEBROOT" 2>/dev/null || true)"
-  # Atomic publish: repoint the webroot symlink to the candidate (atomic on Linux).
-  ln -sfn "$CANDIDATE" "$WEBROOT"
-  log "smoke PASS (prod) — published ${AFTER:0:12} at $CANDIDATE (previous release kept for rollback: ${PREV_RELEASE:-none})"
-  exit 0
-else
-  cleanup_candidate_server; SMOKE_PID=""
-  # DISCARD the candidate; the live symlink was never touched.
-  rm -rf "$CANDIDATE" 2>/dev/null || true
+if ! "$DAD_SMOKE_TEST" --base-url "$CANDIDATE_URL" --form; then
   alert "smoke FAIL (prod) at ${AFTER:0:12} — candidate DISCARDED, live site untouched. Prior good commit: ${BEFORE:0:12}"
   exit 1
 fi
+
+PREV_RELEASE="$(readlink "$WEBROOT" 2>/dev/null || true)"
+# Atomic publish: repoint the webroot symlink to the candidate (atomic on Linux).
+ln -sfn "$CANDIDATE" "$WEBROOT"
+PUBLISHED=1
+prune_releases "$CANDIDATE" "$PREV_RELEASE"
+log "smoke PASS (prod) — published ${AFTER:0:12} at $CANDIDATE (previous release kept for rollback: ${PREV_RELEASE:-none})"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# smoke-test.sh — Tier 2 post-deploy smoke test for the DAD website.
+# smoke-test.sh — post-deploy smoke test for the DAD website.
 #
 # Runs a handful of HTTP assertions against a LOCALLY-serving copy of the site to
 # prove a deploy did not break the live surface area donors touch. It is called
