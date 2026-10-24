@@ -23,24 +23,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up PHP 8.3
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: pdo_sqlite, sqlite3, mbstring
-          coverage: none
-
-      - name: Get composer cache dir
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-
-      - name: Cache composer packages
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-${{ runner.os }}-${{ hashFiles('dad/composer.lock') }}
-          restore-keys: composer-${{ runner.os }}-
-
+      # No shivammathur/setup-php: that action hangs on the self-hosted macOS
+      # runner. The host provides PHP 8.3 with pdo_sqlite/sqlite3/mbstring and
+      # Composer (see .github/SELF_HOSTED_RUNNERS.md). No composer cache either —
+      # ~/.composer persists on the runner and the cache-save step can hang.
       - name: Install PHP dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 
@@ -56,12 +42,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up PHP 8.3
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: pdo_sqlite, sqlite3, mbstring
-          coverage: none
+      # No shivammathur/setup-php — it hangs on the self-hosted macOS runner; the
+      # host provides PHP 8.3 + extensions (see .github/SELF_HOSTED_RUNNERS.md).
 
       - name: Set up Node 20
         uses: actions/setup-node@v4
