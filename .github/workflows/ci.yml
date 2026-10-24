@@ -16,31 +16,17 @@ jobs:
   # ---------------------------------------------------------------------------
   php-tests:
     name: PHP unit tests
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, dad, linux]
     defaults:
       run:
         working-directory: dad
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up PHP 8.3
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: pdo_sqlite, sqlite3, mbstring
-          coverage: none
-
-      - name: Get composer cache dir
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
-
-      - name: Cache composer packages
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-${{ runner.os }}-${{ hashFiles('dad/composer.lock') }}
-          restore-keys: composer-${{ runner.os }}-
-
+      # No shivammathur/setup-php: that action hangs on the self-hosted macOS
+      # runner. The host provides PHP 8.3 with pdo_sqlite/sqlite3/mbstring and
+      # Composer (see .github/SELF_HOSTED_RUNNERS.md). No composer cache either —
+      # ~/.composer persists on the runner and the cache-save step can hang.
       - name: Install PHP dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 
@@ -52,23 +38,20 @@ jobs:
   # ---------------------------------------------------------------------------
   e2e-a11y:
     name: E2E + a11y (Playwright + axe)
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, dad, linux]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up PHP 8.3
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: pdo_sqlite, sqlite3, mbstring
-          coverage: none
+      # No shivammathur/setup-php — it hangs on the self-hosted macOS runner; the
+      # host provides PHP 8.3 + extensions (see .github/SELF_HOSTED_RUNNERS.md).
 
       - name: Set up Node 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: npm
-          cache-dependency-path: dad/tests-e2e/package-lock.json
+          # No cache: npm — on the persistent self-hosted runner ~/.npm survives
+          # between runs, and the setup-node cache-save post-step can hang for
+          # minutes and cancel the job at its timeout.
 
       - name: Install E2E dependencies
         working-directory: dad/tests-e2e
@@ -76,7 +59,9 @@ jobs:
 
       - name: Install Playwright Chromium
         working-directory: dad/tests-e2e
-        run: npx playwright install --with-deps chromium
+        # No --with-deps: it runs apt-get (Linux only), and the self-hosted macOS
+        # runner already has Chromium's shared libraries via the browser download.
+        run: npx playwright install chromium
 
       - name: Write throwaway CI config
         working-directory: dad
