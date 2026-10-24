@@ -67,8 +67,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: npm
-          cache-dependency-path: dad/tests-e2e/package-lock.json
+          # No cache: npm — on the persistent self-hosted runner ~/.npm survives
+          # between runs, and the setup-node cache-save post-step can hang for
+          # minutes and cancel the job at its timeout.
 
       - name: Install E2E dependencies
         working-directory: dad/tests-e2e
