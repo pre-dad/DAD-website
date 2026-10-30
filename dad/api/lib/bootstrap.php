@@ -4,17 +4,7 @@ declare(strict_types=1);
 
 define('SITE_API', 1);
 
-const SITE_TYPES      = ['founding', 'updates', 'support', 'volunteer', 'contact', 'partner'];
-const SITE_LIST_TYPES = ['founding', 'updates'];          // mailing lists: deduped by email, carry an unsubscribe token
-const SITE_TOPICS     = ['Giving', 'Partnership', 'Press', 'Careers', 'Something else'];
-const SITE_TYPE_LABELS = [
-  'founding'  => 'Founding Donor',
-  'updates'   => 'Build updates',
-  'support'   => 'Get support',
-  'volunteer' => 'Volunteer',
-  'contact'   => 'Message',
-  'partner'   => 'Partner',
-];
+require __DIR__ . '/constants.php';
 
 // The real config.php is created at deploy. Without it we load the sample so pages can still
 // render a clean "not configured" state; site_configured() stays false and nothing is stored.
@@ -61,7 +51,11 @@ function site_data_dir(): string {
   if (!is_dir($d) && !@mkdir($d, 0750, true) && !is_dir($d)) {
     throw new RuntimeException('Cannot create the data folder');
   }
-  if (!is_file($d . '/.htaccess')) @file_put_contents($d . '/.htaccess', "Require all denied\n");
-  if (!is_file($d . '/index.html')) @file_put_contents($d . '/index.html', '');
+  foreach (['/.htaccess' => "Require all denied\n", '/index.html' => ''] as $suffix => $contents) {
+    $path = $d . $suffix;
+    if (!is_file($path) && file_put_contents($path, $contents, LOCK_EX) === false) {
+      throw new RuntimeException('Cannot protect the data folder');
+    }
+  }
   return $d;
 }

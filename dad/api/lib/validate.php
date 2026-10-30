@@ -4,7 +4,7 @@
 declare(strict_types=1);
 defined('SITE_API') || exit;
 
-// Wording matches src/js/core/forms.js so a visitor sees the same message whichever side catches it.
+// Wording matches js/core/forms.js so a visitor sees the same message whichever side catches it.
 const MSG_GENERIC = 'Something went wrong. Please try again.';
 
 function v_err(string $error, ?string $field = null): array {

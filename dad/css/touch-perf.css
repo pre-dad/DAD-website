@@ -3,7 +3,7 @@
    On iOS the compositor is shared with the liquid drop's 60fps canvas, so a
    layer that costs a full-screen pass per frame (an animated blend overlay,
    a live backdrop blur, a filter blur in a transition) shows as a stutter.
-   Bundled last (build.py sorts extra CSS after the core files).
+   Bundled after the core files (tools/build.mjs), so these rules win.
    --------------------------------------------------------------------- */
 @media (hover: none) and (pointer: coarse) {
   /* the film grain: a full-screen overlay blend re-composited over the canvas every frame (and

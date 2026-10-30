@@ -1,7 +1,7 @@
-import { test, expect, type Page, type Request, type Response } from '@playwright/test';
+import { test, expect, type Request, type Response } from '@playwright/test';
 import { CANONICAL_PAGES } from './pages';
 
-// Robust per-page health check for all 16 canonical pages:
+// Per-page health check for every canonical page:
 //   - HTTP 200 and the document loads
 //   - no uncaught JS console errors
 //   - no failed / 4xx+ SAME-ORIGIN asset requests
@@ -72,5 +72,3 @@ for (const path of CANONICAL_PAGES) {
   });
 }
 
-// Helper kept exported in case future specs need the same-origin test.
-export { isSameOrigin, type Page };

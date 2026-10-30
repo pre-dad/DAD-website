@@ -1,5 +1,5 @@
 // Fixed top nav + full-screen menu.
-import { html, $, $$, isTouch, mq } from './util.js?v=c2c7328da2';
+import { html, $, $$, isTouch, mq } from './util.js?v=e09c939d0f';
 
 let nav, burger, menu, progress, mcta, lastY = 0, ticking = false, open = false, lastFocus = null;
 

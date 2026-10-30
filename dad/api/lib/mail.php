@@ -1,5 +1,6 @@
 <?php
-// Email through PHP mail() on IONOS (same route DeckSend uses). Every send is logged to mail_log.
+// Outbound email: an SMTP relay (Amazon SES) when SITE_SMTP_HOST is set, otherwise PHP mail().
+// Every send is logged to mail_log.
 declare(strict_types=1);
 defined('SITE_API') || exit;
 
@@ -68,9 +69,7 @@ function smtp_send(string $host, int $port, string $secure, string $user, string
     if (strtolower($secure) === 'tls') {
       $write('STARTTLS');
       if ($read() !== 220) { @fclose($fp); return false; }
-      $crypto = STREAM_CRYPTO_METHOD_TLS_CLIENT;
-      if (defined('STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT')) $crypto |= STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
-      if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) $crypto |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+      $crypto = STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT;
       if (@stream_socket_enable_crypto($fp, true, $crypto) !== true) { @fclose($fp); return false; }
       $write('EHLO ' . $clientHost);                                    // re-EHLO after the TLS upgrade
       if ($read() !== 250) { @fclose($fp); return false; }
@@ -123,6 +122,7 @@ function send_mail(string $to, string $subject, string $text, ?string $html = nu
   $hdr = [];
   $hdr[] = 'From: ' . mime_address($fromName, $from);
   if ($replyTo !== '') $hdr[] = 'Reply-To: ' . $replyTo;
+  $hdr[] = 'Date: ' . date('r');
   $hdr[] = 'Message-ID: <' . tok(12) . '@' . mail_domain($from) . '>';
   $hdr[] = 'MIME-Version: 1.0';
   if (!empty($o['unsubscribe'])) {
@@ -157,8 +157,7 @@ function send_mail(string $to, string $subject, string $text, ?string $html = nu
   $smtpHost = defined('SITE_SMTP_HOST') ? (string)SITE_SMTP_HOST : '';
   $ok = false;
   if ($smtpHost !== '') {
-    // The Subject is passed to mail() as a separate argument today and is NOT in $hdr, so the
-    // SMTP wire message must prepend it. Everything else (headers + blank line + body) is unchanged.
+    // mail() takes the subject as its own argument, so it is not in $hdr.
     $message = 'Subject: ' . mime_header($subject) . $eol . implode($eol, $hdr) . $eol . $eol . $body;
     $ok = smtp_send(
       $smtpHost,

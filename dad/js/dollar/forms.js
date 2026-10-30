@@ -2,7 +2,7 @@
 // space (units of the drop radius, y up, +z toward the camera) plus at most one analytic part
 // (torus, disc or bowl). The shader smooth-unions everything into one raymarched body.
 // Index roles are loosely shared (0 core, 1-3 lobes, 4.. droplets) so morphs read as liquid.
-import { ICON } from './icons.js?v=c2c7328da2';
+import { ICON } from './icons.js?v=e09c939d0f';
 const fr = x => x - Math.floor(x);
 export const H1 = [], H2 = [];
 for (let i = 0; i < 40; i++) { H1.push(fr(Math.sin(i * 12.9898 + 1.3) * 43758.5453)); H2.push(fr(Math.sin(i * 78.233 + 4.1) * 24634.6345)); }

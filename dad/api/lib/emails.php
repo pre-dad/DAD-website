@@ -42,7 +42,6 @@ function email_defs(): array {
       'parts' => ['subject', 'greeting', 'body', 'closer', 'signature'],
       'vars' => $who + ['referral_link' => 'Their personal referral link'],
       'always' => ['The Unsubscribe link at the bottom', 'The one-click unsubscribe button Gmail and Apple Mail show'],
-      // SYSTEM COPY, verbatim from copy-v1.1.txt
       'default' => [
         'subject'   => "You're a Founding Donor.",
         'greeting'  => '{first_name},',

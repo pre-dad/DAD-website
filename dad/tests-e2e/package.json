@@ -2,13 +2,17 @@
   "name": "dad-website-e2e",
   "version": "1.0.0",
   "private": true,
-  "description": "Tier 3: robust Playwright E2E + axe a11y checks for the DAD marketing site. Dev/CI-only, never shipped.",
+  "description": "Playwright end-to-end and axe accessibility checks for the DAD site. Dev/CI-only, never shipped.",
   "scripts": {
     "test": "playwright test",
-    "install-browsers": "playwright install --with-deps chromium"
+    "typecheck": "tsc --noEmit",
+    "install-browsers": "playwright install chromium"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.10.2",
-    "@playwright/test": "1.55.1"
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.18.0",
+    "playwright-core": "1.63.0",
+    "typescript": "5.9.3"
   }
 }

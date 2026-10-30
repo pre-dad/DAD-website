@@ -1,0 +1,16 @@
+{
+  "name": "dad-website",
+  "private": true,
+  "description": "Build tooling for the dynamicaid.org site in dad/. Never deployed.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "check": "node tools/build.mjs --check"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10"
+  }
+}

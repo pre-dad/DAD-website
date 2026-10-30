@@ -1,20 +1,19 @@
 // Forms: <form class="form" data-form="founding|updates|support|volunteer|contact|partner">
 // Progressive enhancement over a normal POST to /api/submit.php. With JS we post
 // JSON, validate inline, keep typed input on error and swap in the success copy.
-import { $, $$, store, id } from './util.js?v=c2c7328da2';
+import { $, $$, store, id } from './util.js?v=e09c939d0f';
 
 const ENDPOINT = '/api/submit.php';
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/;
 const TOPICS = ['Giving', 'Partnership', 'Press', 'Careers', 'Something else'];
 
-// SYSTEM COPY (copy-v1.1.txt). Do not edit wording here.
+// Same wording as result_html() in api/submit.php, which answers no-JS posts.
 const SUCCESS = {
   founding: {
     title: "You're a Founding Donor.",
     text: "Permanently. The badge will be on your profile the day the app opens.",
     share: true,
   },
-  // No dedicated copy exists for build-updates yet; uses the list confirmation line.
   updates: { title: "You're on the list.", text: '' },
   support: { title: 'Got it.', text: "We'll let you know as soon as a program opens near you. Nothing else, nothing more." },
   volunteer: { title: "You're on the list.", text: "When an Impact Team forms in your city, you'll hear from us first." },
@@ -44,7 +43,7 @@ let bound = [];
 // capture ?ref= once per visit so a referral survives navigation
 try {
   const r = new URLSearchParams(location.search).get('ref');
-  if (r && /^[\w-]{3,64}$/.test(r)) store.set('dad-ref', r);
+  if (r && /^[\w-]{1,40}$/.test(r)) store.set('dad-ref', r);
 } catch (e) { /* ignore */ }
 
 function fieldOf(input) { return input.closest('.field') || input.parentElement; }
@@ -198,7 +197,6 @@ async function donorPrefill(form) {
   if (!/^cs_(live|test)_[A-Za-z0-9]{10,200}$/.test(sid)) return;
   const h = input(form, 'session_id');
   if (h) h.value = sid;
-  if (document.documentElement.hasAttribute('data-preview')) return;
   try {
     const r = await fetch('/api/donor.php?session_id=' + encodeURIComponent(sid), { credentials: 'same-origin' });
     const b = await r.json();
@@ -219,13 +217,11 @@ function wireShare(root) {
         const ta = document.createElement('textarea'); ta.value = url; document.body.appendChild(ta); ta.select();
         try { document.execCommand('copy'); } catch (e2) { /* ignore */ } ta.remove();
       }
-      const lbl = $('.btn__label', c) || c;
       const old = c.getAttribute('aria-label');
       c.setAttribute('aria-label', 'Link copied');
       c.classList.add('is-done');
       const live = document.getElementById('announcer'); if (live) live.textContent = 'Link copied';
       setTimeout(() => { if (old) c.setAttribute('aria-label', old); else c.removeAttribute('aria-label'); c.classList.remove('is-done'); }, 2200);
-      void lbl;
     }
     if (s) {
       const url = s.dataset.share;
@@ -262,14 +258,6 @@ async function onSubmit(e) {
     btn && (btn.disabled = false);
   };
   let res, body;
-  // Private preview builds (html[data-preview]) run the forms in demo mode: client validation and the
-  // success state work, but nothing is sent or stored. The real API goes live at launch.
-  if (document.documentElement.hasAttribute('data-preview')) {
-    await new Promise((r) => setTimeout(r, 650));
-    done();
-    showSuccess(form, d.type, 'preview');
-    return;
-  }
   try {
     const ctl = new AbortController();
     const to = setTimeout(() => ctl.abort(), 15000);
@@ -313,14 +301,6 @@ export function bind(root) {
     if (form.hasAttribute('data-donor-prefill')) donorPrefill(form);
     bound.push(form);
   });
-  // no-JS fallback return (?submitted=type): show the success state
-  try {
-    const sub = new URLSearchParams(location.search).get('submitted');
-    if (sub) {
-      const f = $(`form[data-form="${sub}"]`, root);
-      if (f) showSuccess(f, sub, '');
-    }
-  } catch (e) { /* ignore */ }
 }
 
 export function unbind() {

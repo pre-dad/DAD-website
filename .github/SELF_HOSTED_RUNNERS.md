@@ -23,7 +23,7 @@ The runner host must provide:
 labels `dad,linux`:
 
 ```sh
-./config.sh --url https://github.com/CoachCoe/dad-main-website \
+./config.sh --url https://github.com/CoachCoe/DAD-website \
   --token <TOKEN_FROM_THE_RUNNERS_PAGE> \
   --labels dad,linux --name dad-website-1
 ./svc.sh install && ./svc.sh start

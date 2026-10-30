@@ -1,5 +1,5 @@
 /* =====================================================================
-   SCENES: one viewport per scroll (src/js/core/scenes.js)
+   SCENES: one viewport per scroll (js/core/scenes.js)
    main[data-scenes] gets .has-scenes; every active [data-scene] gets
    .is-scene and is sized to exactly one small-viewport height (100svh),
    with its content composed to fit. Overflowing scenes become .is-scene-tall

@@ -3,7 +3,7 @@
 //  - facts + "Why now" forces light up as they cross the reading line
 //  - scrubbed word-by-word reading for the verdict lines
 //  - desktop: the five leaks run as a pinned horizontal sequence (sticky stage)
-import { coinStage, readText, activeOnLine, desktopPin } from './ph-util.js?v=c2c7328da2';
+import { coinStage, readText, activeOnLine, desktopPin } from './ph-util.js?v=e09c939d0f';
 
 let cleanups = [];
 

@@ -24,7 +24,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=c2c7328da2">
+<link rel="stylesheet" href="/css/site.css?v=e09c939d0f">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -40,15 +40,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=c2c7328da2"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=c2c7328da2"></script>
-<script defer src="/vendor/SplitText.min.js?v=c2c7328da2"></script>
-<script defer src="/vendor/lenis.min.js?v=c2c7328da2"></script>
-<script type="module" src="/js/app.js?v=c2c7328da2"></script>
+<script defer src="/vendor/gsap.min.js?v=e09c939d0f"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=e09c939d0f"></script>
+<script defer src="/vendor/SplitText.min.js?v=e09c939d0f"></script>
+<script defer src="/vendor/lenis.min.js?v=e09c939d0f"></script>
+<script type="module" src="/js/app.js?v=e09c939d0f"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=c2c7328da2">
+<link rel="modulepreload" href="/js/core/util.js?v=e09c939d0f">
 </head>
 <body data-page="proof" data-mobile-cta="on">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -106,7 +106,7 @@
   </div>
 </div>
 
-<main id="swap" data-page="proof" data-module="/js/pages/proof.js?v=c2c7328da2" data-scenes tabindex="-1">
+<main id="swap" data-page="proof" data-module="/js/pages/proof.js?v=e09c939d0f" data-scenes tabindex="-1">
 <style>
 /* ---- THE PROOF (page-scoped) ---- */
 [data-page="proof"] .pp-field { position: absolute; inset: 0; width: auto; height: auto; aspect-ratio: auto; opacity: .5; pointer-events: none; -webkit-mask-image: linear-gradient(180deg, #000 50%, transparent 98%); mask-image: linear-gradient(180deg, #000 50%, transparent 98%); }
@@ -287,7 +287,7 @@ html.reduced [data-page="proof"] .pf-row__rule::after { transform: scaleX(1); }
       <!-- OPEN LEDGER STAGE. Include inside <div class="lgx" data-ledger data-scene data-scene-steps="4">.
      Step 0: the drop rains onto the map. Steps 1-3: the three-window deck (Program register, Overview, Outcomes).
      DOM order = shuffle order: the register is first so the flow lines land on its rows.
-     Behaviour: src/js/core/ledger.js. Look: src/css/ledger.css. All figures are example data. -->
+     Behaviour: js/core/ledger.js. Look: css/ledger.css. All figures are example data. -->
 <div class="lgx__stage">
   <div class="island lgx__island">
     <div class="lgx__legend" aria-hidden="true"><i class="cat-food"></i><i class="cat-health"></i><i class="cat-opps"></i><i class="cat-infra"></i></div>
@@ -504,7 +504,6 @@ html.reduced [data-page="proof"] .pf-row__rule::after { transform: scaleX(1); }
   </div>
 </div>
 
-<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label"></span></div>
 <div class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>

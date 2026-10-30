@@ -1,29 +1,18 @@
 #!/usr/bin/env bash
 #
-# ci-setup-config.sh — write a THROWAWAY dad/api/config.php for CI / local E2E.
+# ci-setup-config.sh: write a throwaway dad/api/config.php for CI and local runs:
+# a fresh temp database, no SMTP, example.com quiet, the 127.0.0.1:8080 origin
+# allowed, and the setup key the admin e2e spec uses. Run from dad/.
 #
-# The real config.php is gitignored and absent in CI. This writes a disposable
-# one that points SITE_DATA_DIR at a fresh temp dir, leaves all SMTP blank (so
-# mail() is never dialed out — and example.com is a quiet domain, so no mail is
-# attempted at all), and allows the 127.0.0.1:8080 origin the E2E server uses.
+#   bash tests-e2e/ci-setup-config.sh --ci       # write it (alias: --force)
+#   bash tests-e2e/ci-setup-config.sh --restore  # put back a real config it backed up
 #
-# It NEVER reads or copies the real config.php or the real data dir.
-#
-# Usage:
-#   bash tests-e2e/ci-setup-config.sh --ci       # run from dad/ (write throwaway config)
-#   bash tests-e2e/ci-setup-config.sh --force    # alias for --ci
-#   bash tests-e2e/ci-setup-config.sh --restore  # restore the backed-up real config
-#
-# LOCAL-DEV GUARD: if dad/api/config.php already exists and no --ci/--force flag
-# is passed, this refuses (so a developer's real config is never clobbered). With
-# the flag, an existing real config is backed up to config.php.ci-backup FIRST.
-# Run with --restore afterwards to put the real config back (local dev). In CI
-# there is no real config.php, so --ci just writes the throwaway one and there is
-# nothing to restore.
+# Without --ci it refuses to replace an existing config.php. With it, an existing
+# config.php is first copied to config.php.ci-backup (never over an older backup,
+# which may hold the only real copy).
 
 set -euo pipefail
 
-# Resolve dad/ relative to this script (tests-e2e/ lives inside dad/).
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DAD_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 CONFIG="$DAD_DIR/api/config.php"
@@ -39,7 +28,6 @@ for arg in "$@"; do
   esac
 done
 
-# --restore: put the real config back from the backup this script made.
 if [[ "$RESTORE" -eq 1 ]]; then
   if [[ -f "$BACKUP" ]]; then
     mv -f "$BACKUP" "$CONFIG"
@@ -59,8 +47,6 @@ if [[ -f "$CONFIG" && "$FORCE" -ne 1 ]]; then
 fi
 
 if [[ -f "$CONFIG" && "$FORCE" -eq 1 ]]; then
-  # Preserve the existing (real) config so --restore can put it back. Don't
-  # clobber a backup from an earlier run that may hold the only real copy.
   if [[ ! -f "$BACKUP" ]]; then
     cp -p "$CONFIG" "$BACKUP"
     echo "ci-setup-config.sh: backed up existing config.php -> config.php.ci-backup (run --restore to put it back)"
@@ -69,7 +55,9 @@ if [[ -f "$CONFIG" && "$FORCE" -eq 1 ]]; then
   fi
 fi
 
-# Fresh, unguessable temp data dir OUTSIDE the repo tree.
+# The admin e2e spec opens /api/admin/?setup=ci-setup-key; this is its hash.
+SETUP_KEY_SHA256="$(printf '%s' 'ci-setup-key' | php -r 'echo hash("sha256", stream_get_contents(STDIN));')"
+
 DATA_DIR="$(mktemp -d "${TMPDIR:-/tmp}/dad-ci-data-XXXXXXXX")"
 echo "ci-setup-config.sh: SITE_DATA_DIR = $DATA_DIR"
 
@@ -85,7 +73,7 @@ const SITE_BASE = 'http://127.0.0.1:8080';
 
 const SITE_DATA_DIR = '$DATA_DIR';
 
-const SITE_SETUP_KEY_SHA256 = '';
+const SITE_SETUP_KEY_SHA256 = '$SETUP_KEY_SHA256';
 
 const SITE_NOTIFY_TO        = 'team@example.com';
 const SITE_NOTIFY_TYPES     = ['founding', 'updates', 'support', 'volunteer', 'contact', 'partner'];

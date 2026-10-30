@@ -391,7 +391,7 @@ if (isset($_GET['export'])) {
   if (!in_array($type, SITE_TYPES, true)) { http_response_code(400); exit('Unknown type'); }
   $subscribedOnly = !empty($_GET['subscribed']) && in_array($type, SITE_LIST_TYPES, true);
   $rows = q('SELECT s.*, r.email AS ref_email FROM submissions s LEFT JOIN submissions r ON r.pid = s.ref
-             WHERE s.type = ?' . ($subscribedOnly ? ' AND s.unsubscribed_at IS NULL' : '') . ' ORDER BY s.created_at ASC, s.id ASC', [$type])->fetchAll();
+             WHERE s.type = ?' . ($subscribedOnly ? ' AND s.unsubscribed_at IS NULL' : '') . ' ORDER BY s.created_at ASC, s.id ASC', [$type]);
   $brought = [];
   if ($type === 'founding') foreach (q('SELECT ref, COUNT(*) c FROM submissions WHERE ref IS NOT NULL GROUP BY ref') as $b) $brought[$b['ref']] = (int)$b['c'];
 
@@ -404,7 +404,11 @@ if (isset($_GET['export'])) {
     case 'contact':   $head = array_merge($head, ['Name', 'Email', 'About', 'Message', 'Page', 'Handled']); break;
     case 'partner':   $head = array_merge($head, ['Name', 'Email', 'Company', 'Note', 'Page', 'Handled']); break;
   }
-  $out = "\xEF\xBB\xBF" . csv_line($head);
+  $name = 'dad-' . $type . ($subscribedOnly ? '-mailing-list' : '') . '-' . date('Y-m-d') . '.csv';
+  base_headers();
+  header('Content-Type: text/csv; charset=utf-8');
+  header('Content-Disposition: attachment; filename="' . $name . '"');
+  echo "\xEF\xBB\xBF" . csv_line($head);
   foreach ($rows as $r) {
     $f = decode_fields($r['fields']);
     $line = [$r['pid'], csv_date((int)$r['created_at'])];
@@ -418,14 +422,8 @@ if (isset($_GET['export'])) {
       case 'contact':   $line = array_merge($line, [$f['name'] ?? '', $f['email'] ?? '', $f['topic'] ?? '', $f['message'] ?? '', $r['page'], csv_date($r['handled_at'] ? (int)$r['handled_at'] : null)]); break;
       case 'partner':   $line = array_merge($line, [$f['name'] ?? '', $f['email'] ?? '', $f['company'] ?? '', $f['note'] ?? '', $r['page'], csv_date($r['handled_at'] ? (int)$r['handled_at'] : null)]); break;
     }
-    $out .= csv_line($line);
+    echo csv_line($line);
   }
-  $name = 'dad-' . $type . ($subscribedOnly ? '-mailing-list' : '') . '-' . date('Y-m-d') . '.csv';
-  base_headers();
-  header('Content-Type: text/csv; charset=utf-8');
-  header('Content-Disposition: attachment; filename="' . $name . '"');
-  header('Content-Length: ' . strlen($out));
-  echo $out;
   exit;
 }
 
@@ -762,7 +760,8 @@ td.acts form{display:inline-block;margin-left:6px}
 .pvtext{max-width:560px;margin:14px auto 0}
 .pvtext summary{cursor:pointer;font-size:14px;font-weight:600;padding:6px 0}
 @media (max-width:900px){.eedit{grid-template-columns:minmax(0,1fr)}.tabs a{padding:8px 10px}}
-@media (max-width:520px){.top{gap:8px}.top nav.tabs{margin-left:0;gap:0}.out{padding:9px 12px}}
+@media (max-width:520px){.top{gap:8px}.top nav.tabs{margin-left:0;gap:0}.out{padding:9px 12px}
+  .tiles{gap:8px;margin:20px 0 18px}.tile{padding:12px 14px}.tile b{font-size:26px;margin-top:8px}.tile small{margin-top:4px}}
 CSS;
 }
 

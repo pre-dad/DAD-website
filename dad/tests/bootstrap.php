@@ -1,29 +1,24 @@
 <?php
-// Test bootstrap for the Tier 1 PHPUnit suite.
-//
-// The pure logic under test (validate.php, util.php) begins with
-// `defined('SITE_API') || exit;` and relies on a handful of constants that the
-// real api/lib/bootstrap.php defines. That real bootstrap, however, also pulls
-// in config.php, db.php, mail.php, emails.php and ui.php — i.e. the DB and mail
-// stack. To keep these tests pure (no config.php, no DB, no secrets), we define
-// ONLY the guard + the three constants the functions need, then require just the
-// two library files under test.
-//
-// NOTE: these constants intentionally duplicate the values in
-// api/lib/bootstrap.php (SITE_TYPES, SITE_TOPICS) and config.sample.php
-// (SITE_QUIET_DOMAINS). If those drift, update this file in lockstep.
+// Loads the pure API libraries without api/lib/bootstrap.php, which would also pull in
+// config.php and open the database. The config values below are test fixtures.
 declare(strict_types=1);
 
 define('SITE_API', 1);
 
-const SITE_TYPES  = ['founding', 'updates', 'support', 'volunteer', 'contact', 'partner'];
-const SITE_TOPICS = ['Giving', 'Partnership', 'Press', 'Careers', 'Something else'];
-const SITE_QUIET_DOMAINS = ['example.com'];
-
-if (function_exists('mb_internal_encoding')) {
-    mb_internal_encoding('UTF-8');
-}
-
 $lib = dirname(__DIR__) . '/api/lib';
-require $lib . '/util.php';      // helpers first (clean_line used by validate.php)
+require $lib . '/constants.php';
+
+const SITE_BASE             = 'https://dynamicaid.test';
+const SITE_QUIET_DOMAINS    = ['example.com'];
+const SITE_NOTIFY_TO        = 'team@dynamicaid.test';
+const SITE_NOTIFY_TYPES     = SITE_TYPES;
+const SITE_NOTIFY_FROM      = 'no-reply@dynamicaid.test';
+const SITE_NOTIFY_FROM_NAME = 'DAD Website';
+const SITE_MAIL_REPLY_TO    = 'hello@dynamicaid.test';
+
+mb_internal_encoding('UTF-8');
+
+require $lib . '/util.php';
 require $lib . '/validate.php';
+require $lib . '/mail.php';
+require $lib . '/emails.php';

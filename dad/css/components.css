@@ -1279,7 +1279,7 @@ html.no-pl .preloader { display: none; }
 .footer__big .ch:nth-child(n) { display: inline-block; }
 .footer__legal { display: grid; gap: 8px; padding-top: 22px; border-top: 1px solid rgba(248, 249, 250, .1); font: 400 12.5px/1.6 var(--f-mono); letter-spacing: .02em; color: var(--mut); }
 @media (min-width: 900px) { .footer__legal { grid-template-columns: 1fr auto; } }
-.footer__legal p a { color: var(--dkmut); text-decoration: none; }
+.footer__legal p a { color: var(--dkmut); text-decoration: underline; }
 .footer__legal a:hover { color: var(--paper); }
 body:has(.mobile-cta.is-on) .footer { padding-bottom: 104px; }
 
@@ -1319,43 +1319,6 @@ html.has-cookie .mobile-cta { transform: translateY(160%) !important; visibility
 html.has-cookie main.has-scenes { --scene-pb: clamp(72px, 9svh, 88px); }
 /* the chip never sits on the footer's legal line at the end of a page */
 html.has-cookie .footer { padding-bottom: calc(clamp(28px, 3vw, 40px) + 64px + env(safe-area-inset-bottom)); }
-
-/* ---------------------------------------------------------------------
-   CURSOR (desktop pointer only)
-   --------------------------------------------------------------------- */
-.cursor { position: fixed; left: 0; top: 0; z-index: var(--z-cursor); pointer-events: none; display: none; }
-html.has-cursor .cursor { display: block; }
-.cursor__dot {
-  position: absolute;
-  left: -18px;
-  top: -18px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 1px var(--fg);
-  opacity: .0;
-  transform: scale(.3);
-  transition: transform .5s var(--ease), opacity .3s, background-color .3s, box-shadow .3s;
-}
-.cursor.is-active .cursor__dot { opacity: .5; transform: scale(.32); background: var(--fg); }
-.cursor.is-hover .cursor__dot { transform: scale(1.5); opacity: 1; background: color-mix(in srgb, var(--accent) 14%, transparent); box-shadow: inset 0 0 0 1px var(--accent); }
-.cursor.is-label .cursor__dot { transform: scale(2.4); opacity: 1; background: var(--red); box-shadow: none; }
-.cursor.is-down .cursor__dot { transform: scale(.9); }
-.cursor.is-hidden .cursor__dot { opacity: 0; transform: scale(0); }
-.cursor__label {
-  position: absolute;
-  left: 0;
-  top: 0;
-  transform: translate(-50%, -50%) scale(.6);
-  font: 600 10.5px/1 var(--f-mono);
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--ink);
-  opacity: 0;
-  white-space: nowrap;
-  transition: opacity .3s, transform .5s var(--ease);
-}
-.cursor.is-label .cursor__label { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
 /* ---------------------------------------------------------------------
    REVEALS (initial states; reveals.js adds .is-in)

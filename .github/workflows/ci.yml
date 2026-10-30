@@ -3,9 +3,8 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, staging]
 
-# Cancel superseded runs on the same ref to save runner minutes.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -13,6 +12,7 @@ concurrency:
 jobs:
   # ---------------------------------------------------------------------------
   # Tier 1: PHP unit tests (existing PHPUnit suite). Must stay green.
+  # Runs on the self-hosted runner (see .github/SELF_HOSTED_RUNNERS.md).
   # ---------------------------------------------------------------------------
   php-tests:
     name: PHP unit tests
@@ -23,30 +23,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # No shivammathur/setup-php: that action hangs on the self-hosted macOS
-      # runner. The host provides PHP 8.3 with pdo_sqlite/sqlite3/mbstring and
+      # No shivammathur/setup-php: that action hangs on the self-hosted
+      # runner. The host provides PHP with pdo_sqlite/sqlite3/mbstring and
       # Composer (see .github/SELF_HOSTED_RUNNERS.md). No composer cache either —
       # ~/.composer persists on the runner and the cache-save step can hang.
       - name: Install PHP dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 
-      - name: Run PHPUnit
-        run: ./.phpunit-vendor/bin/phpunit
+      - run: ./.phpunit-vendor/bin/phpunit
 
   # ---------------------------------------------------------------------------
-  # Tier 3: Playwright E2E + axe a11y against a php -S instance.
+  # Tier 3: Playwright E2E + axe a11y, then the Tier 2 smoke test, against a
+  # php -S instance. Runs on the self-hosted runner.
   # ---------------------------------------------------------------------------
-  e2e-a11y:
+  e2e:
     name: E2E + a11y (Playwright + axe)
     runs-on: [self-hosted, dad, linux]
     steps:
       - uses: actions/checkout@v4
 
-      # No shivammathur/setup-php — it hangs on the self-hosted macOS runner; the
-      # host provides PHP 8.3 + extensions (see .github/SELF_HOSTED_RUNNERS.md).
+      # No shivammathur/setup-php — it hangs on the self-hosted runner; the
+      # host provides PHP + extensions (see .github/SELF_HOSTED_RUNNERS.md).
 
-      - name: Set up Node 20
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           # No cache: npm — on the persistent self-hosted runner ~/.npm survives
@@ -59,19 +58,18 @@ jobs:
 
       - name: Install Playwright Chromium
         working-directory: dad/tests-e2e
-        # No --with-deps: it runs apt-get (Linux only), and the self-hosted macOS
-        # runner already has Chromium's shared libraries via the browser download.
+        # No --with-deps: it runs apt-get, and the self-hosted runner already has
+        # Chromium's shared libraries via the browser download.
         run: npx playwright install chromium
 
-      - name: Write throwaway CI config
+      - name: Write throwaway config
         working-directory: dad
         run: bash tests-e2e/ci-setup-config.sh --ci
 
       - name: Start PHP server and wait for health
         working-directory: dad
         run: |
-          php -S 127.0.0.1:8080 -t "$PWD" tests-e2e/router.php \
-            > "$RUNNER_TEMP/php-server.log" 2>&1 &
+          php -S 127.0.0.1:8080 -t "$PWD" tests-e2e/router.php > "$RUNNER_TEMP/php-server.log" 2>&1 &
           echo "PHP_SERVER_PID=$!" >> "$GITHUB_ENV"
           for i in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:8080/api/health.php | grep -q '"ok":true'; then
@@ -87,6 +85,9 @@ jobs:
       - name: Run Playwright E2E + a11y
         working-directory: dad/tests-e2e
         run: npx playwright test
+
+      - name: Smoke test
+        run: bash deploy/smoke-test.sh --base-url http://127.0.0.1:8080 --form
 
       - name: Stop PHP server
         if: always()
