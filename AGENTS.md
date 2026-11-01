@@ -14,13 +14,16 @@ only adds what they do not say.
 
 ```sh
 npm run check                                  # repo root: generated files are current
+(cd dad/tests-e2e && npm ci && npm run typecheck)
+shellcheck deploy.sh deploy/*.sh dad/tests-e2e/ci-setup-config.sh
+(cd dad && git ls-files -z '*.php' | xargs -0 -n1 php -l > /dev/null)
 cd dad && composer install && ./.phpunit-vendor/bin/phpunit
 cd dad/tests-e2e && npm ci && npx playwright install chromium && npx playwright test
 bash deploy/smoke-test.sh --base-url http://127.0.0.1:8080 --form
 ```
 
-The e2e job needs the local server from the README ("Run it locally"). `npm run typecheck`
-in `dad/tests-e2e` is not run by CI; run it anyway.
+The e2e job needs the local server from the README ("Run it locally"). The first four
+commands are the `checks` job; a missing `shellcheck` on the runner fails it on purpose.
 
 ## Branch and push discipline
 
@@ -48,8 +51,8 @@ in `dad/tests-e2e` is not run by CI; run it anyway.
   dependencies live in `dad/.phpunit-vendor`.
 - **Only `css/site.css` is served; never hand-edit it.** Edit `dad/css/*.css` or `dad/js/**`,
   then run `npm run build` (`tools/build.mjs`) to regenerate it and the `?v=` versions.
-  The README says CI fails on stale output via `npm run check`, but `ci.yml` has no such
-  step today, so run `npm run check` yourself.
+  CI fails on stale output via `npm run check` (the `checks` job), so commit the
+  regenerated files.
 - **CI is on a self-hosted runner** (`self-hosted, dad, linux`). Do not add
   `setup-php`, `cache: npm`, a composer cache or `playwright install --with-deps`; the
   `ci.yml` comments record that they hang or call `apt-get`. `.github/SELF_HOSTED_RUNNERS.md`
