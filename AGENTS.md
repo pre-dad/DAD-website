@@ -55,8 +55,8 @@ commands are the `checks` job; a missing `shellcheck` on the runner fails it on 
   regenerated files.
 - **CI is on a self-hosted runner** (`self-hosted, dad, linux`). Do not add
   `setup-php`, `cache: npm`, a composer cache or `playwright install --with-deps`; the
-  `ci.yml` comments record that they hang or call `apt-get`. `.github/SELF_HOSTED_RUNNERS.md`
-  is partly stale (job name, OS).
+  `ci.yml` comments record that they hang or call `apt-get`. The runner is a macOS host
+  that carries a custom `linux` label; `.github/SELF_HOSTED_RUNNERS.md` has the details.
 - **The axe gate has no waivers.** `dad/tests-e2e/specs/a11y.spec.ts` fails on any
   critical or serious violation on `/`, `/give/`, `/contact/`, `/faq/`; no rules are
   disabled. Fix the markup rather than excluding it.
