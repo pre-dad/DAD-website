@@ -12,6 +12,7 @@ The runner host must provide:
   install one on a self-hosted host, so PHP must already be on `PATH`.
 - **Node.js 20** (the `e2e-a11y` job installs its own Playwright Chromium; no
   `--with-deps`, since that runs `apt-get` and the host is macOS).
+- **shellcheck** on `PATH` (the `checks` job fails if it is missing).
 - A writable `$RUNNER_TEMP` and the ability to bind `127.0.0.1:8080` for the
   PHP dev server the E2E job starts.
 
