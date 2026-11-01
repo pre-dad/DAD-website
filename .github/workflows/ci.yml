@@ -11,6 +11,38 @@ concurrency:
 
 jobs:
   # ---------------------------------------------------------------------------
+  # Cheap static checks: generated files, e2e typecheck, shell scripts, PHP
+  # syntax. Runs on the self-hosted runner (see .github/SELF_HOSTED_RUNNERS.md).
+  # ---------------------------------------------------------------------------
+  checks:
+    name: Build, lint and type check
+    runs-on: [self-hosted, dad, linux]
+    # A hung step must fail the job rather than sit on the single runner.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      # Node 20 matches the e2e job and satisfies package.json engines (>=20).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          # No cache: npm — the cache-save post-step can hang on this runner.
+      - name: Generated files are up to date
+        # Fails if css/site.css or the ?v= asset versions are stale.
+        run: npm ci && npm run check
+      - name: Type check the e2e specs
+        working-directory: dad/tests-e2e
+        run: npm ci && npm run typecheck
+      - name: Shellcheck the deploy scripts
+        # The host must provide shellcheck. Fail loudly if it is missing:
+        # skipping would let broken deploy scripts pass unnoticed, and an
+        # install step needs sudo/network and can hang.
+        run: |
+          command -v shellcheck >/dev/null || { echo "shellcheck is not installed on this runner (see .github/SELF_HOSTED_RUNNERS.md)" >&2; exit 1; }
+          shellcheck deploy.sh deploy/*.sh dad/tests-e2e/ci-setup-config.sh
+      - name: Lint PHP
+        working-directory: dad
+        run: git ls-files -z '*.php' | xargs -0 -n1 php -l > /dev/null
+  # ---------------------------------------------------------------------------
   # Tier 1: PHP unit tests (existing PHPUnit suite). Must stay green.
   # Runs on the self-hosted runner (see .github/SELF_HOSTED_RUNNERS.md).
   # ---------------------------------------------------------------------------

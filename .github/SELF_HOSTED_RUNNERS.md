@@ -1,26 +1,50 @@
 # Self-hosted CI runner
 
-CI for this repository runs on a self-hosted runner labelled `self-hosted, dad,
-linux`. Every job (`php-tests`, `e2e-a11y`) targets that runner.
+CI for this repository runs on one self-hosted runner, `dad-website-1`. Every job in
+`.github/workflows/ci.yml` (`checks`, `php-tests`, `e2e`) targets it with
+`runs-on: [self-hosted, dad, linux]`.
+
+The host is **macOS on Apple Silicon**, not Linux. GitHub adds `self-hosted`, `macOS` and
+`ARM64` automatically; `dad` and `linux` are custom labels we added at registration. The
+workflow matches on `linux`, so keep that label even though the host is a Mac.
+
+There is a single runner, so jobs run one at a time and queue behind each other. If the
+runner is offline, jobs wait for it instead of failing.
 
 ## Runner prerequisites
 
 The runner host must provide:
 
 - **PHP 8.3** with the `pdo_sqlite`, `sqlite3` and `mbstring` extensions, plus
-  **Composer**. `shivammathur/setup-php` configures the active PHP but does not
-  install one on a self-hosted host, so PHP must already be on `PATH`.
-- **Node.js 20** (the `e2e-a11y` job installs its own Playwright Chromium; no
-  `--with-deps`, since that runs `apt-get` and the host is macOS).
-- A writable `$RUNNER_TEMP` and the ability to bind `127.0.0.1:8080` for the
-  PHP dev server the E2E job starts.
+  **Composer**. The jobs use the PHP already on `PATH`; they do not install one.
+- **shellcheck** on `PATH`. The `checks` job fails on purpose if it is missing, so broken
+  deploy scripts cannot slip through unnoticed.
+- **git** and **curl** on `PATH` (`checks` lints with `git ls-files`; the E2E job waits for
+  the PHP server's health endpoint with `curl`).
+- Network access, because the jobs download Node 20 (via `actions/setup-node`), their npm
+  and Composer dependencies, and Playwright's Chromium on every run.
+- A writable `$RUNNER_TEMP` and the ability to bind `127.0.0.1:8080` for the PHP dev server
+  the E2E job starts.
+
+## Things that hang on this runner
+
+Do not add these to `ci.yml`; each one has stalled jobs here:
+
+- `shivammathur/setup-php`
+- `cache: npm` on `actions/setup-node` (the cache-save post-step hangs)
+- a Composer cache step
+- `npx playwright install --with-deps` (it runs `apt-get`, which does not exist on macOS)
+
+The comments in `ci.yml` record the same list next to the steps that avoid them. The
+`checks` job also sets `timeout-minutes: 10` so a stuck step fails instead of holding the
+only runner.
 
 ## Registration
 
-`CoachCoe` is a GitHub user account, so the runner is registered per-repository
-(no org-level runner groups). Register from this repo's
-**Settings → Actions → Runners → New self-hosted runner** page, applying the
-labels `dad,linux`:
+`CoachCoe` is a GitHub user account, so the runner is registered per repository (no
+org-level runner groups). Register from this repo's
+**Settings → Actions → Runners → New self-hosted runner** page, applying the labels
+`dad,linux`:
 
 ```sh
 ./config.sh --url https://github.com/CoachCoe/DAD-website \
@@ -29,5 +53,9 @@ labels `dad,linux`:
 ./svc.sh install && ./svc.sh start
 ```
 
-Do **not** merge this branch until the runner shows **online** on that page, or
-CI will hang waiting for a matching runner.
+To check that it is online without opening the page:
+
+```sh
+gh api repos/CoachCoe/DAD-website/actions/runners \
+  --jq '.runners[] | "\(.name) \(.status) \([.labels[].name] | join(","))"'
+```
