@@ -48,7 +48,7 @@ host, so only the `dad` custom label is set. Register from this repo's
 **Settings → Actions → Runners → New self-hosted runner** page:
 
 ```sh
-./config.sh --url https://github.com/CoachCoe/DAD-website \
+./config.sh --url https://github.com/pre-dad/DAD-website \
   --token <TOKEN_FROM_THE_RUNNERS_PAGE> \
   --labels dad --name dad-website-1
 ./svc.sh install && ./svc.sh start
@@ -57,6 +57,6 @@ host, so only the `dad` custom label is set. Register from this repo's
 To check that it is online without opening the page:
 
 ```sh
-gh api repos/CoachCoe/DAD-website/actions/runners \
+gh api repos/pre-dad/DAD-website/actions/runners \
   --jq '.runners[] | "\(.name) \(.status) \([.labels[].name] | join(","))"'
 ```
