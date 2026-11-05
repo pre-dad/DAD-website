@@ -16,7 +16,7 @@ jobs:
   # ---------------------------------------------------------------------------
   checks:
     name: Build, lint and type check
-    runs-on: [self-hosted, dad, linux]
+    runs-on: [self-hosted, dad, macOS]
     # A hung step must fail the job rather than sit on the single runner.
     timeout-minutes: 10
     steps:
@@ -48,7 +48,7 @@ jobs:
   # ---------------------------------------------------------------------------
   php-tests:
     name: PHP unit tests
-    runs-on: [self-hosted, dad, linux]
+    runs-on: [self-hosted, dad, macOS]
     defaults:
       run:
         working-directory: dad
@@ -70,7 +70,7 @@ jobs:
   # ---------------------------------------------------------------------------
   e2e:
     name: E2E + a11y (Playwright + axe)
-    runs-on: [self-hosted, dad, linux]
+    runs-on: [self-hosted, dad, macOS]
     steps:
       - uses: actions/checkout@v4
 
