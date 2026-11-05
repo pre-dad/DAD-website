@@ -2,11 +2,12 @@
 
 CI for this repository runs on one self-hosted runner, `dad-website-1`. Every job in
 `.github/workflows/ci.yml` (`checks`, `php-tests`, `e2e`) targets it with
-`runs-on: [self-hosted, dad, linux]`.
+`runs-on: [self-hosted, dad, macOS]`.
 
-The host is **macOS on Apple Silicon**, not Linux. GitHub adds `self-hosted`, `macOS` and
-`ARM64` automatically; `dad` and `linux` are custom labels we added at registration. The
-workflow matches on `linux`, so keep that label even though the host is a Mac.
+The host is **macOS on Apple Silicon**. GitHub adds `self-hosted`, `macOS` and `ARM64`
+automatically from what the host reports; `dad` is the custom label we add at
+registration. (An earlier `linux` label was a misnomer for a macOS host and has been
+removed — do not re-add it.)
 
 There is a single runner, so jobs run one at a time and queue behind each other. If the
 runner is offline, jobs wait for it instead of failing.
@@ -42,14 +43,14 @@ only runner.
 ## Registration
 
 `CoachCoe` is a GitHub user account, so the runner is registered per repository (no
-org-level runner groups). Register from this repo's
-**Settings → Actions → Runners → New self-hosted runner** page, applying the labels
-`dad,linux`:
+org-level runner groups). The `macOS`/`ARM64`/`self-hosted` labels are auto-added by the
+host, so only the `dad` custom label is set. Register from this repo's
+**Settings → Actions → Runners → New self-hosted runner** page:
 
 ```sh
 ./config.sh --url https://github.com/CoachCoe/DAD-website \
   --token <TOKEN_FROM_THE_RUNNERS_PAGE> \
-  --labels dad,linux --name dad-website-1
+  --labels dad --name dad-website-1
 ./svc.sh install && ./svc.sh start
 ```
 
