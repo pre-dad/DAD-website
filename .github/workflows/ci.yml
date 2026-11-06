@@ -12,12 +12,12 @@ concurrency:
 jobs:
   # ---------------------------------------------------------------------------
   # Cheap static checks: generated files, e2e typecheck, shell scripts, PHP
-  # syntax. Runs on the self-hosted runner (see .github/SELF_HOSTED_RUNNERS.md).
+  # syntax.
   # ---------------------------------------------------------------------------
   checks:
     name: Build, lint and type check
-    runs-on: [self-hosted, dad, macOS]
-    # A hung step must fail the job rather than sit on the single runner.
+    runs-on: ubuntu-24.04
+    # A hung step must fail the job.
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +25,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          # No cache: npm — the cache-save post-step can hang on this runner.
       - name: Generated files are up to date
         # Fails if css/site.css or the ?v= asset versions are stale.
         run: npm ci && npm run check
@@ -33,32 +32,30 @@ jobs:
         working-directory: dad/tests-e2e
         run: npm ci && npm run typecheck
       - name: Shellcheck the deploy scripts
-        # The host must provide shellcheck. Fail loudly if it is missing:
-        # skipping would let broken deploy scripts pass unnoticed, and an
-        # install step needs sudo/network and can hang.
+        # Preinstalled on ubuntu-24.04. Fail loudly if it is missing:
+        # skipping would let broken deploy scripts pass unnoticed.
         run: |
-          command -v shellcheck >/dev/null || { echo "shellcheck is not installed on this runner (see .github/SELF_HOSTED_RUNNERS.md)" >&2; exit 1; }
+          command -v shellcheck >/dev/null || { echo "shellcheck is not installed on this runner" >&2; exit 1; }
           shellcheck deploy.sh deploy/*.sh dad/tests-e2e/ci-setup-config.sh
       - name: Lint PHP
         working-directory: dad
         run: git ls-files -z '*.php' | xargs -0 -n1 php -l > /dev/null
   # ---------------------------------------------------------------------------
   # Tier 1: PHP unit tests (existing PHPUnit suite). Must stay green.
-  # Runs on the self-hosted runner (see .github/SELF_HOSTED_RUNNERS.md).
   # ---------------------------------------------------------------------------
   php-tests:
     name: PHP unit tests
-    runs-on: [self-hosted, dad, macOS]
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: dad
     steps:
       - uses: actions/checkout@v4
 
-      # No shivammathur/setup-php: that action hangs on the self-hosted
-      # runner. The host provides PHP with pdo_sqlite/sqlite3/mbstring and
-      # Composer (see .github/SELF_HOSTED_RUNNERS.md). No composer cache either —
-      # ~/.composer persists on the runner and the cache-save step can hang.
+      # ubuntu-24.04 ships PHP 8.3 and Composer; fail early if a required
+      # extension is missing.
+      - name: Verify PHP extensions
+        run: php -m | grep -ix -e pdo_sqlite -e sqlite3 -e mbstring | sort -u | wc -l | grep -qx 3
       - name: Install PHP dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 
@@ -66,23 +63,20 @@ jobs:
 
   # ---------------------------------------------------------------------------
   # Tier 3: Playwright E2E + axe a11y, then the Tier 2 smoke test, against a
-  # php -S instance. Runs on the self-hosted runner.
+  # php -S instance.
   # ---------------------------------------------------------------------------
   e2e:
     name: E2E + a11y (Playwright + axe)
-    runs-on: [self-hosted, dad, macOS]
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
-      # No shivammathur/setup-php — it hangs on the self-hosted runner; the
-      # host provides PHP + extensions (see .github/SELF_HOSTED_RUNNERS.md).
+      - name: Verify PHP extensions
+        run: php -m | grep -ix -e pdo_sqlite -e sqlite3 -e mbstring | sort -u | wc -l | grep -qx 3
 
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          # No cache: npm — on the persistent self-hosted runner ~/.npm survives
-          # between runs, and the setup-node cache-save post-step can hang for
-          # minutes and cancel the job at its timeout.
 
       - name: Install E2E dependencies
         working-directory: dad/tests-e2e
@@ -90,9 +84,7 @@ jobs:
 
       - name: Install Playwright Chromium
         working-directory: dad/tests-e2e
-        # No --with-deps: it runs apt-get, and the self-hosted runner already has
-        # Chromium's shared libraries via the browser download.
-        run: npx playwright install chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Write throwaway config
         working-directory: dad

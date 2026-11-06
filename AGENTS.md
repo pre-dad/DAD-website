@@ -53,10 +53,9 @@ commands are the `checks` job; a missing `shellcheck` on the runner fails it on 
   then run `npm run build` (`tools/build.mjs`) to regenerate it and the `?v=` versions.
   CI fails on stale output via `npm run check` (the `checks` job), so commit the
   regenerated files.
-- **CI is on a self-hosted runner** (`self-hosted, dad, linux`). Do not add
-  `setup-php`, `cache: npm`, a composer cache or `playwright install --with-deps`; the
-  `ci.yml` comments record that they hang or call `apt-get`. The runner is a macOS host
-  that carries a custom `linux` label; `.github/SELF_HOSTED_RUNNERS.md` has the details.
+- **CI runs on GitHub-hosted `ubuntu-24.04`** (`.github/workflows/ci.yml`). PHP 8.3,
+  Composer and shellcheck come preinstalled on the image; Playwright installs Chromium
+  with `--with-deps`.
 - **The axe gate has no waivers.** `dad/tests-e2e/specs/a11y.spec.ts` fails on any
   critical or serious violation on `/`, `/give/`, `/contact/`, `/faq/`; no rules are
   disabled. Fix the markup rather than excluding it.
