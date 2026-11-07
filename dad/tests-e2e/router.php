@@ -33,6 +33,18 @@ if (is_file($full) && basename($uri) === 'impactledger') {
     exit;
 }
 
+// Header always set Content-Security-Policy: pages are served here (not by the built-in server)
+// so the policy from .htaccess applies to them in tests.
+if (is_file($full) && str_ends_with($full, '.html')) {
+    if (!preg_match('#^/(impactledger|on-prem-infra/|map/)#', $uri)
+        && preg_match('/Content-Security-Policy "([^"]+)"/', (string)file_get_contents($root . '/.htaccess'), $m)) {
+        header('Content-Security-Policy: ' . $m[1]);
+    }
+    header('Content-Type: text/html; charset=UTF-8');
+    readfile($full);
+    exit;
+}
+
 if (is_file($full)) {
     return false;
 }
