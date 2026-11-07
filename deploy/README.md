@@ -155,10 +155,10 @@ checkout to the previous commit so the next run redeploys it.
 Prod keeps the previous release dir. To roll back, repoint the symlink to it:
 
 ```sh
-ln -sfn /var/www/releases/<previous-release> /var/www/html
+ln -sfn /var/www/releases/<previous-release> /var/www/html.new && mv -T /var/www/html.new /var/www/html
 ```
 
-That swap is atomic. To find the previous release, list `/var/www/releases/` (dirs
+The rename makes the swap atomic. To find the previous release, list `/var/www/releases/` (dirs
 are named `<timestamp>-<commit>`); `cat /var/log/dad-deploy/last-good` shows the
 commit that was live before the most recent deploy.
 

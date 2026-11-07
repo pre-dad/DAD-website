@@ -127,6 +127,12 @@ prune_releases() {
 }
 
 # ---- main ---------------------------------------------------------------------
+# Cron fires every 3 minutes; a slow deploy must not overlap the next run.
+if command -v flock >/dev/null 2>&1; then
+  exec 9>"$DAD_DEPLOY_LOG_DIR/deploy.lock"
+  flock -n 9 || { log "another deploy is running; skipping"; exit 0; }
+fi
+
 cd "$REPO"
 
 git fetch origin "$BRANCH" --quiet
@@ -211,7 +217,9 @@ fi
 
 PREV_RELEASE="$(readlink "$WEBROOT" 2>/dev/null || true)"
 # Atomic publish: repoint the webroot symlink to the candidate (atomic on Linux).
-ln -sfn "$CANDIDATE" "$WEBROOT"
+# ln -sfn alone unlinks the old symlink before creating the new one; rename over it instead.
+ln -sfn "$CANDIDATE" "$WEBROOT.new"
+mv -T "$WEBROOT.new" "$WEBROOT"
 PUBLISHED=1
 prune_releases "$CANDIDATE" "$PREV_RELEASE"
 log "smoke PASS (prod) — published ${AFTER:0:12} at $CANDIDATE (previous release kept for rollback: ${PREV_RELEASE:-none})"
