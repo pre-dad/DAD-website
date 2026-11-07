@@ -73,13 +73,23 @@ test('admin: find, export, unsubscribe, resubscribe and delete a sign-up', async
   expect((await page.request.head(unsubscribe!)).status()).toBe(200);
   expect(await mailingList(page)).toContain(email);
 
+  // Opening the link only asks for confirmation: a prefetcher or scanner must not unsubscribe anyone.
   await page.goto(unsubscribe!);
+  await expect(page.getByRole('heading', { name: 'Unsubscribe from DAD emails?' })).toBeVisible();
+  expect(await mailingList(page)).toContain(email);
+
+  await page.getByRole('button', { name: 'Yes, unsubscribe me' }).click();
   await expect(page.getByRole('heading', { name: "You're unsubscribed." })).toBeVisible();
   expect(await mailingList(page)).not.toContain(email);
 
   await page.getByRole('button', { name: 'Resubscribe' }).click();
   await expect(page.getByRole('heading', { name: "You're back on the list." })).toBeVisible();
   expect(await mailingList(page)).toContain(email);
+
+  // RFC 8058 one-click from a mail app is a bare POST and still unsubscribes.
+  const oneClick = await page.request.post(unsubscribe!, { form: { 'List-Unsubscribe': 'One-Click' } });
+  expect(oneClick.status()).toBe(200);
+  expect(await mailingList(page)).not.toContain(email);
 
   await page.goto('/api/admin/');
   await search(page, email);

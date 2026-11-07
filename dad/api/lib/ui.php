@@ -80,7 +80,7 @@ function ui_card_page(string $title, string $inner, int $status = 200): void {
     . 'p{color:#CFD9D9;font-size:15.5px;line-height:1.6}p+p{margin-top:10px}p b{color:var(--paper);font-weight:600}'
     . '.acts{display:flex;flex-direction:column;gap:10px;margin-top:28px}'
     . '.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;padding:14px 22px;border-radius:999px;border:1px solid transparent;'
-    . 'background:var(--red);color:#fff;font:600 16px/1 var(--f-body);text-decoration:none;cursor:pointer;width:100%;'
+    . 'background:#D2360F;color:#fff;font:600 16px/1 var(--f-body);text-decoration:none;cursor:pointer;width:100%;'
     . 'transition:transform .5s var(--ease),filter .3s,background .3s,border-color .3s}'
     . '.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}.btn:active{transform:translateY(0) scale(.99)}'
     . '.btn--ghost{background:transparent;border-color:rgba(248,249,250,.18);color:var(--paper)}.btn--ghost:hover{border-color:rgba(248,249,250,.4);filter:none}'
