@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="css/app.css?v=4dd640d4">
 </head>
 <body>
+<a class="skip-link" href="#map-title">Skip to the map</a>
 
 <div id="boot">
   <div class="boot-inner">
@@ -36,15 +37,15 @@
     <span class="brand-title">Impact Map</span>
   </div>
 
-  <div class="modes" role="tablist" aria-label="Map mode">
-    <button class="mode-btn is-active" data-mode="single" role="tab">Single layer</button>
-    <button class="mode-btn" data-mode="index" role="tab">Need Index</button>
-    <button class="mode-btn" data-mode="gap" role="tab">Need vs. Supply</button>
+  <div class="modes" role="group" aria-label="Map mode">
+    <button class="mode-btn is-active" data-mode="single" aria-pressed="true">Single layer</button>
+    <button class="mode-btn" data-mode="index" aria-pressed="false">Need Index</button>
+    <button class="mode-btn" data-mode="gap" aria-pressed="false">Need vs. Supply</button>
   </div>
 
   <div class="topbar-right">
     <div class="search-wrap">
-      <input id="search" type="search" placeholder="Find a county…" autocomplete="off" spellcheck="false">
+      <input id="search" type="search" aria-label="Find a county" placeholder="Find a county…" autocomplete="off" spellcheck="false">
       <div id="search-results" class="search-results" hidden></div>
     </div>
     <button class="btn" id="btn-shortlist">Shortlist <span class="pill" id="shortlist-count">0</span></button>
@@ -56,9 +57,9 @@
 <main class="layout">
 
   <!-- ------------------------------------------------ left: layer controls -->
-  <aside class="panel panel-left" id="panel-left">
+  <aside class="panel panel-left" id="panel-left" aria-label="Layers and filters">
     <div class="sheet-head">
-      <span class="sheet-grip"></span>
+      <span class="sheet-grip" aria-hidden="true"></span>
       <span class="sheet-title">Layers &amp; filters</span>
       <button class="sheet-close" data-close-sheet aria-label="Close">Done</button>
     </div>
@@ -115,7 +116,7 @@
     <div id="coverage-warning" class="coverage-warning" hidden></div>
 
     <div class="map-head">
-      <h1 id="map-title">—</h1>
+      <h1 id="map-title" tabindex="-1">—</h1>
       <p id="map-sub">—</p>
     </div>
 
@@ -124,7 +125,7 @@
       <select id="state-select"><option value="">All states</option></select>
     </div>
 
-    <div id="map" class="map"></div>
+    <div id="map" class="map" role="img" aria-label="County map of the United States. The ranking list gives the same data in text."></div>
 
     <div class="map-foot">
       <div id="legend" class="legend"></div>
@@ -138,9 +139,9 @@
   </section>
 
   <!-- ------------------------------------------------ right: detail/rank -->
-  <aside class="panel panel-right" id="panel-right">
+  <aside class="panel panel-right" id="panel-right" aria-label="Ranking and county detail">
     <div class="sheet-head">
-      <span class="sheet-grip"></span>
+      <span class="sheet-grip" aria-hidden="true"></span>
       <span class="sheet-title" id="sheet-title-right">Ranking</span>
       <button class="sheet-close" data-close-sheet aria-label="Close">Done</button>
     </div>
@@ -174,7 +175,7 @@
 </main>
 
 <!-- ------------------------------------------------- mobile tab bar -->
-<nav class="mobile-bar" id="mobile-bar">
+<nav class="mobile-bar" id="mobile-bar" aria-label="Map panels">
   <button data-sheet="layers">Layers</button>
   <button data-sheet="rank">Ranking</button>
   <button data-sheet="search">Search</button>
@@ -184,7 +185,7 @@
 
 <!-- ------------------------------------------------------------- modals -->
 <div class="modal" id="modal" hidden>
-  <div class="modal-box" role="dialog" aria-modal="true">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-label="Details" tabindex="-1">
     <button class="modal-close" id="modal-close" aria-label="Close">×</button>
     <div id="modal-body"></div>
   </div>

@@ -615,7 +615,7 @@ function buildWeightList() {
           <span class="weight-name">${i.label}${flag}</span>
           <span class="weight-val" data-out="${key}">0</span>
         </div>
-        <input type="range" min="0" max="100" step="5" value="0" data-weight="${key}">
+        <input type="range" min="0" max="100" step="5" value="0" data-weight="${key}" aria-label="${i.label} weight">
       </div>`;
   }).join('');
 }
@@ -722,10 +722,10 @@ function renderRanking(score) {
     return `
       <div class="rank-row ${State.selected === r.fips ? 'is-selected' : ''}" data-fips="${r.fips}">
         <span class="rank-n">${n + 1}</span>
-        <span class="rank-name" title="${State.d.name[r.i]}">${State.d.name[r.i]}</span>
+        <button type="button" class="rank-name" title="${State.d.name[r.i]}">${State.d.name[r.i]}</button>
         <span class="rank-val">${val}</span>
-        <button class="rank-pin ${pinned ? 'is-on' : ''}" data-pin="${r.fips}"
-                title="${pinned ? 'Remove from shortlist' : 'Add to shortlist'}">●</button>
+        <button class="rank-pin ${pinned ? 'is-on' : ''}" data-pin="${r.fips}" aria-pressed="${pinned}"
+                aria-label="Pin ${State.d.name[r.i]} to shortlist" title="${pinned ? 'Remove from shortlist' : 'Add to shortlist'}">●</button>
       </div>`;
   }).join('');
 }
@@ -746,6 +746,7 @@ function showRightView(which) {
   $('#county-view').hidden = which !== 'county';
   const scroll = $('#panel-right .panel-scroll');
   if (scroll) scroll.scrollTop = 0;
+  if (which === 'county') $('#btn-back').focus({ preventScroll: true });
 }
 
 function clearSelection() {
@@ -1048,11 +1049,18 @@ function exportPng() {
 
 /* ------------------------------------------------------------------ modal */
 
+let modalOpener = null;
 function openModal(html) {
+  modalOpener = document.activeElement;
   $('#modal-body').innerHTML = html;
   $('#modal').hidden = false;
+  $('#modal .modal-box').focus();
 }
-function closeModal() { $('#modal').hidden = true; }
+function closeModal() {
+  $('#modal').hidden = true;
+  if (modalOpener && document.contains(modalOpener)) modalOpener.focus();
+  modalOpener = null;
+}
 
 /* ---------------------------------------------------------------- tooltip */
 
@@ -1143,9 +1151,9 @@ function runSearch(q) {
 
   box.innerHTML = hits.length
     ? hits.map(i => `
-        <div class="search-item" data-fips="${State.d.fips[i]}">
+        <button type="button" class="search-item" data-fips="${State.d.fips[i]}">
           ${State.d.county[i]} <small>${State.d.state[i]}</small>
-        </div>`).join('')
+        </button>`).join('')
     : `<div class="search-item">No match</div>`;
   box.hidden = false;
 }
@@ -1162,7 +1170,7 @@ function wireEvents() {
 
   $$('.mode-btn').forEach(btn => btn.onclick = () => {
     State.mode = btn.dataset.mode;
-    $$('.mode-btn').forEach(b => b.classList.toggle('is-active', b === btn));
+    $$('.mode-btn').forEach(b => { b.classList.toggle('is-active', b === btn); b.setAttribute('aria-pressed', String(b === btn)); });
     $('#block-single').hidden = State.mode !== 'single';
     $('#block-index').hidden  = State.mode !== 'index';
     $('#block-gap').hidden    = State.mode !== 'gap';
@@ -1271,6 +1279,12 @@ function wireEvents() {
   $('#modal-close').onclick = closeModal;
   $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
   document.addEventListener('keydown', e => {
+    if (e.key === 'Tab' && !$('#modal').hidden) {
+      const f = [...$('#modal').querySelectorAll('a[href],button:not([disabled]),input,select,textarea,[tabindex="-1"]')].filter(el => el.offsetParent);
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
     if (e.key !== 'Escape') return;
     // Escape backs out one level at a time.
     if (!$('#modal').hidden) closeModal();

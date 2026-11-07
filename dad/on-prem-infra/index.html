@@ -44,6 +44,9 @@ body.costs .nocost{display:none!important}
 /* spec module */
 #spec{right:16px;top:16px;bottom:16px;width:380px;display:flex;flex-direction:column;overflow:hidden;transform:translateX(calc(100% + 40px));opacity:0;transition:transform .7s var(--ease),opacity .5s}
 #spec.open{transform:none;opacity:1}
+#spec:not(.open){visibility:hidden}
+#c:focus-visible{outline:2px solid var(--cyan);outline-offset:-4px}
+button:focus-visible,.item:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .sp-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);position:relative}
 .chip{display:inline-flex;align-items:center;gap:7px;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--dkmut)}
 .chip i{width:7px;height:7px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}
@@ -90,10 +93,11 @@ td:first-child{color:var(--mut);width:42%;padding-right:12px}
 </style>
 </head>
 <body>
+<main>
 <canvas id="c" tabindex="0" aria-label="3D model of the DAD on-prem AI rack"></canvas>
 <div id="load"><div></div></div>
 
-<aside id="parts" class="panel">
+<aside id="parts" class="panel" aria-label="Rack parts and budget">
   <div class="brand">
     <svg viewBox="-8 -4 345 108" aria-label="DAD"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/><path fill="currentColor" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/><g transform="translate(280,0) scale(-1,1)"><path fill="currentColor" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g><rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/><rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/></svg>
     <h1>On-prem AI rack</h1>
@@ -103,7 +107,7 @@ td:first-child{color:var(--mut);width:42%;padding-right:12px}
   <nav id="list" aria-label="Parts"></nav>
 </aside>
 
-<aside id="spec" class="panel" aria-live="polite">
+<aside id="spec" class="panel" aria-label="Part details" aria-live="polite">
   <div class="sp-head">
     <div class="chip" id="sp-cat"></div>
     <h2 id="sp-name"></h2>
@@ -117,11 +121,12 @@ td:first-child{color:var(--mut);width:42%;padding-right:12px}
   <button id="b-reset">Reset view</button>
   <button id="b-door">Open door</button>
   <button id="b-room">Room lights off</button>
-  <button id="b-spin">Auto-rotate</button>
+  <button id="b-spin" aria-pressed="false">Auto-rotate</button>
   <button id="b-cost">Show costs</button>
 </div>
 <div id="hint">Drag to orbit · scroll to zoom · right-drag to pan</div>
 <div id="tip"></div>
+</main>
 
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}
@@ -1182,7 +1187,7 @@ const setCosts = on => { document.body.classList.toggle('costs', on); btnCost.cl
 btnCost.onclick = () => setCosts(!document.body.classList.contains('costs'));
 setCosts(new URLSearchParams(location.search).has('costs'));
 const btnSpin = document.getElementById('b-spin');
-btnSpin.onclick = () => { controls.autoRotate = !controls.autoRotate; btnSpin.classList.toggle('on', controls.autoRotate); };
+btnSpin.onclick = () => { controls.autoRotate = !controls.autoRotate; btnSpin.classList.toggle('on', controls.autoRotate); btnSpin.setAttribute('aria-pressed', String(controls.autoRotate)); };
 addEventListener('keydown', e => { if (e.key === 'Escape') select(null); });
 
 /* hover + picking */

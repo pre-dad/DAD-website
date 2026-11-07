@@ -1,7 +1,7 @@
 // Forms: <form class="form" data-form="founding|updates|support|volunteer|contact|partner">
 // Progressive enhancement over a normal POST to /api/submit.php. With JS we post
 // JSON, validate inline, keep typed input on error and swap in the success copy.
-import { $, $$, store, id } from './util.js?v=e09c939d0f';
+import { $, $$, store, id } from './util.js?v=e1a91ab979';
 
 const ENDPOINT = '/api/submit.php';
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/;

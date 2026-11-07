@@ -35,8 +35,8 @@
 // Public API: new Dollar(canvas, {tier, reduced}) · bind(root) · unbind() · flyTo(el, {duration})
 //             cover() · reveal() · rain(pts, opts) · rainReset() · pour({onCovered, onCleared}) · pour(null)
 //             pourReset() · pourDone() · setTheme('dark'|'light') · intro() · getScreenPosition() · ready · state · dispose()
-import { Engine, TIERS, tierQ, N_PRIMS, SIZES, COVER_IN, dispatch, hostTick, absNow } from './engine.js?v=e09c939d0f';
-import { ICON_STATES } from './forms.js?v=e09c939d0f';
+import { Engine, TIERS, tierQ, N_PRIMS, SIZES, COVER_IN, dispatch, hostTick, absNow } from './engine.js?v=e1a91ab979';
+import { ICON_STATES } from './forms.js?v=e1a91ab979';
 const TICK = { type: 'tick' };
 // WebKit's worker rAF is timer-driven (not display-synced), so there the page paces the worker. ?liqpace=0|1 overrides.
 const PACE_FROM_PAGE = (() => { try { const o = new URLSearchParams(location.search).get('liqpace'); if (o) return o === '1'; return /Apple/.test(navigator.vendor || ''); } catch (e) { return false; } })();
@@ -46,7 +46,7 @@ const ANALYTIC = new Set(['exclaim', 'annoyed', 'shocked', 'frown', 'angry', 'fl
 const ATLAS_STATES = new Set(ICON_STATES.filter((s) => !ANALYTIC.has(s)));
 // phones and tablets get the capped quality (engine.js tierQ)
 const isMobile = () => { try { const o = new URLSearchParams(location.search).get('liqcap'); if (o) return o === '1'; return matchMedia('(hover: none) and (pointer: coarse)').matches || (navigator.maxTouchPoints > 1 && Math.min(screen.width, screen.height) < 820); } catch (e) { return false; } };
-import { View } from './gl.js?v=e09c939d0f';
+import { View } from './gl.js?v=e1a91ab979';
 
 const STATES = new Set(['spin', 'rest', 'underline', 'crack', 'leak', 'reform', 'ring', 'split', 'pool', 'vessel', 'disc', 'network', 'orbit9', 'four', 'galaxy', 'land', 'line', 'hide', 'ambient', 'rain', 'exclaim', 'annoyed', 'shocked', 'frown', 'angry', 'recycle', 'flex', 'people', 'dollar', 'shield', 'point', 'loop', 'logo', 'code', 'hiker']);
 const ALIAS = { pool: 'vessel', hide: 'ambient', land: 'ambient', line: 'ambient' };

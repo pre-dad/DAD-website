@@ -24,7 +24,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=e09c939d0f">
+<link rel="stylesheet" href="/css/site.css?v=e1a91ab979">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -40,15 +40,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=e09c939d0f"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=e09c939d0f"></script>
-<script defer src="/vendor/SplitText.min.js?v=e09c939d0f"></script>
-<script defer src="/vendor/lenis.min.js?v=e09c939d0f"></script>
-<script type="module" src="/js/app.js?v=e09c939d0f"></script>
+<script defer src="/vendor/gsap.min.js?v=e1a91ab979"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=e1a91ab979"></script>
+<script defer src="/vendor/SplitText.min.js?v=e1a91ab979"></script>
+<script defer src="/vendor/lenis.min.js?v=e1a91ab979"></script>
+<script type="module" src="/js/app.js?v=e1a91ab979"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=e09c939d0f">
+<link rel="modulepreload" href="/js/core/util.js?v=e1a91ab979">
 </head>
 <body data-page="how-it-works" data-mobile-cta="on">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -106,7 +106,7 @@
   </div>
 </div>
 
-<main id="swap" data-page="how-it-works" data-module="/js/pages/how-it-works.js?v=e09c939d0f" data-scenes tabindex="-1">
+<main id="swap" data-page="how-it-works" data-module="/js/pages/how-it-works.js?v=e1a91ab979" data-scenes tabindex="-1">
 <!-- ============ HERO ============ -->
 <section class="section section--hero hw-hero" data-theme="dark" aria-labelledby="hw-title" data-scene data-scene-name="How it works">
   <div class="dots dots--bg" data-dots="field" data-dots-color="paper" data-dots-density="0.8" aria-hidden="true"></div>
@@ -469,29 +469,29 @@
   </div>
 
   <!-- tab bar -->
-  <nav style="flex:0 0 auto;display:flex;background:#FFFFFF;border-top:1px solid #E3E9E9;padding:8px 8px 22px">
+  <div style="flex:0 0 auto;display:flex;background:#FFFFFF;border-top:1px solid #E3E9E9;padding:8px 8px 22px">
     
-      <a style="flex:1 1 0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none">
+      <span style="flex:1 1 0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none">
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#FF4A22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"></path></svg>
         <span style="font-size:10px;font-weight:600;color:#FF4A22">Impact</span>
-      </a>
+      </span>
     
-      <a style="flex:1 1 0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none">
+      <span style="flex:1 1 0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none">
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#8A9A9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"></path></svg>
         <span style="font-size:10px;font-weight:600;color:#8A9A9A">Programs</span>
-      </a>
+      </span>
     
-      <a style="flex:1 1 0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none">
+      <span style="flex:1 1 0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none">
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#8A9A9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v4M16 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"></path></svg>
         <span style="font-size:10px;font-weight:600;color:#8A9A9A">Events</span>
-      </a>
+      </span>
     
-      <a style="flex:1 1 0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none">
+      <span style="flex:1 1 0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none">
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#8A9A9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0M22 20v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"></path></svg>
         <span style="font-size:10px;font-weight:600;color:#8A9A9A">Network</span>
-      </a>
+      </span>
     
-  </nav>
+  </div>
 
 </div>
 </div></div></div>
