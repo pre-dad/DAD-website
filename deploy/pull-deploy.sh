@@ -73,6 +73,7 @@ DAD_SMOKE_ROUTER="${DAD_SMOKE_ROUTER:-$REPO/dad/tests-e2e/router.php}"
 # ---- logging / alerting -------------------------------------------------------
 LOG_FILE="$DAD_DEPLOY_LOG_DIR/deploy.log"
 LAST_GOOD="$DAD_DEPLOY_LOG_DIR/last-good"
+LAST_DEPLOYED="$DAD_DEPLOY_LOG_DIR/last-deployed"
 ALERT_MARKER="$DAD_DEPLOY_LOG_DIR/ALERT"
 
 ts() { date '+%Y-%m-%dT%H:%M:%S%z'; }
@@ -140,7 +141,11 @@ git fetch origin "$BRANCH" --quiet
 BEFORE="$(git rev-parse HEAD)"
 AFTER="$(git rev-parse "origin/$BRANCH")"
 
-if [[ "$BEFORE" == "$AFTER" ]]; then
+# The checkout moves before the deploy runs, so HEAD alone cannot tell a deployed
+# commit from one whose deploy failed part-way; last-deployed records only the former.
+DEPLOYED="$(cat "$LAST_DEPLOYED" 2>/dev/null || true)"
+
+if [[ "$DEPLOYED" == "$AFTER" ]]; then
   log "no change ($BRANCH @ ${AFTER:0:12}); nothing to deploy"
   exit 0
 fi
@@ -178,6 +183,7 @@ if [[ "$MODE" == "staging" ]]; then
   rsync "${RSYNC_FLAGS[@]}" "$SRC" "$WEBROOT/"
   link_shared_config "$WEBROOT"
   fix_perms "$WEBROOT"
+  printf '%s\n' "$AFTER" > "$LAST_DEPLOYED"
 
   if "$DAD_SMOKE_TEST" --base-url "http://127.0.0.1/" --form; then
     log "smoke PASS (staging) now live at ${AFTER:0:12}"
@@ -198,7 +204,7 @@ fix_perms "$CANDIDATE"
 
 # Smoke-test the CANDIDATE before publishing. Apache serves the live symlink, so
 # the candidate is served by a short-lived localhost php -S (box-only piece).
-"$DAD_PHP_BIN" -S "127.0.0.1:$DAD_SMOKE_PORT" -t "$CANDIDATE" "$DAD_SMOKE_ROUTER" \
+PHP_CLI_SERVER_WORKERS=4 "$DAD_PHP_BIN" -S "127.0.0.1:$DAD_SMOKE_PORT" -t "$CANDIDATE" "$DAD_SMOKE_ROUTER" \
   >"$DAD_DEPLOY_LOG_DIR/candidate-serve.log" 2>&1 &
 SMOKE_PID="$!"
 
@@ -221,5 +227,6 @@ PREV_RELEASE="$(readlink "$WEBROOT" 2>/dev/null || true)"
 ln -sfn "$CANDIDATE" "$WEBROOT.new"
 mv -T "$WEBROOT.new" "$WEBROOT"
 PUBLISHED=1
+printf '%s\n' "$AFTER" > "$LAST_DEPLOYED"
 prune_releases "$CANDIDATE" "$PREV_RELEASE"
 log "smoke PASS (prod) — published ${AFTER:0:12} at $CANDIDATE (previous release kept for rollback: ${PREV_RELEASE:-none})"

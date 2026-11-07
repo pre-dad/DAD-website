@@ -143,6 +143,8 @@ tail -f /var/log/dad-deploy/cron.log       # raw cron output
 cat     /var/log/dad-deploy/ALERT          # only present/appended when a smoke test failed
 journalctl -t dad-deploy                   # the same lines via logger (syslog/journald)
 cat     /var/log/dad-deploy/last-good      # the commit that was live BEFORE the most recent deploy
+cat     /var/log/dad-deploy/last-deployed  # the commit most recently deployed; a run whose deploy failed before
+                                           # this was written retries on the next cron tick
 ```
 
 Any failed deploy (smoke test, rsync, build) writes one line to `ALERT`, logs at

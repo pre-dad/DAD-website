@@ -1,6 +1,6 @@
 <?php
 // Router for PHP's built-in server (CI, local runs and the prod candidate smoke test):
-//   php -S 127.0.0.1:8080 -t "$PWD" tests-e2e/router.php   (from dad/)
+//   PHP_CLI_SERVER_WORKERS=4 php -S 127.0.0.1:8080 -t "$PWD" tests-e2e/router.php   (from dad/)
 // php -S ignores .htaccess, so this reproduces the rules from dad/.htaccess the site needs.
 // Never deployed.
 

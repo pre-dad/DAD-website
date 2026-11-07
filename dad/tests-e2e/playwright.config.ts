@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 // The PHP server is started by the caller (CI, or by hand as in the README) after
 // ci-setup-config.sh has written the throwaway config, not by Playwright's webServer.
+// Start it with PHP_CLI_SERVER_WORKERS=4: the default single worker serialises requests and times out.
 
 const BASE_URL = 'http://127.0.0.1:8080';
 
