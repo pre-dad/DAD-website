@@ -1,7 +1,7 @@
 // /programs/ page module: the category panels drive the sticky dot illustration
 // (food -> health -> opportunities -> infrastructure, each in its category colour),
 // and the coin's landing target is pinned to the map's hub site.
-import { pinToHub } from './pp-util.js?v=e1a91ab979';
+import { pinToHub } from './pp-util.js?v=96b7c0d426';
 
 let triggers = [];
 let cleanups = [];

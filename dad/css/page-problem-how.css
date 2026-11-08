@@ -425,7 +425,7 @@ html.reduced [data-page="how-it-works"] .hw-feed__row { opacity: 1; }
 [data-page="how-it-works"] .hw-table td.is-dad::after { content: ""; position: absolute; inset: 0; z-index: -1; background: color-mix(in srgb, var(--accent) 9%, transparent); box-shadow: inset 3px 0 0 var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 1s var(--ease); }
 [data-page="how-it-works"] .hw-table tr.is-won td.is-dad::after { transform: none; }
 [data-page="how-it-works"] .hw-table tr:not(.is-won) td.is-dad { color: var(--fg-faint); }
-[data-page="how-it-works"] .hw-table tr.is-won td:not(.is-dad) { opacity: .65; }
+[data-page="how-it-works"] .hw-table tr.is-won td:not(.is-dad) { color: var(--fg-faint); }
 [data-page="how-it-works"] .hw-table tr.is-won th { color: var(--fg); }
 html.reduced [data-page="how-it-works"] .hw-table td.is-dad::after { transform: none; }
 @media (max-width: 719px) {

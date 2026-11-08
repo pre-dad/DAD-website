@@ -50,7 +50,7 @@ export const DISPLAY_FONT = '"Space Grotesk", "Inter", system-ui, sans-serif';
 /* ------------------------------------------------------------------ */
 // us-dots.js is generated offline (~/Library/Caches/dad-site-qa/gen-us-dots.mjs): hexagonal lattices at
 // several densities, each point flagged ocean / land / coast / state border, plus ~40 metro sites.
-import { US } from './us-dots.js?v=e1a91ab979';
+import { US } from './us-dots.js?v=96b7c0d426';
 export const MAP_ASPECT = US.aspect;
 // site positions in unit space (100 tall). Deliberately unlabelled on screen: no names, no numbers.
 export const MAP_SITES = US.sites.map(s => [s[1], s[2]]);
