@@ -1143,7 +1143,7 @@ html.menu-open .nav.is-hidden { transform: none; }
   gap: 16px;
   padding: 8px 0;
   min-height: 44px;
-  overflow: hidden;
+  overflow-x: clip;
   border-bottom: 1px solid rgba(248, 249, 250, .08);
 }
 .menu__idx { font: 500 12px/1 var(--f-mono); letter-spacing: .2em; color: var(--mut); width: 2.4em; flex: none; }

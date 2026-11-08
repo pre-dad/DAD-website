@@ -339,6 +339,7 @@ html.reduced .bip-entry.is-latest::before { animation: none; }
   color: var(--fg);
   text-decoration: none;
   overflow-wrap: anywhere;
+  min-height: 24px;
   transition: color .3s;
 }
 .ct-row__val:hover { color: var(--accent-text); }

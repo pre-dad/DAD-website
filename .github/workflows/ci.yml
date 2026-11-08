@@ -93,7 +93,7 @@ jobs:
       - name: Start PHP server and wait for health
         working-directory: dad
         run: |
-          php -S 127.0.0.1:8080 -t "$PWD" tests-e2e/router.php > "$RUNNER_TEMP/php-server.log" 2>&1 &
+          PHP_CLI_SERVER_WORKERS=4 php -S 127.0.0.1:8080 -t "$PWD" tests-e2e/router.php > "$RUNNER_TEMP/php-server.log" 2>&1 &
           echo "PHP_SERVER_PID=$!" >> "$GITHUB_ENV"
           for i in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:8080/api/health.php | grep -q '"ok":true'; then

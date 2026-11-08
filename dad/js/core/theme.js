@@ -3,7 +3,7 @@
 // crosses the middle of the viewport. The change is a cinematic "flood":
 // the new background pours out of the coin (or the viewport centre) with a
 // soft edge and a warm rim, while text colours tween underneath.
-import { html, $$, prefersReduced, emit } from './util.js?v=e09c939d0f';
+import { html, $$, prefersReduced, emit } from './util.js?v=96b7c0d426';
 
 const TWEEN_KEYS = [
   '--fg', '--fg-mut', '--fg-faint', '--line-c', '--line-strong', '--card', '--card-hi',

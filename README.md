@@ -39,12 +39,15 @@ npm ci                                       # build tooling
 cd dad
 composer install                             # PHPUnit
 bash tests-e2e/ci-setup-config.sh --ci       # throwaway api/config.php + temp database
-php -S 127.0.0.1:8080 -t "$PWD" tests-e2e/router.php
+PHP_CLI_SERVER_WORKERS=4 php -S 127.0.0.1:8080 -t "$PWD" tests-e2e/router.php
 ```
 
 Open http://127.0.0.1:8080/. Forms work against the temp database; `@example.com`
 addresses are saved but never emailed. The dashboard is at `/api/admin/`: open
 `/api/admin/?setup=ci-setup-key` once to set a password.
+
+`PHP_CLI_SERVER_WORKERS=4` matters: the built-in server is single-threaded by default and the
+pages fetch many assets at once, so without workers the end-to-end tests time out intermittently.
 
 `tests-e2e/router.php` stands in for the Apache rules in `dad/.htaccess`
 (directory index, the `/get-involved/` redirect, the 404 page). If you already
@@ -56,6 +59,10 @@ had an `api/config.php`, the setup script backed it up; put it back with
 - **Pages:** edit the HTML in `dad/<page>/index.html` directly.
 - **Styles:** edit `dad/css/*.css`, never `site.css`. Pages load only the bundle.
 - **Scripts:** edit `dad/js/**`.
+
+Pages are served under a Content-Security-Policy set in `dad/.htaccess` (the e2e router
+applies the same one, so a blocked resource fails the page-health tests). Loading anything
+from a third-party origin means widening that policy.
 
 After changing any CSS or JS, run `npm run build` from the repo root. It rebuilds
 `css/site.css` and rewrites every `?v=` version so browsers fetch the new files.

@@ -1,6 +1,6 @@
 <?php
 // Router for PHP's built-in server (CI, local runs and the prod candidate smoke test):
-//   php -S 127.0.0.1:8080 -t "$PWD" tests-e2e/router.php   (from dad/)
+//   PHP_CLI_SERVER_WORKERS=4 php -S 127.0.0.1:8080 -t "$PWD" tests-e2e/router.php   (from dad/)
 // php -S ignores .htaccess, so this reproduces the rules from dad/.htaccess the site needs.
 // Never deployed.
 
@@ -28,6 +28,18 @@ if (is_dir($full)) {
 
 // <Files "impactledger"> ForceType text/html
 if (is_file($full) && basename($uri) === 'impactledger') {
+    header('Content-Type: text/html; charset=UTF-8');
+    readfile($full);
+    exit;
+}
+
+// Header always set Content-Security-Policy: pages are served here (not by the built-in server)
+// so the policy from .htaccess applies to them in tests.
+if (is_file($full) && str_ends_with($full, '.html')) {
+    if (!preg_match('#^/(impactledger|on-prem-infra/|map/)#', $uri)
+        && preg_match('/Content-Security-Policy "([^"]+)"/', (string)file_get_contents($root . '/.htaccess'), $m)) {
+        header('Content-Security-Policy: ' . $m[1]);
+    }
     header('Content-Type: text/html; charset=UTF-8');
     readfile($full);
     exit;

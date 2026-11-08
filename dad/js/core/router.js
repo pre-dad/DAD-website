@@ -3,7 +3,7 @@
 // fills the screen in ~.55s; dollar.flyTo()/reveal() after the swap pulls the liquid back out into
 // the new page). The swap never waits more than .7s for the cover.
 // Any error falls back to a normal navigation.
-import { html, $, $$, wait, prefersReduced } from './util.js?v=e09c939d0f';
+import { html, $, $$, wait, prefersReduced } from './util.js?v=96b7c0d426';
 
 const cache = new Map();
 let busy = false;

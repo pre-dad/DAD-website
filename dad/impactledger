@@ -17,7 +17,7 @@
   --surface:#122525; --surface-2:#0B1A1A;
   --line:rgba(248,249,250,0.09);
   --line-2:rgba(0,212,255,0.16);
-  --dim:#8FA3A3; --dim-2:#5F7373;
+  --dim:#8FA3A3; --dim-2:#7C9090;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -65,7 +65,7 @@ nav a{
 }
 nav a:hover{color:var(--paper);border-bottom-color:var(--red);}
 .btn{
-  background:var(--red);color:#fff;border:none;border-radius:999px;
+  background:#D2360F;color:#fff;border:none;border-radius:999px;
   padding:10px 20px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
   cursor:pointer;transition:.2s;white-space:nowrap;
 }
@@ -238,7 +238,7 @@ section{padding:78px 0;}
   border:1px solid var(--line);border-radius:18px;padding:26px;
   background:linear-gradient(180deg,rgba(18,37,37,.9),rgba(11,26,26,.9));
 }
-.ocard h4{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:500;}
+.ocard h3{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:500;}
 .ocard .big{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:52px;letter-spacing:-.035em;line-height:1;margin:14px 0 6px;}
 .ocard .note{font-size:12.5px;color:#8FA3A3;}
 .ocard .src{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim-2);letter-spacing:.1em;text-transform:uppercase;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);}
@@ -250,7 +250,7 @@ section{padding:78px 0;}
 .icard{border:1px solid var(--line);border-radius:18px;padding:24px;background:rgba(11,26,26,.66);transition:.25s;}
 .icard:hover{border-color:rgba(255,74,34,.34);transform:translateY(-3px);}
 .icard .co{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
-.icard h4{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:500;margin:10px 0 8px;}
+.icard h3{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:500;margin:10px 0 8px;}
 .icard p{font-size:13.5px;color:#93A6A6;min-height:42px;}
 .imeta{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--dim-2);letter-spacing:.08em;margin:16px 0 7px;text-transform:uppercase;}
 
@@ -290,15 +290,28 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
 }
 @media(max-width:640px){
   .wrap{padding:0 20px;}
+  .topbar{position:static;}
+  .topbar .wrap{flex-wrap:wrap;height:auto;gap:10px 12px;padding-top:12px;padding-bottom:12px;}
+  .topbar .btn{padding:10px 14px;}
   .band{grid-template-columns:1fr;}
   .band > div{border-right:none;border-bottom:1px solid var(--line);}
   .lrow{grid-template-columns:1.6fr 1fr;}
   .lrow > *:nth-child(2),.lrow > *:nth-child(4){display:none;}
   .hero-meta{text-align:left;}
 }
+.panel-head .btn{padding:6px 14px;font-size:12px;}
+.skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--paper);color:var(--ink);padding:10px 16px;border-radius:999px;font-weight:600;font-size:14px;text-decoration:none;}
+.skip:focus{top:12px;}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+  .reveal{opacity:1;transform:none;}
+}
 </style>
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="page">
 
 <!-- ============ TOP BAR ============ -->
@@ -327,6 +340,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
   </div>
 </header>
 
+<main id="content" tabindex="-1">
 <!-- ============ HERO ============ -->
 <div class="hero">
   <div class="wrap">
@@ -406,7 +420,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
           <span><i style="background:#FFB800"></i> Bills &amp; utilities</span>
           <span><i style="background:#00D4FF"></i> Housing &amp; shelter</span>
           <span><i style="background:#F8F9FA"></i> Mental health</span>
-          <span style="margin-left:auto;color:#5F7373">Point size = people reached</span>
+          <span style="margin-left:auto;color:#7C9090">Point size = people reached</span>
         </div>
       </div>
 
@@ -414,6 +428,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
         <div class="panel-head">
           <h3>Live delivery feed</h3>
           <div class="sm">Unfiltered</div>
+          <button class="btn btn-ghost" id="feed-pause" type="button" aria-pressed="false">Pause feed</button>
         </div>
         <div class="feed-body" id="feed"></div>
       </div>
@@ -553,28 +568,28 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
     </div>
     <div class="ogrid reveal">
       <div class="ocard">
-        <h4>Suicide rate, served counties</h4>
+        <h3>Suicide rate, served counties</h3>
         <div class="big" style="color:var(--cyan)">−6.0%</div>
         <div class="note">Age-adjusted, 24-month window, 31 counties with a Someone Picks Up site vs. matched control counties.</div>
         <div class="chart" data-chart="100,99,98,97,96,95,94.8,94.4,94.2,94"></div>
         <div class="src">Method · CDC WONDER + county coroner filings · peer-reviewed</div>
       </div>
       <div class="ocard">
-        <h4>Households food-secure at 6 months</h4>
+        <h3>Households food-secure at 6 months</h3>
         <div class="big" style="color:var(--gold)">78%</div>
         <div class="note">Up from 41% at intake. Measured by USDA six-item short form, n=18,442 households.</div>
         <div class="chart" data-chart="41,46,52,57,62,66,70,73,76,78"></div>
         <div class="src">Method · USDA HFSSM short form · quarterly resurvey</div>
       </div>
       <div class="ocard">
-        <h4>Eviction filings avoided</h4>
+        <h3>Eviction filings avoided</h3>
         <div class="big" style="color:var(--red)">14,206</div>
         <div class="note">Cases where an arrears payment cleared before a filing date, confirmed against county court records.</div>
         <div class="chart" data-chart="820,1140,1560,2010,2480,3050,3690,4380,5120,5900"></div>
         <div class="src">Method · county court record match · 92% match confidence</div>
       </div>
       <div class="ocard">
-        <h4>Utility reconnections held 12 months</h4>
+        <h3>Utility reconnections held 12 months</h3>
         <div class="big" style="color:var(--cyan)">91%</div>
         <div class="note">Households still connected one year after a Keep The Lights On payment, verified with the utility.</div>
         <div class="chart" data-chart="72,76,79,82,84,86,88,89,90,91"></div>
@@ -598,42 +613,42 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
     <div class="init reveal">
       <div class="icard">
         <div class="co">Regional grocery co-op · 11 states</div>
-        <h4>Surplus to Table</h4>
+        <h3>Surplus to Table</h3>
         <p>Redirects near-date inventory into DAD pantry routes within 18 hours of flagging.</p>
         <div class="imeta"><span>Phase 3 of 4</span><span>72%</span></div>
         <div class="bar"><span style="background:#FF4A22" data-w="72"></span></div>
       </div>
       <div class="icard">
         <div class="co">Midwest utility group · 6 states</div>
-        <h4>No Winter Shutoffs</h4>
+        <h3>No Winter Shutoffs</h3>
         <p>Arrears cleared before the shutoff queue runs, using a shared eligibility feed.</p>
         <div class="imeta"><span>Phase 4 of 4</span><span>91%</span></div>
         <div class="bar"><span style="background:#FFB800" data-w="91"></span></div>
       </div>
       <div class="icard">
         <div class="co">Health system · 14 hospitals</div>
-        <h4>Discharge With A Plan</h4>
+        <h3>Discharge With A Plan</h3>
         <p>Housing and food placement attached to discharge paperwork, not left to a leaflet.</p>
         <div class="imeta"><span>Phase 2 of 4</span><span>48%</span></div>
         <div class="bar"><span style="background:#00D4FF" data-w="48"></span></div>
       </div>
       <div class="icard">
         <div class="co">Logistics partner · national</div>
-        <h4>Last Mile, Every Mile</h4>
+        <h3>Last Mile, Every Mile</h3>
         <p>Empty return legs carry pantry freight to rural counties at no marginal cost.</p>
         <div class="imeta"><span>Phase 3 of 4</span><span>66%</span></div>
         <div class="bar"><span style="background:#FF4A22" data-w="66"></span></div>
       </div>
       <div class="icard">
         <div class="co">Employer coalition · 240 sites</div>
-        <h4>Paid Before Payday</h4>
+        <h3>Paid Before Payday</h3>
         <p>Emergency arrears cover for shift workers, repaid by the employer, not the worker.</p>
         <div class="imeta"><span>Phase 2 of 4</span><span>39%</span></div>
         <div class="bar"><span style="background:#FFB800" data-w="39"></span></div>
       </div>
       <div class="icard">
         <div class="co">Telecoms partner · 22 states</div>
-        <h4>A Line That Answers</h4>
+        <h3>A Line That Answers</h3>
         <p>Zero-rated crisis line access on prepaid plans, live in 22 states.</p>
         <div class="imeta"><span>Phase 4 of 4</span><span>84%</span></div>
         <div class="bar"><span style="background:#F8F9FA" data-w="84"></span></div>
@@ -671,6 +686,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
     </div>
   </div>
 </section>
+</main>
 
 <footer style="margin-top:40px">
   <div class="wrap fbot">
@@ -998,7 +1014,12 @@ function feedItem(){
   while(feed.children.length > 9) feed.lastChild.remove();
 }
 for(let i=0;i<9;i++) feedItem();
-setInterval(feedItem, 2600);
+const feedPause = document.getElementById('feed-pause');
+let feedPaused = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const syncFeedPause = () => { feedPause.setAttribute('aria-pressed', String(feedPaused)); feedPause.textContent = feedPaused ? 'Resume feed' : 'Pause feed'; };
+feedPause.addEventListener('click', () => { feedPaused = !feedPaused; syncFeedPause(); });
+syncFeedPause();
+setInterval(() => { if (!feedPaused) feedItem(); }, 2600);
 
 /* last-write clock */
 let secs = 0;

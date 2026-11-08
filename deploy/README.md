@@ -143,6 +143,8 @@ tail -f /var/log/dad-deploy/cron.log       # raw cron output
 cat     /var/log/dad-deploy/ALERT          # only present/appended when a smoke test failed
 journalctl -t dad-deploy                   # the same lines via logger (syslog/journald)
 cat     /var/log/dad-deploy/last-good      # the commit that was live BEFORE the most recent deploy
+cat     /var/log/dad-deploy/last-deployed  # the commit most recently deployed; a run whose deploy failed before
+                                           # this was written retries on the next cron tick
 ```
 
 Any failed deploy (smoke test, rsync, build) writes one line to `ALERT`, logs at
@@ -155,10 +157,10 @@ checkout to the previous commit so the next run redeploys it.
 Prod keeps the previous release dir. To roll back, repoint the symlink to it:
 
 ```sh
-ln -sfn /var/www/releases/<previous-release> /var/www/html
+ln -sfn /var/www/releases/<previous-release> /var/www/html.new && mv -T /var/www/html.new /var/www/html
 ```
 
-That swap is atomic. To find the previous release, list `/var/www/releases/` (dirs
+The rename makes the swap atomic. To find the previous release, list `/var/www/releases/` (dirs
 are named `<timestamp>-<commit>`); `cat /var/log/dad-deploy/last-good` shows the
 commit that was live before the most recent deploy.
 

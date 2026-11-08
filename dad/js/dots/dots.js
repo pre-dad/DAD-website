@@ -1,6 +1,6 @@
 // DAD dot-matrix illustration engine.
 //
-//   import { Dots } from './dots/dots.js?v=e09c939d0f';
+//   import { Dots } from './dots/dots.js?v=96b7c0d426';
 //   const dots = new Dots({ tier, reduced });
 //   dots.bind(main);            // mounts every <div class="dots" data-dots="<shape>"> in main
 //   dots.unbind();              // tears down everything bound by bind() (or unbind(root) for one root)
@@ -26,7 +26,7 @@
 //   ></div>
 // The element is sized by CSS. If it has no height, an aspect-ratio matching the shape is applied.
 
-import { getShape, SHAPE_NAMES, MAP_SITES, MAP_SITE_CATS, MAP_SITE_NAMES, MAP_HUB } from './shapes.js?v=e09c939d0f';
+import { getShape, SHAPE_NAMES, MAP_SITES, MAP_SITE_CATS, MAP_SITE_NAMES, MAP_HUB } from './shapes.js?v=96b7c0d426';
 
 const TAU = Math.PI * 2;
 const TIERS = {

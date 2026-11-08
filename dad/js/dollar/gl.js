@@ -4,7 +4,7 @@
 // body, seen through a perspective camera. Two cheap extras: a 2D full-screen liquid sheet
 // (page changes, the home flood) and point-sprite droplets (the galaxy). No libraries.
 
-import { ATLAS } from './icons.js?v=e09c939d0f';
+import { ATLAS } from './icons.js?v=96b7c0d426';
 
 const VS = `
 attribute vec2 aP;

@@ -319,7 +319,7 @@ html.reduced [data-page="problem"] .ph-force { opacity: 1; }
 [data-page="how-it-works"] .hw-step.is-past { transform: translate3d(0, -40px, 0); }
 [data-page="how-it-works"] .hw-step__num { display: block; font: 700 clamp(90px, 11vw, 200px)/.8 var(--f-disp); letter-spacing: -.06em; color: transparent; -webkit-text-stroke: 1.5px var(--line-strong); margin-bottom: clamp(12px, 2vw, 28px); }
 [data-page="how-it-works"] .hw-step__title { font: 700 var(--fs-l)/1 var(--f-disp); letter-spacing: -.035em; color: var(--fg); }
-[data-page="how-it-works"] .hw-step__idx { display: block; margin-bottom: clamp(14px, 2vw, 26px); font: 700 clamp(64px, 7vw, 132px)/.8 var(--f-disp); letter-spacing: -.05em; color: transparent; -webkit-text-stroke: 1.5px var(--line-strong); }
+[data-page="how-it-works"] .hw-step__idx { display: block; margin-bottom: clamp(14px, 2vw, 26px); font: 700 clamp(64px, 7vw, 132px)/.8 var(--f-disp); letter-spacing: -.05em; color: transparent; -webkit-text-stroke: 1.5px var(--fg-faint); }
 [data-page="how-it-works"] .hw-step__text { margin-top: clamp(14px, 1.6vw, 22px); font-size: var(--fs-lede); line-height: 1.45; color: var(--fg-mut); max-width: 26em; }
 [data-page="how-it-works"] .hw-loop__bar { position: absolute; left: calc(50% + clamp(16px, 2.5vw, 48px)); right: 0; bottom: calc((100svh - 100%) / -2 + 40px); height: 2px; background: var(--line-c); display: none; }
 [data-page="how-it-works"] .hw-loop__rail { position: absolute; inset: 0; pointer-events: none; }
@@ -425,7 +425,7 @@ html.reduced [data-page="how-it-works"] .hw-feed__row { opacity: 1; }
 [data-page="how-it-works"] .hw-table td.is-dad::after { content: ""; position: absolute; inset: 0; z-index: -1; background: color-mix(in srgb, var(--accent) 9%, transparent); box-shadow: inset 3px 0 0 var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 1s var(--ease); }
 [data-page="how-it-works"] .hw-table tr.is-won td.is-dad::after { transform: none; }
 [data-page="how-it-works"] .hw-table tr:not(.is-won) td.is-dad { color: var(--fg-faint); }
-[data-page="how-it-works"] .hw-table tr.is-won td:not(.is-dad) { opacity: .5; }
+[data-page="how-it-works"] .hw-table tr.is-won td:not(.is-dad) { color: var(--fg-faint); }
 [data-page="how-it-works"] .hw-table tr.is-won th { color: var(--fg); }
 html.reduced [data-page="how-it-works"] .hw-table td.is-dad::after { transform: none; }
 @media (max-width: 719px) {

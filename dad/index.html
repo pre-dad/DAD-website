@@ -24,7 +24,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=e09c939d0f">
+<link rel="stylesheet" href="/css/site.css?v=96b7c0d426">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -40,15 +40,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=e09c939d0f"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=e09c939d0f"></script>
-<script defer src="/vendor/SplitText.min.js?v=e09c939d0f"></script>
-<script defer src="/vendor/lenis.min.js?v=e09c939d0f"></script>
-<script type="module" src="/js/app.js?v=e09c939d0f"></script>
+<script defer src="/vendor/gsap.min.js?v=96b7c0d426"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=96b7c0d426"></script>
+<script defer src="/vendor/SplitText.min.js?v=96b7c0d426"></script>
+<script defer src="/vendor/lenis.min.js?v=96b7c0d426"></script>
+<script type="module" src="/js/app.js?v=96b7c0d426"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=e09c939d0f">
+<link rel="modulepreload" href="/js/core/util.js?v=96b7c0d426">
 </head>
 <body data-page="index" data-mobile-cta="on">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -106,7 +106,7 @@
   </div>
 </div>
 
-<main id="swap" data-page="index" data-module="/js/pages/home.js?v=e09c939d0f" data-scenes tabindex="-1">
+<main id="swap" data-page="index" data-module="/js/pages/home.js?v=96b7c0d426" data-scenes tabindex="-1">
 <!-- HOME: "Follow one dollar". Page CSS lives in the <style> block below (scoped to [data-page="index"]);
      choreography (pins, flood, strikes, slams, strip) lives in js/pages/home.js. -->
 <style>

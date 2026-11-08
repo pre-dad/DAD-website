@@ -1,6 +1,7 @@
 <?php
 // /api/unsubscribe.php?t=<token>
-//   GET   one click: unsubscribes that email from every DAD mailing list, then offers an undo.
+//   GET   asks the visitor to confirm; a link prefetcher or scanner opening it changes nothing.
+//   POST  a=unsubscribe&t=<token>: the confirm button. Unsubscribes that email from every DAD mailing list, then offers an undo.
 //   POST  List-Unsubscribe=One-Click (RFC 8058, sent by Gmail/Apple Mail's own unsubscribe button): same, no page.
 //   POST  a=resubscribe&t=<token>: undo, for that one list.
 declare(strict_types=1);
@@ -43,6 +44,18 @@ function unsubscribe_all(array $row): void {
   }
 }
 
+function unsubscribed_page(array $row, string $t, string $home): void {
+  ui_card_page('Unsubscribe | DAD', ui_logo()
+    . '<h1>You\'re unsubscribed.</h1>'
+    . '<p>You won\'t get any more emails from DAD.</p>'
+    . ($row['type'] === 'founding' ? '<p>Your Founding Donor spot is still yours.</p>' : '')
+    . $home
+    . '<form class="fine" method="post" action="unsubscribe.php">'
+    . '<input type="hidden" name="t" value="' . h($t) . '"><input type="hidden" name="a" value="resubscribe">'
+    . 'Clicked by mistake? <button class="linkbtn" type="submit">Resubscribe</button>'
+    . '</form>');
+}
+
 if ($method === 'POST') {
   // Undo from the confirmation page
   if (($_POST['a'] ?? '') === 'resubscribe') {
@@ -50,6 +63,11 @@ if ($method === 'POST') {
     ui_card_page('Unsubscribe | DAD', ui_logo()
       . '<h1>You\'re back on the list.</h1>'
       . '<p>Welcome back. We\'ll keep it to one email a month, at most.</p>' . $home);
+    exit;
+  }
+  if (($_POST['a'] ?? '') === 'unsubscribe') {
+    unsubscribe_all($row);
+    unsubscribed_page($row, $t, $home);
     exit;
   }
   // RFC 8058 one-click from the mail app: body "List-Unsubscribe=One-Click"
@@ -63,13 +81,11 @@ if ($method === 'POST') {
 if ($method === 'HEAD') { ui_headers(200); exit; }   // link checkers probe with HEAD: never unsubscribe on it
 if ($method !== 'GET') { header('Allow: GET, POST'); http_response_code(405); exit; }
 
-unsubscribe_all($row);
 ui_card_page('Unsubscribe | DAD', ui_logo()
-  . '<h1>You\'re unsubscribed.</h1>'
-  . '<p>You won\'t get any more emails from DAD.</p>'
-  . ($row['type'] === 'founding' ? '<p>Your Founding Donor spot is still yours.</p>' : '')
-  . $home
-  . '<form class="fine" method="post" action="unsubscribe.php">'
-  . '<input type="hidden" name="t" value="' . h($t) . '"><input type="hidden" name="a" value="resubscribe">'
-  . 'Clicked by mistake? <button class="linkbtn" type="submit">Resubscribe</button>'
+  . '<h1>Unsubscribe from DAD emails?</h1>'
+  . '<p>This stops every DAD mailing list for this address.</p>'
+  . '<form method="post" action="unsubscribe.php">'
+  . '<input type="hidden" name="t" value="' . h($t) . '"><input type="hidden" name="a" value="unsubscribe">'
+  . '<div class="acts"><button class="btn" type="submit">Yes, unsubscribe me</button>'
+  . '<a class="btn btn--ghost" href="/">Keep me subscribed</a></div>'
   . '</form>');
