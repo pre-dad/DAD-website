@@ -22,3 +22,5 @@ require $lib . '/util.php';
 require $lib . '/validate.php';
 require $lib . '/mail.php';
 require $lib . '/emails.php';
+
+require $lib . '/stripe.php';

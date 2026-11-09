@@ -44,11 +44,17 @@ function stripe_session(string $id): ?array {
 }
 
 /** A completed, paid gift → donor details. Anything else → null. */
-function donor_from_session(string $id): ?array {
-  $s = stripe_session($id);
+function donor_from_session(string $id, string $email): ?array {
+  return donor_details(stripe_session($id), $id, $email);
+}
+
+/** Receipt metadata is attached only to a submission with the same billing email. */
+function donor_details(?array $s, string $id, string $email): ?array {
   if (!$s || ($s['status'] ?? '') !== 'complete') return null;
   if (!in_array($s['payment_status'] ?? '', ['paid', 'no_payment_required'], true)) return null;
   $cd = is_array($s['customer_details'] ?? null) ? $s['customer_details'] : [];
+  $billingEmail = strtolower(trim((string)($cd['email'] ?? '')));
+  if ($billingEmail === '' || !hash_equals($billingEmail, strtolower(trim($email)))) return null;
   return [
     'session'      => $id,
     'verified'     => true,
