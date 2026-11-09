@@ -3,7 +3,7 @@
 // crosses the middle of the viewport. The change is a cinematic "flood":
 // the new background pours out of the coin (or the viewport centre) with a
 // soft edge and a warm rim, while text colours tween underneath.
-import { html, $$, prefersReduced, emit } from './util.js?v=96b7c0d426';
+import { html, $$, prefersReduced, emit } from './util.js?v=3badc3b098';
 
 const TWEEN_KEYS = [
   '--fg', '--fg-mut', '--fg-faint', '--line-c', '--line-strong', '--card', '--card-hi',
@@ -13,7 +13,6 @@ const TWEEN_KEYS = [
 const VALUES = {};
 let current = html.dataset.theme === 'light' ? 'light' : 'dark';
 let ctx = null;
-let footerTrigger = null;
 let flood = null;
 let floodTween = null;
 let varTween = null;
@@ -123,7 +122,7 @@ export function init(opts = {}) {
   // the footer always pulls the page back to ink
   const footer = document.getElementById('footer');
   if (footer && window.ScrollTrigger) {
-    footerTrigger = window.ScrollTrigger.create({
+    window.ScrollTrigger.create({
       trigger: footer,
       start: 'top 70%',
       onEnter: () => set('dark'),
@@ -159,5 +158,3 @@ export function unbind() {
   ctx?.revert();
   ctx = null;
 }
-
-export function refreshFooter() { footerTrigger?.refresh?.(); }
