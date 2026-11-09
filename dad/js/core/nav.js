@@ -1,5 +1,5 @@
 // Fixed top nav + full-screen menu.
-import { html, $, $$, isTouch, mq } from './util.js?v=96b7c0d426';
+import { html, $, $$, isTouch, mq } from './util.js?v=3badc3b098';
 
 let nav, burger, menu, progress, mcta, lastY = 0, ticking = false, open = false, lastFocus = null;
 
@@ -89,7 +89,6 @@ export function toggle(force) {
   }
 }
 
-export function isOpen() { return open; }
 
 export function init() {
   nav = document.getElementById('nav');
