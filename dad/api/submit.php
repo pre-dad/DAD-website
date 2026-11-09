@@ -128,7 +128,7 @@ try {
   // Verified with Stripe when a key is installed; otherwise stored unverified so it can be checked later.
   $donor = null;
   if ($type === 'founding' && valid_session_id($in['session_id'] ?? null)) {
-    $donor = donor_from_session((string)$in['session_id']) ?? ['session' => (string)$in['session_id'], 'verified' => false];
+    $donor = donor_from_session((string)$in['session_id'], $fields['email']) ?? ['session' => (string)$in['session_id'], 'verified' => false];
     $fields['donor'] = $donor;
   }
 

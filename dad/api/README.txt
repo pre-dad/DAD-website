@@ -10,7 +10,7 @@ WHAT IS WHERE (on the server)
 -----------------------------
   /api/submit.php          every form posts here (JSON in, JSON out)
   /api/unsubscribe.php     one-click unsubscribe link used in emails
-  /api/donor.php           Stripe donor lookup for the post-donation page
+  /api/donor.php           retired (410); never returns donor information
   /api/health.php          {"ok":true} when config + database are working
   /api/admin/              private dashboard (password)
   /api/config.php          settings. A symlink to /var/www/shared/config.php, which
@@ -187,3 +187,12 @@ THE CONTRACT (what the site's JavaScript relies on)
   A JSON post with no ts_open is refused (400).
   A plain HTML form post (no JavaScript) to the same URL also works and gets a
   small branded result page; ts_open is optional there.
+
+DONATION RETURN PRIVACY
+-----------------------
+The welcome page collects name and email directly; a Checkout Session ID does not
+authorize a public lookup. The retired donor endpoint always answers 410 with
+{"ok":false}, without contacting Stripe or reading configuration. The welcome page
+uses no-referrer and removes session_id from its URL after capturing it for form
+submission. Server-side receipt metadata is attached only when the submitted email
+matches Stripe's billing email; this is not account verification.

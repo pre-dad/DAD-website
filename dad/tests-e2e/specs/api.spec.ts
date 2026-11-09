@@ -75,3 +75,25 @@ test('health: reports ok when config and storage work', async ({ request }) => {
   expect(r.status()).toBe(200);
   expect(await r.json()).toEqual({ ok: true });
 });
+
+
+test('retired donor lookup never returns personal data', async ({ request }) => {
+  for (const suffix of ['', '?session_id=cs_test_syntheticreceipt']) {
+    const response = await request.get('/api/donor.php' + suffix);
+    expect(response.status()).toBe(410);
+    expect(response.headers()['cache-control']).toContain('no-store');
+    expect(await response.json()).toEqual({ ok: false });
+  }
+});
+
+test('donation return keeps details blank and removes the receipt from the URL', async ({ page }) => {
+  const lookups: string[] = [];
+  page.on('request', request => { if (request.url().includes('/api/donor.php')) lookups.push(request.url()); });
+  await page.goto('/give/welcome/?session_id=cs_test_syntheticreceipt');
+  await expect(page).not.toHaveURL(/session_id/);
+  await expect(page.locator('input[name="session_id"]')).toHaveValue('cs_test_syntheticreceipt');
+  await expect(page.locator('input[name="first_name"]')).toHaveValue('');
+  await expect(page.locator('input[name="email"]')).toHaveValue('');
+  await expect(page.locator('meta[name="referrer"]')).toHaveAttribute('content', 'no-referrer');
+  expect(lookups).toEqual([]);
+});

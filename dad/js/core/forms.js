@@ -1,7 +1,7 @@
 // Forms: <form class="form" data-form="founding|updates|support|volunteer|contact|partner">
 // Progressive enhancement over a normal POST to /api/submit.php. With JS we post
 // JSON, validate inline, keep typed input on error and swap in the success copy.
-import { $, $$, store, id } from './util.js?v=3badc3b098';
+import { $, $$, store, id } from './util.js?v=7df28338d2';
 
 const ENDPOINT = '/api/submit.php';
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/;
@@ -189,22 +189,18 @@ function showSuccess(form, type, rid) {
   if (to && /^\/[\w\-/]*$/.test(to)) setTimeout(() => { location.href = to; }, 6000);
 }
 
-// Post-donation waitlist: Stripe returns ?session_id=cs_...; fill the hidden field and, when the server
-// can confirm the gift, prefill name and email.
-async function donorPrefill(form) {
-  let sid = '';
-  try { sid = new URLSearchParams(location.search).get('session_id') || ''; } catch (e) { /* ignore */ }
-  if (!/^cs_(live|test)_[A-Za-z0-9]{10,200}$/.test(sid)) return;
-  const h = input(form, 'session_id');
-  if (h) h.value = sid;
+// Keep the receipt reference out of subsequent navigation and analytics URLs.
+function captureDonationReference(form) {
   try {
-    const r = await fetch('/api/donor.php?session_id=' + encodeURIComponent(sid), { credentials: 'same-origin' });
-    const b = await r.json();
-    if (!b || !b.ok) return;
-    const fn = input(form, 'first_name'); const em = input(form, 'email');
-    if (fn && !fn.value && b.first_name) fn.value = b.first_name;
-    if (em && !em.value && b.email) em.value = b.email;
-  } catch (e) { /* blank form is fine */ }
+    const url = new URL(location.href);
+    const sid = url.searchParams.get('session_id') || '';
+    const h = input(form, 'session_id');
+    if (h && /^cs_(live|test)_[A-Za-z0-9]{10,200}$/.test(sid)) h.value = sid;
+    if (url.searchParams.has('session_id')) {
+      url.searchParams.delete('session_id');
+      history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+    }
+  } catch (e) { /* the form remains usable without a receipt reference */ }
 }
 
 function wireShare(root) {
@@ -298,7 +294,7 @@ export function bind(root) {
     form.dataset.bound = '1';
     enhance(form);
     form.addEventListener('submit', onSubmit);
-    if (form.hasAttribute('data-donor-prefill')) donorPrefill(form);
+    if (form.hasAttribute('data-donation-reference')) captureDonationReference(form);
     bound.push(form);
   });
 }

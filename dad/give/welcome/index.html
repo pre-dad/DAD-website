@@ -2,6 +2,7 @@
 <html lang="en" data-theme="light" class="no-js">
 <head>
 <meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Thank you | DAD</title>
 <meta name="description" content="Your monthly gift is set. One more step: claim your Founding Donor badge.">
@@ -24,7 +25,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=3badc3b098">
+<link rel="stylesheet" href="/css/site.css?v=7df28338d2">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -40,15 +41,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=3badc3b098"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=3badc3b098"></script>
-<script defer src="/vendor/SplitText.min.js?v=3badc3b098"></script>
-<script defer src="/vendor/lenis.min.js?v=3badc3b098"></script>
-<script type="module" src="/js/app.js?v=3badc3b098"></script>
+<script defer src="/vendor/gsap.min.js?v=7df28338d2"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=7df28338d2"></script>
+<script defer src="/vendor/SplitText.min.js?v=7df28338d2"></script>
+<script defer src="/vendor/lenis.min.js?v=7df28338d2"></script>
+<script type="module" src="/js/app.js?v=7df28338d2"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=3badc3b098">
+<link rel="modulepreload" href="/js/core/util.js?v=7df28338d2">
 </head>
 <body data-page="give-welcome" data-mobile-cta="off">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -118,7 +119,7 @@
       <p class="body">When we launch and the DAD app goes live, you'll get an email. That's where you'll see exactly where your dollars go.</p>
       <h2 class="h-s gw-step">One more step: claim your Founding Donor badge.</h2>
       <p class="body">Join the app waitlist. The badge goes on your profile the day the app opens, and it never comes off.</p>
-      <form class="form" data-form="founding" data-donor-prefill data-redirect="/movement/" action="/api/submit.php" method="post">
+      <form class="form" data-form="founding" data-donation-reference data-redirect="/movement/" action="/api/submit.php" method="post">
         <input type="hidden" name="session_id" value="">
         <div class="form__row form__row--2">
           <div class="field"><input class="field__input" name="first_name" type="text" autocomplete="given-name" placeholder=" " required><label class="field__label">First name</label></div>
