@@ -2,21 +2,21 @@
 // tier -> Lenis -> Dollar -> Dots -> mountPage(main). Router swaps pages and
 // calls unmountPage/mountPage. Every module is defensive: a failure in one
 // never blocks the content.
-import { detectTier } from './core/tier.js?v=96b7c0d426';
-import { html, isTouch, prefersReduced } from './core/util.js?v=96b7c0d426';
-import * as theme from './core/theme.js?v=96b7c0d426';
-import * as reveals from './core/reveals.js?v=96b7c0d426';
-import * as router from './core/router.js?v=96b7c0d426';
-import * as nav from './core/nav.js?v=96b7c0d426';
-import * as preloader from './core/preloader.js?v=96b7c0d426';
-import * as forms from './core/forms.js?v=96b7c0d426';
-import * as partnerModal from './core/partner-modal.js?v=96b7c0d426';
-import * as cookie from './core/cookie.js?v=96b7c0d426';
-import * as ticker from './core/ticker.js?v=96b7c0d426';
-import * as magnetic from './core/magnetic.js?v=96b7c0d426';
-import * as ui from './core/ui.js?v=96b7c0d426';
-import * as scenes from './core/scenes.js?v=96b7c0d426';
-import * as ledger from './core/ledger.js?v=96b7c0d426';
+import { detectTier } from './core/tier.js?v=3badc3b098';
+import { html, isTouch, prefersReduced } from './core/util.js?v=3badc3b098';
+import * as theme from './core/theme.js?v=3badc3b098';
+import * as reveals from './core/reveals.js?v=3badc3b098';
+import * as router from './core/router.js?v=3badc3b098';
+import * as nav from './core/nav.js?v=3badc3b098';
+import * as preloader from './core/preloader.js?v=3badc3b098';
+import * as forms from './core/forms.js?v=3badc3b098';
+import * as partnerModal from './core/partner-modal.js?v=3badc3b098';
+import * as cookie from './core/cookie.js?v=3badc3b098';
+import * as ticker from './core/ticker.js?v=3badc3b098';
+import * as magnetic from './core/magnetic.js?v=3badc3b098';
+import * as ui from './core/ui.js?v=3badc3b098';
+import * as scenes from './core/scenes.js?v=3badc3b098';
+import * as ledger from './core/ledger.js?v=3badc3b098';
 
 const gsap = window.gsap;
 const ST = window.ScrollTrigger;
@@ -121,8 +121,8 @@ function unmountPage(el) {
 async function loadModules() {
   const opts = { tier, reduced };
   const [dm, tm] = await Promise.allSettled([
-    import('./dollar/dollar.js?v=96b7c0d426'),
-    import('./dots/dots.js?v=96b7c0d426'),
+    import('./dollar/dollar.js?v=3badc3b098'),
+    import('./dots/dots.js?v=3badc3b098'),
   ]);
   if (dm.status === 'fulfilled' && dm.value?.Dollar) {
     try {

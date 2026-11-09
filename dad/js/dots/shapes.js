@@ -50,14 +50,13 @@ export const DISPLAY_FONT = '"Space Grotesk", "Inter", system-ui, sans-serif';
 /* ------------------------------------------------------------------ */
 // us-dots.js is generated offline (~/Library/Caches/dad-site-qa/gen-us-dots.mjs): hexagonal lattices at
 // several densities, each point flagged ocean / land / coast / state border, plus ~40 metro sites.
-import { US } from './us-dots.js?v=96b7c0d426';
+import { US } from './us-dots.js?v=3badc3b098';
 export const MAP_ASPECT = US.aspect;
 // site positions in unit space (100 tall). Deliberately unlabelled on screen: no names, no numbers.
 export const MAP_SITES = US.sites.map(s => [s[1], s[2]]);
 export const MAP_SITE_NAMES = US.sites.map(s => s[0]);
 export const MAP_SITE_CATS = US.sites.map(s => s[3]);
 export const MAP_HUB = US.hub; // Kansas City: the central site (the dollar's landing target)
-export function mapToUnit(x, y) { return [x, y]; } // sites are already in unit space
 
 const SQ3 = Math.sqrt(3) / 2;
 // the finest lattice that is no finer than the engine asked for (it coarsens on its own past maxDots)
