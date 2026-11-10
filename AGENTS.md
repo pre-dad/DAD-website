@@ -9,6 +9,9 @@ only adds what they do not say.
   **[DEPLOY.md](DEPLOY.md)** — manual `deploy.sh` push.
 - **[dad/api/README.txt](dad/api/README.txt)** — forms API manual and contract.
 - Cross-repo system docs live in the separate **DAD-Docs** repo.
+- **[Shared agent workflow](https://github.com/pre-dad/DAD-Docs/blob/dev/conventions/agent-workflow.md)** —
+  read DAD-Docs for skill setup, routing, and independent-review boundaries. Keep
+  shared procedures there; this guide owns repo-local commands and constraints.
 
 ## The gate (CI runs these in `.github/workflows/ci.yml`)
 
