@@ -4,7 +4,7 @@
 //    sticky anchors) changes state split -> pool -> reform -> spin
 //  - "how we choose" steps, donor feed rows light up on the reading line
 //  - compare table: the DAD column wins row by row
-import { coinStage, readText, activeOnLine, fitScene } from './ph-util.js?v=8e047553f8';
+import { coinStage, readText, activeOnLine, fitScene } from './ph-util.js?v=52460dff95';
 
 let cleanups = [];
 
@@ -47,7 +47,7 @@ export function mount(main, ctx) {
       });
       if (!first && !reduced && dotsEl && ctx.dots?.ripple) {
         const r = dotsEl.getBoundingClientRect();
-        try { ctx.dots.ripple(dotsEl, r.left + r.width * nodeXY[i][0], r.top + r.height * nodeXY[i][1], { amp: .8 }); } catch (e) { /* ignore */ }
+        ctx.dots.ripple(dotsEl, r.left + r.width * nodeXY[i][0], r.top + r.height * nodeXY[i][1], { amp: .8 });
       }
     };
     go(0);
