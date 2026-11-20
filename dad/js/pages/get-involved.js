@@ -26,7 +26,7 @@ export function mount(main) {
     links.forEach((l) => {
       const on = l.dataset.gi === id;
       l.classList.toggle('is-active', on);
-      if (on) l.setAttribute('aria-current', 'true'); else l.removeAttribute('aria-current');
+      if (on) l.setAttribute('aria-current', 'location'); else l.removeAttribute('aria-current');
     });
     place();
   };

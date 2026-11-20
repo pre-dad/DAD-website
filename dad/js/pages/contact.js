@@ -3,7 +3,7 @@
 let cleanup = null;
 
 async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); return true; } catch (e) {
+  try { await navigator.clipboard.writeText(text); return true; } catch {
     const ta = document.createElement('textarea');
     ta.value = text;
     ta.setAttribute('readonly', '');
@@ -11,7 +11,7 @@ async function copyText(text) {
     document.body.appendChild(ta);
     ta.select();
     let ok = false;
-    try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+    try { ok = document.execCommand('copy'); } catch { ok = false; }
     ta.remove();
     return ok;
   }
@@ -22,12 +22,13 @@ export function mount(main) {
     const btn = e.target.closest?.('[data-copy-email]');
     if (!btn || !main.contains(btn)) return;
     const email = btn.dataset.copyEmail;
-    await copyText(email);
-    btn.classList.add('is-done');
-    const label = btn.getAttribute('aria-label');
-    btn.setAttribute('aria-label', `Copied ${email}`);
     const live = document.getElementById('announcer');
-    if (live) { live.textContent = ''; setTimeout(() => { live.textContent = `Copied ${email}`; }, 30); }
+    const say = (msg) => { if (live) { live.textContent = ''; setTimeout(() => { live.textContent = msg; }, 30); } };
+    if (!(await copyText(email))) { say(`Could not copy ${email}`); return; }
+    btn.classList.add('is-done');
+    const label = btn.getAttribute('aria-label') || `Copy ${email}`;
+    btn.setAttribute('aria-label', `Copied ${email}`);
+    say(`Copied ${email}`);
     clearTimeout(btn._t);
     btn._t = setTimeout(() => { btn.classList.remove('is-done'); btn.setAttribute('aria-label', label.startsWith('Copied') ? `Copy ${email}` : label); }, 2000);
   };

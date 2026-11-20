@@ -8,7 +8,7 @@ export function mount(main, ctx) {
   const set = (id) => links.forEach((a) => {
     const on = a.getAttribute('href') === '#' + id;
     a.classList.toggle('is-current', on);
-    if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
   });
   main.querySelectorAll('[data-toc]').forEach((b) => {
     triggers.push(ST.create({

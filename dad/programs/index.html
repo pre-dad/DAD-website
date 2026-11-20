@@ -24,7 +24,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=7be608eb27">
+<link rel="stylesheet" href="/css/site.css?v=9487f1ac36">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -40,15 +40,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=7be608eb27"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=7be608eb27"></script>
-<script defer src="/vendor/SplitText.min.js?v=7be608eb27"></script>
-<script defer src="/vendor/lenis.min.js?v=7be608eb27"></script>
-<script type="module" src="/js/app.js?v=7be608eb27"></script>
+<script defer src="/vendor/gsap.min.js?v=9487f1ac36"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=9487f1ac36"></script>
+<script defer src="/vendor/SplitText.min.js?v=9487f1ac36"></script>
+<script defer src="/vendor/lenis.min.js?v=9487f1ac36"></script>
+<script type="module" src="/js/app.js?v=9487f1ac36"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=7be608eb27">
+<link rel="modulepreload" href="/js/core/util.js?v=9487f1ac36">
 </head>
 <body data-page="programs" data-mobile-cta="on">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -106,7 +106,7 @@
   </div>
 </div>
 
-<main id="swap" data-page="programs" data-module="/js/pages/programs.js?v=7be608eb27" data-scenes tabindex="-1">
+<main id="swap" data-page="programs" data-module="/js/pages/programs.js?v=9487f1ac36" data-scenes tabindex="-1">
 <style>
 /* ---- PROGRAMS (page-scoped) ---- */
 [data-page="programs"] .pp-field { position: absolute; inset: 0; width: auto; height: auto; aspect-ratio: auto; opacity: .55; pointer-events: none; }
@@ -176,8 +176,8 @@ html.js:not(.reduced) [data-page="programs"] .prg-panel:not(.is-active) .prg-pan
 [data-page="programs"] .prg-kinds__track { position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--line-c); display: none; }
 [data-page="programs"] .prg-kinds__track::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--red), var(--gold), var(--teal)); transform: scaleX(var(--p, 0)); transform-origin: 0 50%; }
 [data-page="programs"] .prg-kind { position: relative; display: grid; gap: 14px; align-content: start; padding: clamp(24px, 2.6vw, 40px); border-radius: var(--r-l); background: var(--card); box-shadow: inset 0 0 0 1px var(--line-c); transition: transform .8s var(--ease), box-shadow .8s var(--ease), background-color .8s var(--ease); }
-[data-page="programs"] .prg-kind__idx { font: 700 clamp(64px, 6vw, 112px)/.85 var(--f-disp); letter-spacing: -.06em; color: transparent; -webkit-text-stroke: 1.2px var(--c); }
-[data-page="programs"] .prg-kind__title { font: 700 var(--fs-m)/1.04 var(--f-disp); letter-spacing: -.03em; color: var(--fg); margin: 6px 0 0; }
+[data-page="programs"] .prg-kind__idx { font: 700 clamp(64px, 6vw, 112px)/.85 var(--f-disp); letter-spacing: -.06em; color: color-mix(in srgb, var(--c) 16%, transparent); -webkit-text-stroke: 2px var(--c); }
+[data-page="programs"] .prg-kind__title { font: 700 var(--fs-m)/1.04 var(--f-disp); letter-spacing: -.03em; color: var(--c-paper, var(--fg)); margin: 6px 0 0; }
 [data-page="programs"] .prg-kind p { margin: 0; color: var(--fg-mut); font-size: var(--fs-body); line-height: 1.55; }
 [data-page="programs"] .prg-kind p b { color: var(--fg); font-weight: 600; }
 [data-page="programs"] .prg-kind::after { content: ""; position: absolute; left: clamp(24px, 2.6vw, 40px); right: clamp(24px, 2.6vw, 40px); bottom: 0; height: 2px; background: var(--c); transform: scaleX(0); transform-origin: 0 50%; transition: transform .8s var(--ease); }
@@ -230,12 +230,9 @@ html.js:not(.reduced) [data-page="programs"] .prg-panel:not(.is-active) .prg-pan
 [data-page="programs"].has-scenes .prg-now .stack-l { --gap: clamp(12px, 2.2svh, 30px); }
 [data-page="programs"].has-scenes .prg-now__coin { --da-w: clamp(120px, min(30vw, 44svh), 480px); }
 @media (max-width: 959px) { [data-page="programs"].has-scenes .prg-now__coin { --da-w: clamp(90px, 14svh, 160px); } }
-/* each kind's title in its own colour, the card a faint mist of it */
+/* each kind's card is a faint mist of its colour */
 [data-page="programs"] .prg-kind { --mist: radial-gradient(120% 120% at 0% 0%, color-mix(in srgb, var(--c) 12%, transparent), transparent 62%), linear-gradient(160deg, transparent 45%, color-mix(in srgb, var(--c) 5%, transparent)); background: var(--mist), var(--card); }
-[data-page="programs"] .prg-kind__title { color: var(--c-paper, var(--fg)); }
 @media (hover: hover) and (pointer: fine) { [data-page="programs"] .prg-kind:hover { background: var(--mist), var(--card-hi); } }
-/* the outlined 01/02/03 hold their own on warm paper */
-[data-page="programs"] .prg-kind__idx { -webkit-text-stroke: 2px var(--c); color: color-mix(in srgb, var(--c) 16%, transparent); }
 /* members: its own scene, set large */
 [data-page="programs"].has-scenes .prg-now__member { align-items: center; }
 [data-page="programs"].has-scenes .prg-now__main.is-scene { align-content: center; }

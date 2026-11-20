@@ -2,7 +2,7 @@
 // stack and recede. The live ledger stage is core (js/core/ledger.js).
 
 let triggers = [];
-let cleanups = [];
+let timers = [];
 
 export function mount(main, ctx) {
   const { ScrollTrigger: ST, gsap, reduced } = ctx;
@@ -20,7 +20,7 @@ export function mount(main, ctx) {
       triggers.push(ST.create({ trigger: r, start: 'top 84%', once: true, onEnter: () => r.classList.add('is-written') }));
     });
     groups.forEach((list, sc) => {
-      triggers.push(ST.create({ trigger: sc, start: 'top 62%', once: true, onEnter: () => list.forEach((r, k) => setTimeout(() => r.classList.add('is-written'), 200 + k * 140)) }));
+      triggers.push(ST.create({ trigger: sc, start: 'top 62%', once: true, onEnter: () => list.forEach((r, k) => timers.push(setTimeout(() => r.classList.add('is-written'), 200 + k * 140))) }));
     });
   }
 
@@ -37,12 +37,11 @@ export function mount(main, ctx) {
       triggers.push(tw.scrollTrigger, { kill: () => { tw.kill(); gsap.set(c, { clearProps: 'transform,--dim' }); } });
     });
   }
-
 }
 
 export function unmount() {
   triggers.forEach((t) => t && t.kill && t.kill());
   triggers = [];
-  cleanups.forEach((fn) => fn && fn());
-  cleanups = [];
+  timers.forEach(clearTimeout);
+  timers = [];
 }

@@ -24,7 +24,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=7be608eb27">
+<link rel="stylesheet" href="/css/site.css?v=9487f1ac36">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -40,15 +40,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=7be608eb27"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=7be608eb27"></script>
-<script defer src="/vendor/SplitText.min.js?v=7be608eb27"></script>
-<script defer src="/vendor/lenis.min.js?v=7be608eb27"></script>
-<script type="module" src="/js/app.js?v=7be608eb27"></script>
+<script defer src="/vendor/gsap.min.js?v=9487f1ac36"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=9487f1ac36"></script>
+<script defer src="/vendor/SplitText.min.js?v=9487f1ac36"></script>
+<script defer src="/vendor/lenis.min.js?v=9487f1ac36"></script>
+<script type="module" src="/js/app.js?v=9487f1ac36"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=7be608eb27">
+<link rel="modulepreload" href="/js/core/util.js?v=9487f1ac36">
 </head>
 <body data-page="get-involved" data-mobile-cta="on">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -106,7 +106,7 @@
   </div>
 </div>
 
-<main id="swap" data-page="get-involved" data-module="/js/pages/get-involved.js?v=7be608eb27" data-scenes tabindex="-1">
+<main id="swap" data-page="get-involved" data-module="/js/pages/get-involved.js?v=9487f1ac36" data-scenes tabindex="-1">
 <!-- HERO: ink. Masked headline, ambient field, the coin spinning. Mobile gets the chips here. -->
 <section class="section section--hero gi-hero" data-theme="dark" data-scene data-scene-name="Your move">
   <span class="glow" style="--x:74%;--y:46%;--size:80vmax;--o:.7"></span>
@@ -177,8 +177,8 @@
             <div class="gi-formcard" data-reveal="up">
               <form class="form" data-form="founding" action="/api/submit.php" method="post">
                 <div class="form__row form__row--2">
-                  <div class="field"><input class="field__input" name="first_name" type="text" autocomplete="given-name" placeholder=" " required><label class="field__label">First name</label></div>
-                  <div class="field"><input class="field__input" name="email" type="email" autocomplete="email" inputmode="email" placeholder=" " required><label class="field__label">Email</label></div>
+                  <div class="field"><input class="field__input" id="gi-founding-first-name" name="first_name" type="text" autocomplete="given-name" maxlength="120" placeholder=" " required><label class="field__label" for="gi-founding-first-name">First name</label></div>
+                  <div class="field"><input class="field__input" id="gi-founding-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" placeholder=" " required><label class="field__label" for="gi-founding-email">Email</label></div>
                 </div>
                 <button class="btn btn--primary btn--lg" type="submit" data-magnetic><span class="btn__label">Join the Waitlist</span></button>
                 <p class="form__note">Not ready to give? Join before January and you're still a Founding Donor. One email a month, max. We never sell your data. Unsubscribe any time.</p>
@@ -246,10 +246,10 @@
           </div>
           <div class="gi-formcard" data-reveal="up">
             <form class="form" data-form="support" action="/api/submit.php" method="post">
-              <div class="field"><input class="field__input" name="first_name" type="text" autocomplete="given-name" placeholder=" " required><label class="field__label">First name</label></div>
+              <div class="field"><input class="field__input" id="gi-support-first-name" name="first_name" type="text" autocomplete="given-name" maxlength="120" placeholder=" " required><label class="field__label" for="gi-support-first-name">First name</label></div>
               <div class="form__row gi-row-contact">
-                <div class="field"><input class="field__input" name="email_or_phone" type="text" autocomplete="email" placeholder=" " required><label class="field__label">Email or phone</label></div>
-                <div class="field"><input class="field__input" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern="[0-9]{5}" placeholder=" " required><label class="field__label">ZIP code</label></div>
+                <div class="field"><input class="field__input" id="gi-support-email-or-phone" name="email_or_phone" type="text" autocomplete="email" maxlength="254" placeholder=" " required><label class="field__label" for="gi-support-email-or-phone">Email or phone</label></div>
+                <div class="field"><input class="field__input" id="gi-support-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern="[0-9]{5}" placeholder=" " required><label class="field__label" for="gi-support-zip">ZIP code</label></div>
               </div>
               <button class="btn btn--primary" type="submit"><span class="btn__label">Tell me when</span></button>
             </form>
@@ -272,9 +272,9 @@
             <p class="body measure" data-reveal="up">Community Programs are run on the ground by DAD Impact Teams and volunteers. Get on the list and we'll call you first when one starts near you.</p>
             <form class="form" data-form="volunteer" action="/api/submit.php" method="post" data-reveal="up">
               <div class="form__row form__row--3">
-                <div class="field"><input class="field__input" name="first_name" type="text" autocomplete="given-name" placeholder=" " required><label class="field__label">First name</label></div>
-                <div class="field"><input class="field__input" name="email" type="email" autocomplete="email" inputmode="email" placeholder=" " required><label class="field__label">Email</label></div>
-                <div class="field"><input class="field__input" name="city" type="text" autocomplete="address-level2" placeholder=" " required><label class="field__label">City</label></div>
+                <div class="field"><input class="field__input" id="gi-volunteer-first-name" name="first_name" type="text" autocomplete="given-name" maxlength="120" placeholder=" " required><label class="field__label" for="gi-volunteer-first-name">First name</label></div>
+                <div class="field"><input class="field__input" id="gi-volunteer-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" placeholder=" " required><label class="field__label" for="gi-volunteer-email">Email</label></div>
+                <div class="field"><input class="field__input" id="gi-volunteer-city" name="city" type="text" autocomplete="address-level2" maxlength="120" placeholder=" " required><label class="field__label" for="gi-volunteer-city">City</label></div>
               </div>
               <button class="btn btn--primary" type="submit"><span class="btn__label">Count me in</span></button>
             </form>
@@ -305,7 +305,7 @@
             </ul>
           </div>
           <div class="btn-row" data-reveal="up">
-            <a class="btn btn--primary btn--lg btn--arrow" href="mailto:careers@dynamicaid.org" data-magnetic><span class="btn__label">See open roles</span></a>
+            <a class="btn btn--primary btn--lg btn--arrow" href="mailto:careers@dynamicaid.org" data-magnetic><span class="btn__label">Email careers</span></a>
           </div>
         </div>
         <div class="dollar-anchor gi-careers__coin" data-dollar="ambient"></div>

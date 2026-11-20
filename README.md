@@ -68,6 +68,15 @@ After changing any CSS or JS, run `npm run build` from the repo root. It rebuild
 `css/site.css` and rewrites every `?v=` version so browsers fetch the new files.
 CI fails if you forget (`npm run check`).
 
+### Map data
+
+`dad/map/data/` is generated outside this repo and committed as-is: `counties.json`
+(per-county indicators; `generated` and `count` record the run), `meta.json` (source
+registry) and `us-counties.topo.json` (geometry). To refresh it, re-run the external data
+pipeline, replace the three files together, and load `/map/` to confirm every county still
+renders. `population` appears twice per county (top level and `indicators.population.raw`);
+keep both in sync until the page code reads only one.
+
 ## Test
 
 From the repo root, with the local server above running:

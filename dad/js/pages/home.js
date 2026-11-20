@@ -8,16 +8,14 @@
 //    recycle icon condenses below it. Without WebGL the theme's CSS flood pours instead.
 //  · "What DAD is not": a glass window table (rows stagger in through the shared reveals)
 //  · Follow the dollar: steps light up as they pass (the liquid drop shows each step)
-//  · Ledger: map rain + Open Ledger deck live in core/ledger.js
 //  · Programs fan into place (the leadership grid uses the shared reveals)
-import * as theme from '../core/theme.js?v=7be608eb27';
+import * as theme from '../core/theme.js?v=9487f1ac36';
 
 const DESK = '(min-width: 960px) and (pointer: fine)';
 
 let gctx = null;
 let mm = null;
 let split = null;
-let timers = [];
 let listeners = [];
 let turnOff = null;
 let root = null;
@@ -32,6 +30,7 @@ function setupTurn(c) {
   const sec = root.querySelector('#turn');
   if (!sec) return;
   const h = sec.querySelector('.hm-turn__h');
+  if (!h) return;
   const stage = sec.querySelector('.hm-turn__stage');
   const coin = sec.querySelector('.hm-turn__coin');
   // the headline sits a little above centre (CSS); the recycle sits just under it, a touch below
@@ -189,12 +188,7 @@ function setupFollow(c) {
   });
 }
 
-/* ---------------- 5 · LEDGER ---------------- */
-function setupLedger() {
-  // the map rain, the flow and the Open Ledger deck are core: js/core/ledger.js
-}
-
-/* ---------------- 6 · PROGRAMS ---------------- */
+/* ---------------- 5 · PROGRAMS ---------------- */
 function setupPrograms(c, desk) {
   const { gsap, ScrollTrigger: ST } = c;
   const grid = root.querySelector('.hm-programs__grid');
@@ -229,7 +223,6 @@ export function mount(main, c) {
     }
     setupSlams(c);
     setupFollow(c);
-    setupLedger(c);
   }, main);
 
   if (!reduced) {
@@ -255,8 +248,6 @@ export function mount(main, c) {
 }
 
 export function unmount() {
-  timers.forEach(clearTimeout);
-  timers = [];
   listeners.forEach((f) => f());
   listeners = [];
   mm?.revert();

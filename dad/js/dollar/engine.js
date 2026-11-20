@@ -1,15 +1,13 @@
 // THE LIQUID ENGINE: the drop's whole simulation, with NO DOM access, so it can run in a Web Worker
-// (OffscreenCanvas), on the main thread (fallback) or drive the pre-rendered clip player (clips.js).
+// (OffscreenCanvas), on the main thread (fallback) or drive a renderer.
 // The main thread (dollar.js) measures the page and hands the engine a destination ("dest") per frame
 // only when it changes; everything time-based (travel, morphs, cover, flood, rain, theme, intro) runs
-// here on the engine's own clock. The renderer ("view") is either gl.js View (raymarched) or
-// clips.js ClipView (sprite sheets); both take the same calls. Every body draw carries P.sem, a
-// semantic description (idle / morph / cover ...) the clip player uses to pick its frames.
+// here on the engine's own clock. The renderer ("view") is the raymarched gl.js View.
 //
 // dest: null (no anchors) or { i, state, pre, amb, x, y, R, aim, rain: {cx, top, w, vis}, line: {l, r, y, ly, fs} }
 // events (emit(type, data)): glow, top, screen, state, coverRes, pourCovered, pourCleared, pourRes,
 //   impact, rainDone, uline, perf, fail
-import { makeForm, copyForm, formInto, mat3, H1, iconMatrix, blendIcon, galaxyMatrix, ICON_STATES } from './forms.js?v=7be608eb27';
+import { makeForm, copyForm, formInto, mat3, H1, iconMatrix, blendIcon, galaxyMatrix, ICON_STATES } from './forms.js?v=9487f1ac36';
 
 export const TIERS = {
   low: { dpr: 1.5, res: 1, steps: 48, stars: 600, adapt: true },
@@ -89,7 +87,7 @@ export class Engine {
     this._resScale = 1; this._bud = { dts: [], n: 0, miss: 0, bad: 0, good: 0, need: 8, upT: -9 };
     this._steps = this.q.steps;
     this._key = null; this._tr = null; this._cv = null; this._pr = null;
-    this._poured = false; this._last = null; this._has = false; this._amb = 0; this._ext = 1.3;
+    this._poured = false; this._last = null; this._has = false; this._amb = 0;
     this._topOn = false;
     this._g = { x: 0, y: 0, init: false };
     this._pos = { x: 0, y: 0, R: 1 };
@@ -104,7 +102,7 @@ export class Engine {
     this._outS2 = new Float32Array(12);
     this._M = new Float32Array(9); this._Mp = new Float32Array(9); this._My = new Float32Array(9);
     this._Mg = new Float32Array(9); this._MgT = new Float32Array(9);
-    this._P = { box: [0, 0, 0, 0], cam: [0, 0, 1, CAM], A: new Float32Array(N * 4), B: new Float32Array(N * 4), S: new Float32Array(24), look: new Float32Array(4), she: new Float32Array(4), k: 0.3, time: 0, bound: 1, I: new Float32Array(16), IM: new Float32Array(9), st: new Float32Array([1, 0, 1, 0]), px: new Float32Array(4), sem: null };
+    this._P = { box: [0, 0, 0, 0], cam: [0, 0, 1, CAM], A: new Float32Array(N * 4), B: new Float32Array(N * 4), S: new Float32Array(24), look: new Float32Array(4), she: new Float32Array(4), k: 0.3, time: 0, bound: 1, I: new Float32Array(16), IM: new Float32Array(9), st: new Float32Array([1, 0, 1, 0]), px: new Float32Array(4) };
     this._perfBuf = []; this._perfT = 0;
     this.resize(W, H, dpr);
   }
@@ -119,7 +117,6 @@ export class Engine {
   setDest(d) { this._dest = d; }
   setHidden(v) { this._hidden = !!v; }
   bind({ first = false, light = null } = {}) {
-    this._bindT = this._time;
     this._poured = false;
     this._ul = null;
     if (this._cv) this._cv.bound = nowS();
@@ -270,7 +267,7 @@ export class Engine {
   rainReset() { if (this._rain && !this._rain.done) this.emit('rainDone'); this._rain = null; }
 
   _smallP() {
-    return this._rp || (this._rp = { box: [0, 0, 0, 0], cam: [0, 0, 1, CAM], A: new Float32Array(this.N * 4), B: new Float32Array(this.N * 4), S: new Float32Array(24), look: new Float32Array(4), she: new Float32Array(4), k: 0.22, time: 0, bound: 1, sem: { k: 'bead' } });
+    return this._rp || (this._rp = { box: [0, 0, 0, 0], cam: [0, 0, 1, CAM], A: new Float32Array(this.N * 4), B: new Float32Array(this.N * 4), S: new Float32Array(24), look: new Float32Array(4), she: new Float32Array(4), k: 0.22, time: 0, bound: 1 });
   }
   _drawSmall(P, x, y, R, alpha, bound) {
     const light = clamp(this._light);
@@ -430,7 +427,7 @@ export class Engine {
     O.k = lerp(fm.k, F.k, ek); O.glow = lerp(fm.glow, F.glow, ek); O.jelly = lerp(fm.jelly, F.jelly, ek); O.lean = lerp(fm.lean, F.lean, ek);
   }
 
-  _tumble(dt, still, tau, lean, spin = 0, pitchK = 0) {
+  _tumble(tau, spin = 0, pitchK = 0) {
     const yaw = tau * 0.32 + spin, pitch = 0.16 * Math.sin(tau * 0.29) + pitchK, roll = 0.08 * Math.sin(tau * 0.21);
     mat3(pitch, yaw, roll, this._M);
     mat3(pitchK, spin, 0, this._Mp);
@@ -474,20 +471,17 @@ export class Engine {
     this._setTop(k > 0.02 || cv.mode !== 'out');
     this.view.clear();
     if (k < 1) {
-      this._tumble(dt, false, tau, 0, spin, cv.mode === 'out' ? 0 : u * u * 0.9);
+      this._tumble(tau, spin, cv.mode === 'out' ? 0 : u * u * 0.9);
       const ctx = { tau, M: this._M, Mp: this._Mp, My: this._My, aim: 0 };
-      let sem;
       if (cv.mode === 'out') {
         formInto(this._fa, 'cover', ctx);
         formInto(this._fb, place.state, { ...ctx, aim: place.aim || 0 });
-        sem = { k: 'cout', b: place.state, u, m: blendP, tau };
       } else {
         formInto(this._fa, cv.state, { ...ctx, aim: cv.aim });
         formInto(this._fb, 'cover', ctx);
-        sem = { k: 'cin', a: cv.state, u, m: blendP, tau };
       }
       this._blend(this._fa, this._fb, blendP, this._out);
-      this._render(this._out, x, y, Rd / DISC, { tau, alpha, keep: true, glowK, cover: cv.mode === 'out' ? 1 - u : u * 0.6, noShadow: cv.mode !== 'out', sem });
+      this._render(this._out, x, y, Rd / DISC, { tau, alpha, keep: true, glowK, cover: cv.mode === 'out' ? 1 - u : u * 0.6, noShadow: cv.mode !== 'out' });
     }
     if (k > 0) {
       this.view.drawSheet({ x, y, R: Rd, inside: sstep(0.42 * hyp, 0.6 * hyp, Rd), time: T, paper: 0, alpha: alpha * k, swirl: swirl * 0.06, warp: 0.04, light: clamp(this._light) }, true);
@@ -547,12 +541,12 @@ export class Engine {
     const s = ov.sheet;
     this.view.clear();
     if (ov.k < 1) {
-      this._tumble(dt, false, tau, 0, ov.sw * ov.sw * 2.5);
+      this._tumble(tau, ov.sw * ov.sw * 2.5);
       const ctx = { tau, M: this._M, Mp: this._Mp, My: this._My, aim: 0 };
       formInto(this._fa, pr.state, ctx); formInto(this._fb, 'cover', ctx);
       const m = sstep(0, 0.9, ov.sw);
       this._blend(this._fa, this._fb, m, this._out);
-      this._render(this._out, s.x, s.y, s.R / DISC, { tau, keep: true, cover: 0.5 * ov.sw, glowK: 1 - ov.sw, noShadow: true, sem: { k: 'cin', a: pr.state, u: ov.sw * 0.7, m, tau } });
+      this._render(this._out, s.x, s.y, s.R / DISC, { tau, keep: true, cover: 0.5 * ov.sw, glowK: 1 - ov.sw, noShadow: true });
     }
     if (s.alpha > 0.001) this.view.drawSheet(s, true);
     this._pos = { x: s.x, y: s.y, R: s.R / DISC };
@@ -612,13 +606,12 @@ export class Engine {
     }
 
     const tr = this._tr;
-    this._tumble(dt, still, tau, 0);
+    this._tumble(tau);
     formInto(this._form, place.state, { tau, M: this._M, Mp: this._Mp, My: this._My, aim: place.aim || 0 });
 
     let x = place.x, y = place.y, R = place.R;
     let alpha = 1, stD = NO_DIR, stF = 1, trail = 0, ambT = place.ambient ? 1 : 0;
     const F = this._form, O = this._out;
-    let sem;
     this._outS2.fill(0);
     if (tr) {
       tr.p = clamp((T - tr.t0) / tr.dur);
@@ -629,13 +622,11 @@ export class Engine {
         this._blend(fm, F, m, O, true);
         alpha = 1 - sstep(0, 0.4, p); // melt out quickly so the drop never lingers over the new scene's text
         ambT = sstep(0.05, 0.6, p);
-        sem = { k: 'morph', a: tr.from, b: 'spin', m, tau };
       } else if (tr.kind === 'condense') {
         R = Math.max(1, lerp(2, place.R, spring(clamp(p / 0.9))));
         const m = sstep(0.12, 0.85, p);
         this._blend(fm, F, m, O);
         alpha = sstep(0, 0.12, p);
-        sem = { k: 'morph', a: 'spin', b: place.state, m, tau };
       } else if (tr.dart) {
         // straight to the start of the text, fast out, soft in; the body shrinks to the droplet on the way
         const s = 1 - Math.pow(1 - p, 3);
@@ -645,7 +636,6 @@ export class Engine {
         this._blend(fm, F, m, O);
         if (tr.kind === 'emerge') ambT = 1 - sstep(0, 0.5, p);
         trail = 0.5 * Math.sin(Math.PI * p);
-        sem = { k: 'morph', a: tr.from, b: place.state, m, tau };
       } else if (tr.kind === 'emerge') {
         const cx = W / 2, cy = H / 2, rx = W * 0.4, ry = H * 0.34;
         const a0 = Math.atan2(tr.y - cy, tr.x - cx), dir = tr.seed > 0.5 ? 1 : -1;
@@ -665,7 +655,6 @@ export class Engine {
         trail = sstep(0.1, 0.25, p) * (1 - sstep(0.6, 0.8, p));
         const kc = 1 - sstep(0.88, 1, p);
         if (kc > 0) { const c = this._inView(x, y, R); x = lerp(x, c[0], kc); y = lerp(y, c[1], kc); }
-        sem = { k: 'morph', a: 'spin', b: place.state, m, tau };
       } else if (tr.glide) {
         // a glide: sets off with the scroll, a gentle bow, the size eases with the travel (no lift), and
         // the new shape forms a beat later, so a big body never shows the new shape at its old size
@@ -695,7 +684,6 @@ export class Engine {
         trail = dist > R * 1.5 ? Math.sin(Math.PI * s) * 0.6 : 0;
         const kc = sstep(0, 0.12, p);
         if (kc > 0) { const c = this._inView(x, y, R); x = lerp(x, c[0], kc); y = lerp(y, c[1], kc); }
-        sem = { k: 'morph', a: tr.from, b: place.state, m, tau };
       } else {
         const u = clamp((p - 0.04) / 0.74), s = travel(u);
         const dx = place.x - tr.x, dy = place.y - tr.y, dist = Math.hypot(dx, dy);
@@ -715,13 +703,11 @@ export class Engine {
         trail = dist > R * 1.5 ? lift : 0;
         const kc = sstep(0, 0.12, p);
         if (kc > 0) { const c = this._inView(x, y, R); x = lerp(x, c[0], kc); y = lerp(y, c[1], kc); }
-        sem = { k: 'morph', a: tr.from, b: place.state, m: p, tau };
       }
       if (p >= 1) this._tr = null;
     } else {
       copyForm(F, O);
       if (place.ambient) alpha = 0;
-      sem = { k: 'idle', a: place.state, tau };
     }
     // the underline starts drawing once the droplet has landed at the start of the text, and the text
     // (still finishing its scroll in, ly) has all but reached it
@@ -759,10 +745,10 @@ export class Engine {
     if (gal > 0.01 && !this._noStars) {
       this.view.clear();
       this._galaxy(gal, x, y, R, tau, alpha, -1);
-      drew = this._render(O, x, y, R, { tau, alpha, stD, stF, keep: true, sem });
+      drew = this._render(O, x, y, R, { tau, alpha, stD, stF, keep: true });
       this._galaxy(gal, x, y, R, tau, alpha, 1);
     } else {
-      drew = this._render(O, x, y, R, { tau, alpha, stD, stF, sem });
+      drew = this._render(O, x, y, R, { tau, alpha, stD, stF });
       if (!drew) this.view.clear();
     }
     if (drew) this._trailFrame(trail * alpha);
@@ -828,7 +814,6 @@ export class Engine {
     bound = Math.min(bound * Math.max(1, stF) + 0.04, CAM * 0.8);
     P.st[0] = stD[0]; P.st[1] = stD[1]; P.st[2] = stF; P.st[3] = clamp(cover);
     P.px[0] = o.paper || 0;
-    P.sem = o.sem || null;
 
     const light = clamp(this._light), cv1 = 1 - clamp(cover);
     const glow = (1 - light) * 0.2 * O.glow * cv1 * (o.glowK == null ? 1 : o.glowK);
@@ -842,7 +827,6 @@ export class Engine {
     P.k = Math.max(0.004, O.k); P.time = o.tau; P.bound = bound;
     P.cam[0] = x; P.cam[1] = y; P.cam[2] = R; P.cam[3] = CAM;
     const proj = CAM / (CAM - bound);
-    this._ext = bound * proj;
     this._alpha0 = alpha;
     this._screen = { x: alpha < 0.08 ? this._g.x : x, y: alpha < 0.08 ? this._g.y : y, r: alpha < 0.08 ? 0 : R * 0.8, ambient: alpha < 0.08 };
     this._has = true;
@@ -876,7 +860,7 @@ export class Engine {
       else if (job === '__stars') { if (!this._starsOn && this.view.setGalaxy) { this.view.setGalaxy(this._stars || (this._stars = makeStars(this.q.stars))); this._starsOn = true; } }
       else if (this.view.warmDraw) {
         const s = job.slice(2), tau = 1.3;
-        this._tumble(0, true, tau, 0);
+        this._tumble(tau);
         formInto(this._fa, s, { tau, M: this._M, Mp: this._Mp, My: this._My, aim: 0 });
         this._outS2.fill(0);
         const keep = this._light;

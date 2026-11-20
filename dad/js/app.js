@@ -2,21 +2,21 @@
 // tier -> Lenis -> Dollar -> Dots -> mountPage(main). Router swaps pages and
 // calls unmountPage/mountPage. Every module is defensive: a failure in one
 // never blocks the content.
-import { detectTier } from './core/tier.js?v=7be608eb27';
-import { html, isTouch, prefersReduced } from './core/util.js?v=7be608eb27';
-import * as theme from './core/theme.js?v=7be608eb27';
-import * as reveals from './core/reveals.js?v=7be608eb27';
-import * as router from './core/router.js?v=7be608eb27';
-import * as nav from './core/nav.js?v=7be608eb27';
-import * as preloader from './core/preloader.js?v=7be608eb27';
-import * as forms from './core/forms.js?v=7be608eb27';
-import * as partnerModal from './core/partner-modal.js?v=7be608eb27';
-import * as cookie from './core/cookie.js?v=7be608eb27';
-import * as ticker from './core/ticker.js?v=7be608eb27';
-import * as magnetic from './core/magnetic.js?v=7be608eb27';
-import * as ui from './core/ui.js?v=7be608eb27';
-import * as scenes from './core/scenes.js?v=7be608eb27';
-import * as ledger from './core/ledger.js?v=7be608eb27';
+import { detectTier } from './core/tier.js?v=9487f1ac36';
+import { html, isTouch, prefersReduced } from './core/util.js?v=9487f1ac36';
+import * as theme from './core/theme.js?v=9487f1ac36';
+import * as reveals from './core/reveals.js?v=9487f1ac36';
+import * as router from './core/router.js?v=9487f1ac36';
+import * as nav from './core/nav.js?v=9487f1ac36';
+import * as preloader from './core/preloader.js?v=9487f1ac36';
+import * as forms from './core/forms.js?v=9487f1ac36';
+import * as partnerModal from './core/partner-modal.js?v=9487f1ac36';
+import * as cookie from './core/cookie.js?v=9487f1ac36';
+import * as ticker from './core/ticker.js?v=9487f1ac36';
+import * as magnetic from './core/magnetic.js?v=9487f1ac36';
+import * as ui from './core/ui.js?v=9487f1ac36';
+import * as scenes from './core/scenes.js?v=9487f1ac36';
+import * as ledger from './core/ledger.js?v=9487f1ac36';
 
 const gsap = window.gsap;
 const ST = window.ScrollTrigger;
@@ -28,7 +28,6 @@ if (reduced) html.classList.add('reduced');
 
 const safe = (label, fn) => { try { return fn(); } catch (e) { console.error(`[dad:${label}]`, e); return undefined; } };
 
-/* ---------- GSAP + smooth scroll ---------- */
 if (gsap && ST) {
   gsap.registerPlugin(ST);
   if (window.SplitText) gsap.registerPlugin(window.SplitText);
@@ -46,7 +45,6 @@ if (gsap && ST && window.Lenis && !isTouch() && !reduced) {
 }
 window.__lenis = lenis;
 
-/* ---------- liquid drop + dot illustrations (loaded in parallel, optional) ---------- */
 const stubDollar = { bind() {}, unbind() {}, flyTo() {}, setTheme() {}, stub: true };
 const stubDots = { bind() {}, unbind() {}, morph() {}, stub: true };
 let dollar = stubDollar;
@@ -58,10 +56,10 @@ const main = () => document.getElementById('swap');
 let pageModule = null;
 let mountedMain = null;
 
-/* ---------- deferred images ----------
-   <img src="(1px placeholder)" data-src="..."> (home's team photos): fetched once the page
-   has painted and gone idle, so they never compete with the first view, but are cached
-   long before a visitor reaches them. Boxes are sized by width/height, so nothing shifts. */
+// Deferred images: <img src="(1px placeholder)" data-src="..."> (home's team photos) are
+// fetched once the page has painted and gone idle, so they never compete with the first
+// view, but are cached long before a visitor reaches them. Boxes are sized by
+// width/height, so nothing shifts.
 function warmImages(el) {
   const imgs = el.querySelectorAll('img[data-src]');
   if (!imgs.length) return;
@@ -71,7 +69,6 @@ function warmImages(el) {
   else window.addEventListener('load', idle, { once: true });
 }
 
-/* ---------- page lifecycle ---------- */
 async function mountPage(el, { routed = false } = {}) {
   mountedMain = el;
   safe('images', () => warmImages(el));
@@ -121,8 +118,8 @@ function unmountPage(el) {
 async function loadModules() {
   const opts = { tier, reduced };
   const [dm, tm] = await Promise.allSettled([
-    import('./dollar/dollar.js?v=7be608eb27'),
-    import('./dots/dots.js?v=7be608eb27'),
+    import('./dollar/dollar.js?v=9487f1ac36'),
+    import('./dots/dots.js?v=9487f1ac36'),
   ]);
   if (dm.status === 'fulfilled' && dm.value?.Dollar) {
     try {
@@ -154,7 +151,6 @@ async function loadModules() {
   ST?.refresh();
 }
 
-/* ---------- boot ---------- */
 function boot() {
   window.__booted = true;
   html.classList.add('is-booted');
@@ -182,7 +178,7 @@ function boot() {
   if (m) {
     mountPage(m).then(() => {
       if (location.hash) {
-        const t = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+        const t = safe('hash', () => document.getElementById(decodeURIComponent(location.hash.slice(1))));
         if (t) setTimeout(() => { if (scenes.goToElement(t, { immediate: true })) return; if (lenis) lenis.scrollTo(t, { offset: -80, immediate: true }); else t.scrollIntoView(); }, 60);
       }
     });

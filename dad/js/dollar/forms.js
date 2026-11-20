@@ -2,7 +2,7 @@
 // space (units of the drop radius, y up, +z toward the camera) plus at most one analytic part
 // (torus, disc or bowl). The shader smooth-unions everything into one raymarched body.
 // Index roles are loosely shared (0 core, 1-3 lobes, 4.. droplets) so morphs read as liquid.
-import { ICON } from './icons.js?v=7be608eb27';
+import { ICON } from './icons.js?v=9487f1ac36';
 const fr = x => x - Math.floor(x);
 export const H1 = [], H2 = [];
 for (let i = 0; i < 40; i++) { H1.push(fr(Math.sin(i * 12.9898 + 1.3) * 43758.5453)); H2.push(fr(Math.sin(i * 78.233 + 4.1) * 24634.6345)); }
@@ -196,10 +196,9 @@ export function formInto(o, state, ctx) {
   if (ICON_LOOK[state]) return iconInto(o, state, tau, ctx.aim);
   switch (state) {
     case 'leak': { // a blob leaking for real: drips swell, stretch, neck, let go, fall and pool below. Steady body.
-      const sh = 0;
-      ball(o, 0, My, sh, 0.42, 0, 0.58 * (1 + 0.02 * Math.sin(tau * 1.3)));
-      ball(o, 1, My, -0.22 + sh, 0.3, 0.1, 0.44);
-      ball(o, 2, My, 0.22 + sh, 0.28, -0.08, 0.44);
+      ball(o, 0, My, 0, 0.42, 0, 0.58 * (1 + 0.02 * Math.sin(tau * 1.3)));
+      ball(o, 1, My, -0.22, 0.3, 0.1, 0.44);
+      ball(o, 2, My, 0.22, 0.28, -0.08, 0.44);
       for (let d = 0; d < 4; d++) {
         const ang = d * 1.5708 + 0.5;
         const t = tf(My, Math.cos(ang) * 0.27, 0, Math.sin(ang) * 0.27), x = t[0], z = t[2];
@@ -248,31 +247,17 @@ export function formInto(o, state, ctx) {
       drop(o, tau, M, true);
       o.k = 0.28; o.glow = 0.85; o.jelly = 0.85; o.lean = 0.7;
       return;
-    case 'underline': { // a thin wavy line of liquid under a heading: R = half the text width, so the line
-      // runs -1..1. ctx.line = { r, amp } in drop units. The centre prims (the drop's core) take the middle
-      // segments, so the liquid flows out from the middle; a subtle slow wave travels along it.
-      const L = ctx.line || { r: 0.014, amp: 0.012 }, n = o.n, X = 1 - L.r;
-      const y = (x) => L.amp * (Math.sin(x * 6.3 - tau * 1.25) * 0.8 + Math.sin(x * 2.9 + tau * 0.7 + 1.3) * 0.2);
-      for (let i = 0; i < n; i++) {
-        const k = (n >> 1) + ((i & 1) ? -((i + 1) >> 1) : (i >> 1));   // 0 -> middle, then outward
-        const x0 = -X + 2 * X * k / n, x1 = -X + 2 * X * (k + 1) / n;
-        put(o, i, x0, y(x0), 0, x1, y(x1), 0, L.r);
-      }
-      o.k = 0.004; o.glow = 0; o.jelly = 0; o.lean = 0;
-      return;
-    }
     case 'cover': // one big sphere that fills the viewport during page changes
       ball(o, 0, null, 0, 0, 0, 1);
       for (let j = 1; j < 4; j++) { const a = tau * 0.8 + j * 2.1; ball(o, j, null, Math.cos(a) * 0.12, Math.sin(a) * 0.12, 0, 0.86); }
       o.k = 0.3; o.glow = 0; o.jelly = 0.3; o.lean = 0;
       return;
     case 'crack': { // leaking: a fault opens and closes, drips bulge, neck, let go and fall away in 3D
-      const sh = 0;
       const gap = 0.07 + 0.045 * Math.sin(tau * 0.9);
-      ball(o, 0, M, sh, 0.1, 0, 0.6);
-      ball(o, 1, M, -0.2 - gap + sh, 0.12, 0.06, 0.46);
-      ball(o, 2, M, 0.2 + gap + sh, 0.08, -0.06, 0.46);
-      ball(o, 3, M, sh, -0.16, 0, 0.44);
+      ball(o, 0, M, 0, 0.1, 0, 0.6);
+      ball(o, 1, M, -0.2 - gap, 0.12, 0.06, 0.46);
+      ball(o, 2, M, 0.2 + gap, 0.08, -0.06, 0.46);
+      ball(o, 3, M, 0, -0.16, 0, 0.44);
       for (let i = 4; i < 10; i++) {
         const ang = (i - 4) / 6 * 6.2832 + 0.4;
         const t = tf(My, Math.cos(ang) * 0.32, 0, Math.sin(ang) * 0.32), x = t[0], z = t[2];
