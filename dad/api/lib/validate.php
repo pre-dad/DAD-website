@@ -38,6 +38,7 @@ function valid_phone(string $s): bool {
  * @return array ['ok'=>true, 'fields'=>[...], 'email'=>?string] or ['ok'=>false, 'error'=>..., 'field'=>...]
  */
 function validate_submission(string $type, array $in): array {
+  if (!in_array($type, SITE_TYPES, true)) return v_err(MSG_GENERIC);
   $f = [];
 
   // ---- first_name (founding, updates, support, volunteer) / name (contact, partner)

@@ -65,16 +65,6 @@ try {
 }
 if (!$row) invalid_link();
 
-function unsubscribe_all(array $row): void {
-  $now = time();
-  if (!empty($row['email'])) {
-    q("UPDATE submissions SET unsubscribed_at = ?, updated_at = ?
-         WHERE email = ? AND type IN ('founding','updates') AND unsubscribed_at IS NULL", [$now, $now, $row['email']]);
-  } else {
-    q('UPDATE submissions SET unsubscribed_at = ?, updated_at = ? WHERE id = ? AND unsubscribed_at IS NULL', [$now, $now, $row['id']]);
-  }
-}
-
 function unsubscribed_page(array $row, string $t, string $home): void {
   ui_card_page('Unsubscribe | DAD', ui_logo()
     . '<h1>You\'re unsubscribed.</h1>'

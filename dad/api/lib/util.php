@@ -77,6 +77,14 @@ function safe_path($p): string {
   return clamp_str($p, 300);
 }
 
+/** One quoted CSV cell. A leading =, +, -, @, tab or CR gets an apostrophe so a spreadsheet cannot run it as a formula. */
+function csv_cell($v): string {
+  $s = (string)$v;
+  if ($s !== '' && in_array($s[0], ['=', '+', '-', '@', "\t", "\r"], true)) $s = "'" . $s;
+  return '"' . str_replace('"', '""', $s) . '"';
+}
+function csv_line(array $cells): string { return implode(',', array_map('csv_cell', $cells)) . "\r\n"; }
+
 function fmt_time(int $t): string { return date('M j, Y g:i A', $t); }
 
 function ago(int $t): string {

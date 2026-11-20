@@ -120,4 +120,56 @@ final class UtilTest extends TestCase
     {
         $this->assertSame('50\\%\\_\\\\', like_escape('50%_\\'));
     }
+
+    // ---- safe_path ---------------------------------------------------------
+
+    public static function pathProvider(): array
+    {
+        return [
+            'plain path'        => ['/give/', '/give/'],
+            'path with query'   => ['/give/?a=1', '/give/?a=1'],
+            'empty'             => ['', '/'],
+            'protocol-relative' => ['//evil.com', '/'],
+            'backslash trick'   => ['/\\evil.com', '/'],
+            'absolute url'      => ['https://x', '/'],
+            'javascript scheme' => ['javascript:alert(1)', '/'],
+            'not a string'      => [['/x'], '/'],
+            'clamped to 300'    => ['/' . str_repeat('a', 400), '/' . str_repeat('a', 299)],
+        ];
+    }
+
+    #[DataProvider('pathProvider')]
+    public function testSafePath(mixed $in, string $expected): void
+    {
+        $this->assertSame($expected, safe_path($in));
+    }
+
+    // ---- csv_cell ----------------------------------------------------------
+
+    public static function csvProvider(): array
+    {
+        return [
+            'plain'             => ['Ada', '"Ada"'],
+            'quotes doubled'    => ['say "hi"', '"say ""hi"""'],
+            'comma kept inside' => ['a,b', '"a,b"'],
+            'formula ='         => ['=SUM(A1)', '"\'=SUM(A1)"'],
+            'formula +'         => ['+1', '"\'+1"'],
+            'formula -'         => ['-1', '"\'-1"'],
+            'formula @'         => ['@cmd', '"\'@cmd"'],
+            'formula tab'       => ["\tx", "\"'\tx\""],
+            'empty'             => ['', '""'],
+            'int'               => [5, '"5"'],
+        ];
+    }
+
+    #[DataProvider('csvProvider')]
+    public function testCsvCell(mixed $in, string $expected): void
+    {
+        $this->assertSame($expected, csv_cell($in));
+    }
+
+    public function testCsvLineEndsWithCrlf(): void
+    {
+        $this->assertSame("\"a\",\"b\"\r\n", csv_line(['a', 'b']));
+    }
 }

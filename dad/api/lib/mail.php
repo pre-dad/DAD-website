@@ -120,15 +120,14 @@ function smtp_send(string $host, int $port, string $secure, string $user, string
 }
 
 /**
- * Send one email. $html optional (multipart/alternative when given).
- * $o: from, from_name, reply_to, unsubscribe (URL, adds List-Unsubscribe + one-click), kind (mail_log label)
+ * Builds one email: [from address, header lines, body], or null when an address is invalid.
+ * $o: from, from_name, reply_to, unsubscribe (URL, adds List-Unsubscribe + one-click), auto
  */
-function send_mail(string $to, string $subject, string $text, ?string $html = null, array $o = []): bool {
+function compose_mail(string $to, string $text, ?string $html, array $o): ?array {
   $from     = (string)($o['from'] ?? SITE_NOTIFY_FROM);
   $fromName = (string)($o['from_name'] ?? SITE_NOTIFY_FROM_NAME);
   $replyTo  = (string)($o['reply_to'] ?? '');
-  $kind     = (string)($o['kind'] ?? 'mail');
-  if (!addr_ok($to) || !addr_ok($from) || ($replyTo !== '' && !addr_ok($replyTo))) { mail_log($kind, false); return false; }
+  if (!addr_ok($to) || !addr_ok($from) || ($replyTo !== '' && !addr_ok($replyTo))) return null;
 
   $eol = "\r\n";
   $hdr = [];
@@ -165,6 +164,19 @@ function send_mail(string $to, string $subject, string $text, ?string $html = nu
       . quoted_printable_encode(str_replace(["\r\n", "\r", "\n"], "\r\n", $html)) . $eol . $eol
       . '--' . $b . '--' . $eol;
   }
+  return [$from, $hdr, $body];
+}
+
+/**
+ * Send one email. $html optional (multipart/alternative when given).
+ * $o: see compose_mail(), plus kind (mail_log label)
+ */
+function send_mail(string $to, string $subject, string $text, ?string $html = null, array $o = []): bool {
+  $kind = (string)($o['kind'] ?? 'mail');
+  $mail = compose_mail($to, $text, $html, $o);
+  if ($mail === null) { mail_log($kind, false); return false; }
+  [$from, $hdr, $body] = $mail;
+  $eol = "\r\n";
 
   $smtpHost = defined('SITE_SMTP_HOST') ? (string)SITE_SMTP_HOST : '';
   $ok = false;
