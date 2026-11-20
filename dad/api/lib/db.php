@@ -128,6 +128,29 @@ function unsuppress_email(string $email): void {
   q('DELETE FROM suppressions WHERE email_hash = ?', [suppression_hash($email)]);
 }
 
+/** Unsubscribes the row's address from every mailing list (or just that row when it has no email). */
+function unsubscribe_all(array $row): void {
+  $now = time();
+  if (!empty($row['email'])) {
+    q("UPDATE submissions SET unsubscribed_at = ?, updated_at = ?
+         WHERE email = ? AND type IN ('founding','updates') AND unsubscribed_at IS NULL", [$now, $now, $row['email']]);
+  } else {
+    q('UPDATE submissions SET unsubscribed_at = ?, updated_at = ? WHERE id = ? AND unsubscribed_at IS NULL', [$now, $now, $row['id']]);
+  }
+}
+
+/** Undoes unsubscribe_all: restores only the rows that one unsubscribe switched off (same timestamp). */
+function resubscribe_all(array $row): void {
+  if ($row['unsubscribed_at'] === null) return;
+  $now = time();
+  if (!empty($row['email'])) {
+    q("UPDATE submissions SET unsubscribed_at = NULL, updated_at = ?
+         WHERE email = ? AND type IN ('founding','updates') AND unsubscribed_at = ?", [$now, $row['email'], $row['unsubscribed_at']]);
+  } else {
+    q('UPDATE submissions SET unsubscribed_at = NULL, updated_at = ? WHERE id = ?', [$now, $row['id']]);
+  }
+}
+
 /**
  * Sliding-window counter. Records one hit for $key and returns how many hits $key has in the
  * last $window seconds (including this one). Rows past their retention are pruned when a hit is recorded.

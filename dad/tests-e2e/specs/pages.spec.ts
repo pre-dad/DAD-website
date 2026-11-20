@@ -1,5 +1,5 @@
 import { test, expect, type Request, type Response } from '@playwright/test';
-import { CANONICAL_PAGES } from './pages';
+import { CANONICAL_PAGES, EXTRA_PAGES } from './pages';
 import { ORIGIN } from './support';
 
 // Per-page health check for every canonical page:
@@ -9,8 +9,8 @@ import { ORIGIN } from './support';
 //   - a visible <h1> AND the main landmark (main#swap)
 //   - the primary nav is present
 //
-// Same-origin is compared against baseURL's origin, so cross-origin analytics /
-// font CDNs can't make the check flaky. No layout / positional / visual assertions.
+// Only same-origin requests count (compared against baseURL's origin), so third-party
+// analytics and fonts cannot make the check flaky. No layout or visual assertions.
 
 const BASE_ORIGIN = new URL(ORIGIN).origin;
 
@@ -25,7 +25,7 @@ function isSameOrigin(url: string): boolean {
   }
 }
 
-for (const path of CANONICAL_PAGES) {
+for (const path of [...CANONICAL_PAGES, ...EXTRA_PAGES]) {
   test(`page health: ${path}`, async ({ page }) => {
     const consoleErrors: string[] = [];
     const assetProblems: string[] = [];
@@ -56,7 +56,8 @@ for (const path of CANONICAL_PAGES) {
     expect(resp!.status(), `expected 200 for ${path}`).toBe(200);
 
     // Structure: a visible <h1> and the main landmark.
-    await expect(page.locator('h1').first(), `visible <h1> on ${path}`).toBeVisible();
+    await expect(page.locator('h1'), `exactly one <h1> on ${path}`).toHaveCount(1);
+    await expect(page.locator('h1'), `visible <h1> on ${path}`).toBeVisible();
     await expect(page.locator('main#swap'), `main#swap landmark on ${path}`).toBeVisible();
 
     // Primary nav present.
@@ -65,8 +66,8 @@ for (const path of CANONICAL_PAGES) {
       `primary nav on ${path}`,
     ).toBeVisible();
 
-    // Let late assets settle, then assert no errors.
-    await page.waitForLoadState('networkidle').catch(() => { /* fine if idle never reached */ });
+    // app.js sets __booted once the page is wired up; late asset failures surface before that.
+    await page.waitForFunction(() => (window as any).__booted === true);
 
     expect(consoleErrors, `console errors on ${path}:\n${consoleErrors.join('\n')}`).toEqual([]);
     expect(assetProblems, `failed same-origin assets on ${path}:\n${assetProblems.join('\n')}`).toEqual([]);

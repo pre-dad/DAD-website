@@ -52,12 +52,15 @@ core_fail() {
 }
 
 # Neither helper follows redirects.
+CURL=(curl -s --connect-timeout 4 --max-time 10)
+
+# A connection failure yields 000 (so the caller reports it) instead of aborting under set -e.
 http_status() {
-  curl -s -o /dev/null -w '%{http_code}' "$1"
+  "${CURL[@]}" -o /dev/null -w '%{http_code}' "$1" || true
 }
 
 http_body() {
-  curl -s "$1"
+  "${CURL[@]}" "$1" || true
 }
 
 check_health() {
@@ -81,7 +84,7 @@ check_page_200() {
 check_redirect() {
   local path="/get-involved/" out code loc
   # %{redirect_url} is the Location curl would follow; we do NOT follow it.
-  out="$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "$BASE_URL$path")"
+  out="$("${CURL[@]}" -o /dev/null -w '%{http_code} %{redirect_url}' "$BASE_URL$path" || true)"
   code="${out%% *}"
   loc="${out#* }"
   [[ "$code" == "301" ]] || core_fail "GET $path expected 301, got $code"
@@ -107,14 +110,14 @@ check_impactledger() {
   code="$(http_status "$BASE_URL$path")"
   [[ "$code" == "200" ]] || core_fail "GET $path expected 200, got $code"
   # -I would use HEAD; some handlers differ on HEAD, so GET the headers.
-  ctype="$(curl -s -o /dev/null -D - "$BASE_URL$path" \
-            | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type"{print tolower($2)}' | tail -1)"
+  ctype="$("${CURL[@]}" -o /dev/null -D - "$BASE_URL$path" \
+            | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type"{print tolower($2)}' | tail -1 || true)"
   case "$ctype" in
     *text/html*) pass "GET $path -> 200 Content-Type: $ctype" ;;
     *) core_fail "GET $path 200 but Content-Type not text/html (got: ${ctype:-none})" ;;
   esac
   local body
-  body="$(curl -s "$BASE_URL$path")"
+  body="$(http_body "$BASE_URL$path")"
   case "$body" in
     *'Example data, not real records'*'name="robots" content="noindex"'*|*'name="robots" content="noindex"'*'Example data, not real records'*)
       pass "GET $path -> labelled as example data and noindex" ;;
@@ -139,10 +142,10 @@ check_form() {
   # Send the matching Origin so the server's own-host check passes on any port.
   # Append the status code on its own trailing line so we can split body vs code.
   local raw
-  raw="$(curl -s -w $'\n%{http_code}' \
+  raw="$("${CURL[@]}" -w $'\n%{http_code}' \
           -H 'Content-Type: application/json' \
           -H "Origin: $BASE_URL" \
-          -X POST --data "$payload" "$url")"
+          -X POST --data "$payload" "$url" || true)"
   code="${raw##*$'\n'}"
   body="${raw%$'\n'*}"
   if [[ "$code" != "200" ]]; then

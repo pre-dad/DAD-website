@@ -17,7 +17,7 @@ function stripe_key(): ?string {
 }
 
 function valid_session_id($id): bool {
-  return is_string($id) && (bool)preg_match('/^cs_(live|test)_[A-Za-z0-9]{10,200}$/', $id);
+  return is_string($id) && (bool)preg_match('/^cs_(live|test)_[A-Za-z0-9]{10,200}$/D', $id);
 }
 
 /** GET /v1/checkout/sessions/{id}. Returns the decoded session, or null on any failure. */

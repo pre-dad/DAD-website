@@ -124,7 +124,7 @@ prune_releases() {
   while IFS= read -r dir; do
     n=$((n + 1))
     [[ $n -le $DAD_RELEASES_KEPT || "$dir" == "$live" || "$dir" == "$prev" ]] && continue
-    rm -rf -- "$dir"
+    rm -rf -- "$dir" || true
   done < <(find "$DAD_RELEASE_ROOT" -mindepth 1 -maxdepth 1 -type d -name '[0-9]*-*' | sort -r)
 }
 
@@ -176,7 +176,10 @@ on_exit() {
   if [[ $rc -ne 0 ]]; then
     printf '%s\n' "$AFTER" > "$LAST_FAILED" 2>/dev/null || true
     if [[ "$ALERTED" -eq 0 ]]; then
-      alert "deploy FAILED (exit $rc) at ${AFTER:0:12}; live site untouched on prod. See cron.log"
+      local state="live site untouched"
+      if [[ "$MODE" == "staging" ]]; then state="staging webroot may be partly updated"; fi
+      if [[ "$PUBLISHED" -eq 1 ]]; then state="release already published"; fi
+      alert "deploy FAILED (exit $rc) at ${AFTER:0:12}; $state. See cron.log"
     fi
   fi
   return 0

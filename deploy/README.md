@@ -148,8 +148,8 @@ only the newest five `<timestamp>-<commit>` release dirs are kept
 
 ```sh
 crontab -e
-# paste the STAGING line on the staging box, or the PROD line on the prod box,
-# from dad-deploy.cron.
+# uncomment the STAGING line on the staging box, or the PROD line on the prod box,
+# in dad-deploy.cron.
 ```
 
 ## Reading logs

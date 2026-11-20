@@ -9,7 +9,8 @@
 #
 # It ALWAYS does a --dry-run first and shows exactly what would change, then
 # requires confirmation (a --go flag OR an interactive y/N prompt) before the
-# real sync. It never contacts a server without that confirmation.
+# real sync. It never modifies the server before that confirmation; the dry run
+# connects read-only to compare the two trees.
 #
 # The sync uses --delete to keep the webroot a mirror of dad/; deploy/rsync-excludes
 # keeps it away from the live data folder and server-only secrets.
@@ -46,6 +47,15 @@ fi
 
 SSH_TARGET="${POSITIONAL[0]}"
 REMOTE_WEBROOT="${POSITIONAL[1]:-$DEFAULT_WEBROOT}"
+
+if [[ "$SSH_TARGET" == -* ]]; then
+  echo "deploy.sh: ssh target must not start with '-': $SSH_TARGET" >&2
+  exit 2
+fi
+if [[ "$REMOTE_WEBROOT" != /* || "$REMOTE_WEBROOT" == "/" || "$REMOTE_WEBROOT" == *..* ]]; then
+  echo "deploy.sh: remote webroot must be an absolute path below /, got: $REMOTE_WEBROOT" >&2
+  exit 2
+fi
 DEST="${SSH_TARGET}:${REMOTE_WEBROOT}/"
 
 # shellcheck disable=SC2054  # the comma is inside the single --chmod=D755,F644 flag value, not an array separator
@@ -59,7 +69,7 @@ echo
 
 # ---- Step 1: dry run ----------------------------------------------------------
 echo "=== DRY RUN (nothing is uploaded; this only shows what WOULD change) ==="
-rsync --dry-run --itemize-changes "${RSYNC_FLAGS[@]}" "$SRC" "$DEST"
+rsync --dry-run --itemize-changes "${RSYNC_FLAGS[@]}" -- "$SRC" "$DEST"
 echo "=== END DRY RUN ==="
 echo
 
@@ -74,7 +84,7 @@ fi
 
 # ---- Step 3: real sync --------------------------------------------------------
 echo "=== REAL SYNC ==="
-rsync "${RSYNC_FLAGS[@]}" "$SRC" "$DEST"
+rsync "${RSYNC_FLAGS[@]}" -- "$SRC" "$DEST"
 echo "=== DONE ==="
 echo
 

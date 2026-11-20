@@ -5,7 +5,12 @@
 // Never deployed.
 
 $root = $_SERVER['DOCUMENT_ROOT'];
-$uri  = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri  = is_string($path) ? urldecode($path) : '';
+if ($uri === '' || $uri[0] !== '/' || str_contains($uri, "\0")) {
+    http_response_code(404);
+    exit;
+}
 
 // RedirectMatch 301 ^/get-involved/?$ /movement/
 if ($uri === '/get-involved' || $uri === '/get-involved/') {
@@ -14,6 +19,14 @@ if ($uri === '/get-involved' || $uri === '/get-involved/') {
 }
 
 $full = $root . $uri;
+
+// Nothing outside the docroot is ever served, however the path is spelled.
+$real = realpath($full);
+$rootReal = realpath($root);
+if ($real !== false && $rootReal !== false && $real !== $rootReal && !str_starts_with($real, $rootReal . '/')) {
+    http_response_code(404);
+    exit;
+}
 
 // DirectoryIndex index.html index.php
 if (is_dir($full)) {

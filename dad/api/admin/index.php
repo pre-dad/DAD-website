@@ -385,12 +385,6 @@ function email_send_test(string $key, array $tpl): bool {
 // =====================================================================
 // CSV EXPORT  (?export=<type>[&subscribed=1])
 // =====================================================================
-function csv_cell($v): string {
-  $s = (string)$v;
-  if ($s !== '' && in_array($s[0], ['=', '+', '-', '@', "\t", "\r"], true)) $s = "'" . $s;   // spreadsheet formula injection guard
-  return '"' . str_replace('"', '""', $s) . '"';
-}
-function csv_line(array $cells): string { return implode(',', array_map('csv_cell', $cells)) . "\r\n"; }
 function csv_date(?int $t): string { return $t ? date('Y-m-d H:i', $t) : ''; }
 
 if (isset($_GET['export'])) {

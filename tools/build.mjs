@@ -5,6 +5,7 @@
 // With --check nothing is written; it exits 1 if a generated file is stale (CI runs this).
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,7 +25,8 @@ const check = process.argv.includes('--check');
 function siteFiles() {
   // Tracked plus new-but-not-ignored files, so local-only folders under dad/ are never touched.
   const out = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z', '--', '.'], { cwd: SITE, encoding: 'utf8' });
-  return [...new Set(out.split('\0').filter(Boolean))].sort();
+  // A tracked file deleted in the worktree is listed by git but cannot be read.
+  return [...new Set(out.split('\0').filter(Boolean))].filter((f) => existsSync(join(SITE, f))).sort();
 }
 
 const files = siteFiles();

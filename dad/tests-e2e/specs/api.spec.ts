@@ -48,6 +48,21 @@ test('submit: a JSON post without ts_open is refused', async ({ request }) => {
   expect(r.status()).toBe(400);
 });
 
+test('submit: a malformed JSON body is rejected', async ({ request }) => {
+  const r = await request.post('/api/submit.php', {
+    headers: { 'Content-Type': 'application/json', Origin: ORIGIN },
+    data: '{"type": "updates", ',
+  });
+  expect(r.status()).toBe(400);
+  expect((await r.json()).ok).toBe(false);
+});
+
+test('submit: an oversized body is rejected', async ({ request }) => {
+  const r = await request.post('/api/submit.php', post({ type: 'contact', first_name: 'Ada', email: unique('big'), message: 'x'.repeat(40000) }));
+  expect(r.status()).toBe(400);
+  expect((await r.json()).ok).toBe(false);
+});
+
 test('submit: only POST is allowed', async ({ request }) => {
   const r = await request.get('/api/submit.php');
   expect(r.status()).toBe(405);
