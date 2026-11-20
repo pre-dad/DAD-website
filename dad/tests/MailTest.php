@@ -47,4 +47,19 @@ final class MailTest extends TestCase
         $this->assertFalse(addr_ok('not an address'));
         $this->assertFalse(addr_ok(''));
     }
+
+    public function testSmtpMessageNamesTheRecipientAndSubject(): void
+    {
+        $msg = smtp_message('to@b.co', 'Hello', ['From: a@b.co', 'Date: today'], 'body');
+        $this->assertStringStartsWith("Subject: Hello\r\nTo: to@b.co\r\nFrom: a@b.co\r\nDate: today\r\n\r\nbody", $msg);
+    }
+
+    public function testSmtpPasswordIsOnlySentOverStarttlsOrToThisMachine(): void
+    {
+        $this->assertTrue(smtp_secure_ok('email-smtp.us-east-1.amazonaws.com', 'tls'));
+        $this->assertTrue(smtp_secure_ok('127.0.0.1', ''));
+        $this->assertFalse(smtp_secure_ok('email-smtp.us-east-1.amazonaws.com', ''));
+        $this->assertFalse(smtp_secure_ok('email-smtp.us-east-1.amazonaws.com', 'none'));
+        $this->assertFalse(smtp_send('email-smtp.us-east-1.amazonaws.com', 587, 'none', 'u', 'p', 'a@b.co', 'c@d.co', 'x'));
+    }
 }
