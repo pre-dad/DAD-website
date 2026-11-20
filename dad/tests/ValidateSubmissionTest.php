@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 /** The per-type matrix for validate_submission(). */
 final class ValidateSubmissionTest extends TestCase
 {
-    // ---- founding / updates (first_name + email) ---------------------------
-
     public static function listTypeProvider(): array
     {
         return [['founding'], ['updates']];
@@ -63,8 +61,6 @@ final class ValidateSubmissionTest extends TestCase
             $r
         );
     }
-
-    // ---- support (email-OR-phone branch + zip) -----------------------------
 
     public function testSupportSuccessEmailOrPhoneHoldingEmail(): void
     {
@@ -148,8 +144,6 @@ final class ValidateSubmissionTest extends TestCase
         );
     }
 
-    // ---- volunteer (first_name + email + city) -----------------------------
-
     public function testVolunteerSuccess(): void
     {
         $r = validate_submission('volunteer', ['first_name' => 'Lee', 'email' => 'lee@place.org', 'city' => 'Austin']);
@@ -183,8 +177,6 @@ final class ValidateSubmissionTest extends TestCase
             $r
         );
     }
-
-    // ---- contact (name + email + topic + message) --------------------------
 
     public function testContactSuccessTopicCanonicalized(): void
     {
@@ -245,8 +237,6 @@ final class ValidateSubmissionTest extends TestCase
             $r
         );
     }
-
-    // ---- partner (name + email + company, optional note) -------------------
 
     public function testPartnerSuccessWithNote(): void
     {
@@ -310,8 +300,6 @@ final class ValidateSubmissionTest extends TestCase
             $r
         );
     }
-
-    // ---- unknown type ------------------------------------------------------
 
     public function testUnknownTypeTreatedAsListTypeFirstNamePath(): void
     {
