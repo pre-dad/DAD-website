@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { CANONICAL_PAGES } from './pages';
+import { ORIGIN } from './support';
 
-const BASE_ORIGIN = new URL('http://127.0.0.1:8080').origin;
+const BASE_ORIGIN = new URL(ORIGIN).origin;
 
 // ---------------------------------------------------------------------------
 // Home CTAs + founding form present
@@ -95,4 +96,38 @@ test('internal links across all pages resolve (200, or the known 301)', async ({
   }
 
   expect(bad, `broken internal links:\n${bad.join('\n')}`).toEqual([]);
+});
+
+// ---------------------------------------------------------------------------
+// Scroll-driven content stays readable when the app does not boot
+// ---------------------------------------------------------------------------
+test.describe('without JavaScript', () => {
+  test.use({ javaScriptEnabled: false });
+
+  test('how-it-works: every loop step and choice is visible', async ({ page }) => {
+    await page.goto('/how-it-works/', { waitUntil: 'load' });
+    for (const selector of ['.hw-step', '.hw-pick', '.hw-feed__row']) {
+      const items = page.locator(selector);
+      const count = await items.count();
+      expect(count, `${selector} present`).toBeGreaterThan(0);
+      for (let i = 0; i < count; i++) await expect(items.nth(i)).toBeVisible();
+      for (let i = 0; i < count; i++) {
+        const opacity = await items.nth(i).evaluate((el) => getComputedStyle(el).opacity);
+        expect(Number(opacity), `${selector} #${i} opacity`).toBe(1);
+      }
+    }
+  });
+
+  test('problem: every fact and force is fully opaque', async ({ page }) => {
+    await page.goto('/problem/', { waitUntil: 'load' });
+    for (const selector of ['.ph-fact', '.ph-force']) {
+      const items = page.locator(selector);
+      const count = await items.count();
+      expect(count, `${selector} present`).toBeGreaterThan(0);
+      for (let i = 0; i < count; i++) {
+        const opacity = await items.nth(i).evaluate((el) => getComputedStyle(el).opacity);
+        expect(Number(opacity), `${selector} #${i} opacity`).toBe(1);
+      }
+    }
+  });
 });

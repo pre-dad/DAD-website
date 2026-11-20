@@ -1,11 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { ORIGIN, unique } from './support';
 
 // The forms API contract (api/README.txt), exercised over HTTP against the real
 // submit.php and a throwaway SQLite database. example.com is a quiet domain, so
 // rows are saved but no email is sent.
 
-const ORIGIN = 'http://127.0.0.1:8080';
-const unique = (tag: string) => `${tag}+${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
 const post = (data: Record<string, unknown>, headers: Record<string, string> = {}) => ({
   headers: { 'Content-Type': 'application/json', Origin: ORIGIN, ...headers },
   data: JSON.stringify({ website: '', ts_open: 1, page: '/', ...data }),

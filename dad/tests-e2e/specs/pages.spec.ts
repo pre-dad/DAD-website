@@ -1,5 +1,6 @@
 import { test, expect, type Request, type Response } from '@playwright/test';
 import { CANONICAL_PAGES } from './pages';
+import { ORIGIN } from './support';
 
 // Per-page health check for every canonical page:
 //   - HTTP 200 and the document loads
@@ -11,7 +12,7 @@ import { CANONICAL_PAGES } from './pages';
 // Same-origin is compared against baseURL's origin, so cross-origin analytics /
 // font CDNs can't make the check flaky. No layout / positional / visual assertions.
 
-const BASE_ORIGIN = new URL('http://127.0.0.1:8080').origin;
+const BASE_ORIGIN = new URL(ORIGIN).origin;
 
 // Asset request types whose same-origin 4xx/failure we treat as a broken page.
 const ASSET_TYPES = new Set(['stylesheet', 'script', 'font', 'image']);

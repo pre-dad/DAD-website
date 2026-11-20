@@ -24,7 +24,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=7df28338d2">
+<link rel="stylesheet" href="/css/site.css?v=8e047553f8">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -40,15 +40,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/SplitText.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/lenis.min.js?v=7df28338d2"></script>
-<script type="module" src="/js/app.js?v=7df28338d2"></script>
+<script defer src="/vendor/gsap.min.js?v=8e047553f8"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=8e047553f8"></script>
+<script defer src="/vendor/SplitText.min.js?v=8e047553f8"></script>
+<script defer src="/vendor/lenis.min.js?v=8e047553f8"></script>
+<script type="module" src="/js/app.js?v=8e047553f8"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=7df28338d2">
+<link rel="modulepreload" href="/js/core/util.js?v=8e047553f8">
 </head>
 <body data-page="how-it-works" data-mobile-cta="on">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -106,7 +106,7 @@
   </div>
 </div>
 
-<main id="swap" data-page="how-it-works" data-module="/js/pages/how-it-works.js?v=7df28338d2" data-scenes tabindex="-1">
+<main id="swap" data-page="how-it-works" data-module="/js/pages/how-it-works.js?v=8e047553f8" data-scenes tabindex="-1">
 <!-- ============ HERO ============ -->
 <section class="section section--hero hw-hero" data-theme="dark" aria-labelledby="hw-title" data-scene data-scene-name="How it works">
   <div class="dots dots--bg" data-dots="field" data-dots-color="paper" data-dots-density="0.8" aria-hidden="true"></div>
@@ -167,14 +167,14 @@
           <p class="hw-step__text">Proof does what promises can't. People see it work, bring their people, and fund more programs.</p>
         </li>
       </ol>
-      <div class="hw-loop__bar" aria-hidden="true"><i></i></div>
     </div>
   </div>
 </section>
 
 <!-- ============ THREE WAYS THE MONEY MOVES ============ -->
-<section class="section hw-ways" data-theme="light" aria-label="Three ways the money moves" data-scene data-scene-name="Three ways">
+<section class="section hw-ways" data-theme="light" aria-labelledby="hw-ways-h" data-scene data-scene-name="Three ways">
   <div class="container">
+    <h2 class="sr-only" id="hw-ways-h">Three ways the money moves</h2>
     <div class="dollar-anchor ph-ghost" data-dollar="ambient"></div>
     <div class="hw-lanes" data-stagger="clip" data-stagger-step=".14">
       <article class="hw-lane c-red">
@@ -215,8 +215,9 @@
 </section>
 
 <!-- ============ HOW WE CHOOSE WHAT TO FUND ============ -->
-<section class="section hw-choose" data-theme="light" aria-label="How we choose what to fund">
+<section class="section hw-choose" data-theme="light" aria-labelledby="hw-choose-h">
   <div class="container">
+    <h2 class="sr-only" id="hw-choose-h">How we choose what to fund</h2>
     <div class="hw-choose__grid">
       <div class="hw-choose__visual">
         <div class="island hw-choose__island">
@@ -250,8 +251,9 @@
 </section>
 
 <!-- ============ WHAT YOU'LL SEE AS A DONOR ============ -->
-<section class="section hw-see" data-theme="light" aria-label="What you'll see as a donor" data-scene data-scene-media="(min-width: 960px)" data-scene-name="What you'll see">
+<section class="section hw-see" data-theme="light" aria-labelledby="hw-see-h" data-scene data-scene-media="(min-width: 960px)" data-scene-name="What you'll see">
   <div class="container">
+    <h2 class="sr-only" id="hw-see-h">What you'll see as a donor</h2>
     <div class="dollar-anchor hw-see__park" data-dollar="ambient"></div>
     <div class="hw-see__grid">
       <div class="scene-m hw-see__list" data-scene data-scene-media="(max-width: 959px)" data-scene-name="What you'll see">
@@ -523,8 +525,9 @@
 </section>
 
 <!-- ============ WHERE AI FITS ============ -->
-<section class="section hw-ai" data-theme="light" aria-label="Where AI fits">
+<section class="section hw-ai" data-theme="light" aria-labelledby="hw-ai-h">
   <div class="container">
+    <h2 class="sr-only" id="hw-ai-h">Where AI fits</h2>
     <div class="hw-ai__intro scene-flex" data-scene data-scene-name="Where AI fits">
     <p class="h-l ph-read hw-ai__lead" data-read>Nobody gives to a charity because it uses AI. They give because they believe it'll help more people. <span class="hl">AI is how we get there. It's never the reason to care.</span></p>
     </div>
