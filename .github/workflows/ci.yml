@@ -5,6 +5,9 @@ on:
   push:
     branches: [main, staging]
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -46,6 +49,7 @@ jobs:
   php-tests:
     name: PHP unit tests
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: dad
@@ -68,6 +72,7 @@ jobs:
   e2e:
     name: E2E + a11y (Playwright + axe)
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 

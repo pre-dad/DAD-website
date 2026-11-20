@@ -60,7 +60,7 @@ anything a sync replaces, for exactly this reason.
 
 ## Post-deploy checklist
 
-From `dad/api/README.txt`, after a real deploy:
+`deploy.sh` points here after a real deploy. Work through it once:
 
 1. Open `https://<host>/api/health.php` — must show `{"ok":true}`.
 2. Open `https://<host>/api/admin/?setup=THE-KEY` once; Chris sets his password

@@ -78,19 +78,6 @@ rsync "${RSYNC_FLAGS[@]}" "$SRC" "$DEST"
 echo "=== DONE ==="
 echo
 
-# ---- Step 4: post-deploy checklist (from api/README.txt) ----------------------
+# ---- Step 4: post-deploy checklist ---------------------------------------------
 HOST="${SSH_TARGET#*@}"
-cat <<EOF
-Post-deploy checklist (see api/README.txt):
-  1. Open https://${HOST}/api/health.php   — must show {"ok":true}
-  2. Open https://${HOST}/api/admin/?setup=THE-KEY once; Chris sets his password
-     (the setup link then stops working).
-  3. In the dashboard: "Send a test alert" and "Preview the donor email"; on the
-     Emails page open "Partner confirmation" and "Send me a test". Check all arrive
-     (and not in spam).
-  4. Submit each form once with an @example.com address (saved, never emailed),
-     then delete them in the dashboard.
-  5. Submit the Founding Donor form with a real Gmail address: confirm the email
-     lands in the inbox, the Unsubscribe link works, and Gmail shows its own
-     one-click Unsubscribe button.
-EOF
+echo "Next: work through the \"Post-deploy checklist\" in DEPLOY.md (start with https://${HOST}/api/health.php)."

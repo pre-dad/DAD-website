@@ -30,7 +30,7 @@ tools/build.mjs       regenerates css/site.css and the ?v= asset versions
 
 ## Prerequisites
 
-PHP 8.4+ with `pdo_sqlite` and `mbstring`, Composer, and Node 20+.
+PHP 8.3+ with `pdo_sqlite` and `mbstring`, Composer, and Node 20+.
 
 ## Run it locally
 
