@@ -9,7 +9,7 @@
 //  · "What DAD is not": a glass window table (rows stagger in through the shared reveals)
 //  · Follow the dollar: steps light up as they pass (the liquid drop shows each step)
 //  · Programs fan into place (the leadership grid uses the shared reveals)
-import * as theme from '../core/theme.js?v=b3ab66e8c9';
+import * as theme from '../core/theme.js?v=209c519080';
 
 const DESK = '(min-width: 960px) and (pointer: fine)';
 

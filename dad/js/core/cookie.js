@@ -1,5 +1,5 @@
 // Cookie notice. GA4 loads ONLY after Accept, and never on localhost.
-import { store } from './util.js?v=b3ab66e8c9';
+import { store } from './util.js?v=209c519080';
 
 const GA_ID = 'G-Z2E5PJ5EDE';
 const KEY = 'dad-consent';
