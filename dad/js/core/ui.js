@@ -1,6 +1,6 @@
 // Small UI enhancements bound per page: button label roll, FAQ accordion
 // with animated height, pointer-following card glow.
-import { $, $$, isFinePointer, prefersReduced } from './util.js?v=8e047553f8';
+import { $, $$, isFinePointer, prefersReduced } from './util.js?v=52460dff95';
 
 let cleanups = [];
 
