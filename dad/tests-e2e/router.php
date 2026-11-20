@@ -39,8 +39,14 @@ if (is_file($full) && basename($uri) === 'impactledger') {
 // Header always set Content-Security-Policy: pages are served here (not by the built-in server)
 // so the policy from .htaccess applies to them in tests.
 if (is_file($full) && str_ends_with($full, '.html')) {
-    if (!preg_match('#^/(on-prem-infra/|map/)#', $uri)
-        && preg_match('/Content-Security-Policy "([^"]+)"/', (string)file_get_contents($root . '/.htaccess'), $m)) {
+    $htaccess = (string)file_get_contents($root . '/.htaccess');
+    if (str_starts_with($uri, '/on-prem-infra/')) {
+        if (preg_match('/=~ m#\^\/on-prem-infra\/#[^\n]*\n\s*Header always set Content-Security-Policy "([^"]+)"/', $htaccess, $m)) {
+            header('Content-Security-Policy: ' . $m[1]);
+        }
+        header('X-Robots-Tag: noindex, nofollow');
+    } elseif (!str_starts_with($uri, '/map/')
+        && preg_match('/Content-Security-Policy "([^"]+)"/', $htaccess, $m)) {
         header('Content-Security-Policy: ' . $m[1]);
     }
     header('Content-Type: text/html; charset=UTF-8');

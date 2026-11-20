@@ -34,7 +34,8 @@ const sources = await Promise.all([...CORE_CSS, ...extraCss].map(read));
 const { code: css } = await transform(sources.join('\n'), { loader: 'css', minify: true });
 
 const versioned = files.filter((f) => !UNVERSIONED.test(f) && (f.endsWith('.html') || f.endsWith('.js')));
-const hashed = files.filter((f) => /^(js|vendor)\/.+\.js$/.test(f));
+// vendor/three/ is imported through an import map (no ?v=), so it does not feed the version.
+const hashed = files.filter((f) => /^(js|vendor)\/.+\.js$/.test(f) && !f.startsWith('vendor/three/'));
 const hash = createHash('sha256').update(css);
 for (const f of hashed) hash.update(`${f}\0${(await read(f)).replace(VERSION_RE, '?v=')}\0`);
 const version = hash.digest('hex').slice(0, 10);
