@@ -24,7 +24,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=9487f1ac36">
+<link rel="stylesheet" href="/css/site.css?v=b3ab66e8c9">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -40,15 +40,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=9487f1ac36"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=9487f1ac36"></script>
-<script defer src="/vendor/SplitText.min.js?v=9487f1ac36"></script>
-<script defer src="/vendor/lenis.min.js?v=9487f1ac36"></script>
-<script type="module" src="/js/app.js?v=9487f1ac36"></script>
+<script defer src="/vendor/gsap.min.js?v=b3ab66e8c9"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=b3ab66e8c9"></script>
+<script defer src="/vendor/SplitText.min.js?v=b3ab66e8c9"></script>
+<script defer src="/vendor/lenis.min.js?v=b3ab66e8c9"></script>
+<script type="module" src="/js/app.js?v=b3ab66e8c9"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=9487f1ac36">
+<link rel="modulepreload" href="/js/core/util.js?v=b3ab66e8c9">
 </head>
 <body data-page="transparency" data-mobile-cta="on">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -106,7 +106,7 @@
   </div>
 </div>
 
-<main id="swap" data-page="transparency" data-module="/js/pages/transparency.js?v=9487f1ac36" data-scenes tabindex="-1">
+<main id="swap" data-page="transparency" data-module="/js/pages/transparency.js?v=b3ab66e8c9" data-scenes tabindex="-1">
 <style>
 /* ---- TRANSPARENCY (page-scoped) ---- */
 [data-page="transparency"] .pp-field { position: absolute; inset: 0; width: auto; height: auto; aspect-ratio: auto; opacity: .4; pointer-events: none; -webkit-mask-image: linear-gradient(180deg, #000 45%, transparent 96%); mask-image: linear-gradient(180deg, #000 45%, transparent 96%); }
@@ -124,7 +124,7 @@
 }
 [data-page="transparency"] .tx-toc ol { list-style: none; margin: 0; padding: 0; display: grid; border-left: 1px solid var(--line-c); }
 [data-page="transparency"] .tx-toc a { position: relative; display: flex; gap: 12px; align-items: baseline; padding: 11px 0 11px 20px; color: var(--fg-mut); text-decoration: none; font: 500 15px/1.3 var(--f-sans); transition: color .4s var(--ease); }
-[data-page="transparency"] .tx-toc a span { font: 500 var(--fs-mono-s)/1 var(--f-mono); letter-spacing: .18em; color: var(--fg-faint); }
+[data-page="transparency"] .tx-toc a span { font: 500 var(--fs-mono-s)/1 var(--f-mono); letter-spacing: .18em; color: var(--fg-mut); }
 [data-page="transparency"] .tx-toc a::before { content: ""; position: absolute; left: -1px; top: 8px; bottom: 8px; width: 2px; background: var(--red); transform: scaleY(0); transition: transform .6s var(--ease); }
 [data-page="transparency"] .tx-toc a:hover, [data-page="transparency"] .tx-toc a.is-current { color: var(--fg); }
 [data-page="transparency"] .tx-toc a.is-current::before { transform: scaleY(1); }
@@ -148,7 +148,7 @@ html.js:not(.reduced) [data-page="transparency"] .tx-item[data-reveal]:not(.is-i
 html.js:not(.reduced) [data-page="transparency"] .tx-pol[data-reveal]:not(.is-in)::after { transform: scaleX(0); }
 [data-page="transparency"] .tx-pol__title { margin: 0; font: 700 var(--fs-m)/1.05 var(--f-disp); letter-spacing: -.028em; color: var(--fg); }
 [data-page="transparency"] .tx-pol__text { margin: 0; color: var(--fg-mut); font-size: var(--fs-body); line-height: 1.6; max-width: 52ch; }
-[data-page="transparency"] .tx-pol__status { margin: 0; font: 500 var(--fs-mono-s)/1.5 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--fg-faint); }
+[data-page="transparency"] .tx-pol__status { margin: 0; font: 500 12px/1.5 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--fg-mut); }
 [data-page="transparency"] .tx-pol .btn--link { justify-self: start; }
 @media (min-width: 720px) {
   [data-page="transparency"] .tx-pol { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-items: start; }
@@ -161,8 +161,6 @@ html.js:not(.reduced) [data-page="transparency"] .tx-pol[data-reveal]:not(.is-in
 /* scenes: each block of the record is one screen; the contents rail holds still beside them */
 [data-page="transparency"].has-scenes .tx-block + .tx-block { margin-top: 0; }
 @media (min-width: 960px) { [data-page="transparency"].has-scenes .tx-toc { top: calc(50svh - 150px); } }
-[data-page="transparency"] .tx-pol__status { font-size: 12px; color: var(--fg-mut); }
-[data-page="transparency"] .tx-toc a span { color: var(--fg-mut); }
 @media (max-width: 719px) {
   [data-page="transparency"].has-scenes .tx-item { padding-block: clamp(12px, 2svh, 18px); }
   [data-page="transparency"].has-scenes .tx-pol { padding-block: clamp(12px, 2svh, 20px); gap: 6px; }
