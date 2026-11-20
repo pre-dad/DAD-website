@@ -507,10 +507,10 @@ html.reduced .bip-entry.is-latest::before { animation: none; }
   [data-page="get-involved"].has-scenes .gi-careers .stack-l { --gap: clamp(10px, 1.8svh, 20px); }
   [data-page="get-involved"].has-scenes .gi-seats__list li { font-size: clamp(17px, min(4.8vw, 2.6svh), 21px); padding-block: clamp(8px, 1.3svh, 12px); }
 }
-/* Program Partners handshake: larger (Chris, 2026-10-11) */
+/* Program Partners handshake: larger */
 .gi-pcard__art--hs { width: min(100%, 300px); margin-inline: auto; }
 @media (max-width: 719px) { [data-page="get-involved"].has-scenes .gi-pcard--program .gi-pcard__art--hs { max-width: 36svh; } }
-/* hide/ambient anchors must be positioned within their own scene (Building in Public timeline fix) */
+/* hide/ambient anchors must be positioned within their own scene */
 .section:has(> .gi-hide-anchor) { position: relative; }
 /* Give: the county map rests above the founding form, its foot tucked behind the card
    (the "Tell me when" treatment) */

@@ -338,9 +338,8 @@
   .lw-meta dt { font-size: 8.5px; }
   .lw-meta dd { font-size: 13px; }
 
-  .lw-reg__head { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .lw-reg__head { flex-direction: column; align-items: flex-start; gap: 8px; }
   .lw-reg { gap: 8px; }
-  .lw-reg__head { gap: 8px; }
   .lw-reg__lede { font-size: 10.5px; line-height: 1.4; }
   .lw-ghost { font-size: 10.5px; padding: 6px 10px; }
   .lw-tr--head { display: none; }

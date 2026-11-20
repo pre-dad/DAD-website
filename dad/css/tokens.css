@@ -10,10 +10,8 @@
   --ink2: #0A1616;
   --ink3: #142A2A;
   --paper: #F8F9FA;
-  --paper2: #EEF1F2;
   --red: #FF4A22;          /* Kinetic Red-Orange: primary accent / CTA */
   --red-hi: #FF6A45;
-  --red-ink: #C9340F;      /* red for small text on paper (AA 5:1) */
   /* paper-tuned brand colours for headline text on warm paper (large text, >= 3:1 on #FBF5EE) */
   --red-paper: #E23A12;
   --cyan-paper: #0384A3;
@@ -27,15 +25,10 @@
   --body: #4A5757;
   --dkmut: #B9C6C6;
 
-  /* program categories */
-  --cat-food: var(--red);
-  --cat-health: var(--cyan);
-  --cat-opps: var(--gold);
-
   /* type families */
   --f-disp: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --f-mono: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; /* Chris 2026-10-09: Inter replaces IBM Plex Mono for labels and data */
+  --f-mono: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; /* Inter replaces IBM Plex Mono for labels and data */
 
   /* type scale (390px first, fluid to 1440px+) */
   --fs-display: clamp(46px, 7.4vw + 6px, 150px);
@@ -50,34 +43,20 @@
   --fs-mono-s: 12px;
 
   --lh-tight: .94;
-  --lh-head: 1.04;
   --lh-body: 1.65;
 
   --tr-display: -.042em;
   --tr-head: -.03em;
   --tr-tight: -.018em;
   --tr-mono: .2em;
-  --tr-mono-wide: .3em;
 
   /* spacing scale */
-  --s-1: 4px;
-  --s-2: 8px;
-  --s-3: 12px;
-  --s-4: 16px;
-  --s-5: 24px;
-  --s-6: 32px;
-  --s-7: 48px;
-  --s-8: 64px;
-  --s-9: 96px;
-  --s-10: 128px;
   --gutter: clamp(16px, 4vw, 48px);
   --container: 1320px;
   --section-y: clamp(96px, 14vw, 200px);
   --nav-h: 76px;
 
   /* radii */
-  --r-xs: 6px;
-  --r-s: 10px;
   --r-m: 16px;
   --r-l: 24px;
   --r-xl: 32px;
@@ -86,12 +65,7 @@
   /* motion */
   --ease: cubic-bezier(.16, 1, .3, 1);
   --ease-io: cubic-bezier(.65, 0, .35, 1);
-  --ease-in: cubic-bezier(.55, 0, 1, .45);
   --ease-back: cubic-bezier(.34, 1.56, .64, 1);
-  --d-1: .2s;
-  --d-2: .45s;
-  --d-3: .8s;
-  --d-4: 1.2s;
 
   /* z-index map */
   --z-flood: 0;
@@ -147,7 +121,7 @@ html[data-theme="dark"],
 
 html[data-theme="light"],
 .is-light {
-  /* "Warm paper" (Chris, 2026-10-09, option E): no pure white anywhere.
+  /* "Warm paper": no pure white anywhere.
      The light half of the story is a soft off-white with a hint of peach. */
   --bg: #FBF5EE;
   --bg-2: #F4EBE1;

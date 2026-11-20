@@ -69,7 +69,7 @@
   color: var(--accent-text);
   margin-bottom: clamp(18px, 2.2vw, 30px);
 }
-/* no leading rule before eyebrows (CEO, 10 Oct 2026): the label stands alone, aligned to the text edge */
+/* no leading rule before eyebrows: the label stands alone, aligned to the text edge */
 .eyebrow::before { content: none; display: none; }
 .eyebrow--center { justify-content: center; }
 
@@ -1362,7 +1362,7 @@ html.reveal-all [data-reveal], html.reduced [data-reveal] { opacity: 1 !importan
 .logo-panel__grid li.is-wide { flex-basis: 50%; }
 .logo-panel__grid li.is-wide img { opacity: 1; }
 
-/* ---- "Join the Movement" liquid button (Chris, 2026-10-11: option A, toned-down shine) ---- */
+/* ---- "Join the Movement" liquid button ---- */
 .btn--primary {
   color: #fff;
   background: radial-gradient(120% 140% at 30% 0%, #FF7448 0%, #FF4A22 50%, #E3380F 100%);
@@ -1378,13 +1378,13 @@ html.reveal-all [data-reveal], html.reduced [data-reveal] { opacity: 1 !importan
   .btn--primary:hover { box-shadow: inset 0 -6px 14px rgba(120, 20, 0, .32), inset 0 2px 0 rgba(255, 255, 255, .22), 0 16px 36px -8px rgba(255, 74, 34, .55); }
 }
 
-/* footer: a liquid DAD mark fills the empty space above "Aid, delivered." (Chris, 2026-10-11) */
+/* footer: a liquid DAD mark fills the empty space above "Aid, delivered." */
 .footer > .container { display: flex; flex-direction: column; flex: 1 1 auto; width: 100%; }
 .footer__mark { position: relative; flex: 1 1 auto; min-height: clamp(140px, 22svh, 260px); margin-top: clamp(24px, 4vw, 56px); }
 .footer__mark + .footer__big { margin-top: clamp(16px, 3vw, 40px); }
 /* any scene-level drop anchor is positioned within its own section, never a distant ancestor */
 .section:has(> .dollar-anchor) { position: relative; }
-/* footer: "Aid, delivered." centred under the liquid D (Chris, 2026-10-11) */
+/* footer: "Aid, delivered." centred under the liquid D */
 .footer__big { text-align: center; margin-left: 0; margin-right: 0; }
 /* footer on phones: the whole thing, logo to legal line, on ONE screen (sized off svh so it holds
    with Safari's bars showing too). The liquid D keeps its box; it just takes what's left. */
