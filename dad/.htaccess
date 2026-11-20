@@ -29,7 +29,7 @@ RedirectMatch 301 ^/get-involved/?$ /movement/
   Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on'"
   # map/ loads third-party scripts, styles and fonts, so it keeps its own markup and no CSP.
   <If "%{REQUEST_URI} !~ m#^/(on-prem-infra/|map/)#">
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-HJ2fANSo4M+Cgo/Xcyt9Y7exhcdEaWVDnwQE1HcuxF0=' 'sha256-XbJJnf+2ptApBo2vIPlNH/+SacoYH6cVPzGXajNY21g='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
   </If>
   # Internal budget viewer: self-hosted three.js, inline script and fonts, kept out of search indexes.
   <If "%{REQUEST_URI} =~ m#^/on-prem-infra/#">
