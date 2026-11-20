@@ -1,8 +1,8 @@
 // The liquid drop's render worker: owns the WebGL context (an OffscreenCanvas transferred from the
 // page) and its own animation loop, so a busy main thread never stalls the liquid. The page only
 // posts what it measured (destinations, scroll-relative rects, state changes, theme); see dollar.js.
-import { Engine, N_PRIMS, tierQ, dispatch, hostTick } from './engine.js?v=8e047553f8';
-import { View } from './gl.js?v=8e047553f8';
+import { Engine, N_PRIMS, tierQ, dispatch, hostTick } from './engine.js?v=52460dff95';
+import { View } from './gl.js?v=52460dff95';
 
 let eng = null, last = 0, paced = false, lastTick = -1e9;
 const emit = (type, data) => postMessage({ type, data });
@@ -31,7 +31,7 @@ self.onmessage = (ev) => {
     try {
       const q = tierQ(m.tier, m.mobile);
       const view = new View(m.canvas, N_PRIMS, q.steps);
-      m.canvas.addEventListener && m.canvas.addEventListener('contextlost', () => { if (eng) eng._lost = true; emit('fail', 'context lost'); });
+      m.canvas.addEventListener && m.canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); if (eng) eng._lost = true; emit('fail', 'context lost'); });
       eng = new Engine(view, { tier: m.tier, reduced: m.reduced, mobile: m.mobile, emit, W: m.W, H: m.H, dpr: m.dpr });
       eng._dirty = true;
       // no rAF in this worker (older engines): the page drives every frame with 'tick'
