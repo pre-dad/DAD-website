@@ -90,6 +90,17 @@ test('retired donor lookup never returns personal data', async ({ request }) => 
   }
 });
 
+test('welcome page only claims a received gift after a donation return', async ({ page }) => {
+  await page.goto('/give/welcome/');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Join the Founding Donor waitlist.');
+  await expect(page.getByText('Your monthly gift is set')).toBeHidden();
+
+  await page.goto('/give/welcome/?session_id=cs_test_syntheticreceipt');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText("Thank you. You're in.");
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText("Thank you. You're in.");
+});
+
 test('donation return keeps details blank and removes the receipt from the URL', async ({ page }) => {
   const lookups: string[] = [];
   page.on('request', request => { if (request.url().includes('/api/donor.php')) lookups.push(request.url()); });

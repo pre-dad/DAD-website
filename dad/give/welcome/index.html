@@ -25,7 +25,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=9487f1ac36">
+<link rel="stylesheet" href="/css/site.css?v=209c519080">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -41,15 +41,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=9487f1ac36"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=9487f1ac36"></script>
-<script defer src="/vendor/SplitText.min.js?v=9487f1ac36"></script>
-<script defer src="/vendor/lenis.min.js?v=9487f1ac36"></script>
-<script type="module" src="/js/app.js?v=9487f1ac36"></script>
+<script defer src="/vendor/gsap.min.js?v=209c519080"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=209c519080"></script>
+<script defer src="/vendor/SplitText.min.js?v=209c519080"></script>
+<script defer src="/vendor/lenis.min.js?v=209c519080"></script>
+<script type="module" src="/js/app.js?v=209c519080"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=9487f1ac36">
+<link rel="modulepreload" href="/js/core/util.js?v=209c519080">
 </head>
 <body data-page="give-welcome" data-mobile-cta="off">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -113,9 +113,12 @@
   <span class="glow" style="--x:78%;--y:30%;--size:70vmax;--o:.35"></span>
   <div class="container">
     <div class="gw-card pg-formcard" data-reveal="up">
-      <p class="eyebrow">Gift received</p>
-      <h1 class="h-l">Thank you. You're in.</h1>
-      <p class="body">Your monthly gift is set, and a receipt is on its way to your inbox.</p>
+      <p class="eyebrow" data-gift="yes">Gift received</p>
+      <h1 class="h-l" data-gift="yes">Thank you. You're in.</h1>
+      <p class="body" data-gift="yes">Your monthly gift is set, and a receipt is on its way to your inbox.</p>
+      <p class="eyebrow" data-gift="no" hidden>Founding Donor</p>
+      <h1 class="h-l" data-gift="no" hidden>Join the Founding Donor waitlist.</h1>
+      <p class="body" data-gift="no" hidden>Give monthly from the <a href="/give/">giving page</a>, then come back here to claim your Founding Donor badge.</p>
       <p class="body">When we launch and the DAD app goes live, you'll get an email. That's where you'll see exactly where your dollars go.</p>
       <h2 class="h-s gw-step">One more step: claim your Founding Donor badge.</h2>
       <p class="body">Join the app waitlist. The badge goes on your profile the day the app opens, and it never comes off.</p>
