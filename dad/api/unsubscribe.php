@@ -4,6 +4,7 @@
 //   POST  a=unsubscribe&t=<token>: the confirm button. Unsubscribes that email from every DAD mailing list, then offers an undo.
 //   POST  List-Unsubscribe=One-Click (RFC 8058, sent by Gmail/Apple Mail's own unsubscribe button): same, no page.
 //   POST  a=resubscribe&t=<token>: undo, for that one list.
+//   GET/POST ?c=<token>: confirm a re-subscribe requested by a sign-up form (the link in the confirmation email).
 declare(strict_types=1);
 require __DIR__ . '/lib/bootstrap.php';
 
@@ -21,6 +22,36 @@ function invalid_link(): void {
 
 if (!site_configured()) {
   ui_card_page('Unsubscribe | DAD', ui_logo() . '<h1>Back in a minute.</h1><p>Please try this link again shortly.</p>', 503);
+  exit;
+}
+
+$c = strtolower(trim((string)($_GET['c'] ?? $_POST['c'] ?? '')));
+if ($c !== '') {
+  if (!preg_match('/^[a-f0-9]{32}$/', $c)) invalid_link();
+  try {
+    $pend = q('SELECT id, email FROM submissions WHERE resub_token = ?', [$c])->fetch();
+  } catch (Throwable $e) {
+    error_log('[dad-site] unsubscribe.php: ' . $e->getMessage());
+    ui_card_page('Unsubscribe | DAD', ui_logo() . '<h1>Back in a minute.</h1><p>Please try this link again shortly.</p>', 503);
+    exit;
+  }
+  if (!$pend) invalid_link();
+  if ($method === 'POST') {
+    q('UPDATE submissions SET unsubscribed_at = NULL, resub_token = NULL, updated_at = ? WHERE id = ?', [time(), $pend['id']]);
+    if (!empty($pend['email'])) unsuppress_email((string)$pend['email']);
+    ui_card_page('Unsubscribe | DAD', ui_logo()
+      . '<h1>You\'re on the list.</h1>'
+      . '<p>Thanks for confirming. We\'ll keep it to one email a month, at most.</p>' . $home);
+    exit;
+  }
+  if ($method === 'HEAD') { ui_headers(200); exit; }
+  ui_card_page('Unsubscribe | DAD', ui_logo()
+    . '<h1>Get DAD emails again?</h1>'
+    . '<p>You unsubscribed earlier. Confirm to be added back.</p>'
+    . '<form method="post" action="unsubscribe.php">'
+    . '<input type="hidden" name="c" value="' . h($c) . '">'
+    . '<div class="acts"><button class="btn" type="submit">Yes, add me back</button>'
+    . '<a class="btn btn--ghost" href="/">No thanks</a></div></form>');
   exit;
 }
 if (!preg_match('/^[a-f0-9]{32}$/', $t)) invalid_link();

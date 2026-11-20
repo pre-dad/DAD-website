@@ -27,6 +27,25 @@ final class DbTest extends TestCase
     {
         q('DELETE FROM hits');
         q('DELETE FROM mail_log');
+        q('DELETE FROM suppressions');
+    }
+
+    public function testSuppressionKeepsAnOptOutWithoutTheAddress(): void
+    {
+        $this->assertFalse(is_suppressed('gone@example.org'));
+        suppress_email('Gone@Example.org');
+        $this->assertTrue(is_suppressed('gone@example.org'));
+        $this->assertFalse(is_suppressed('other@example.org'));
+        $this->assertStringNotContainsString('gone', (string)q('SELECT email_hash FROM suppressions')->fetchColumn());
+        unsuppress_email('gone@example.org');
+        $this->assertFalse(is_suppressed('gone@example.org'));
+    }
+
+    public function testPartnerConfirmationIsOncePerAddressPerHour(): void
+    {
+        $this->assertFalse(partner_confirm_repeat('p@example.org'));
+        $this->assertTrue(partner_confirm_repeat('P@example.org'));
+        $this->assertFalse(partner_confirm_repeat('q@example.org'));
     }
 
     public function testHitCountCountsOnlyTheWindow(): void

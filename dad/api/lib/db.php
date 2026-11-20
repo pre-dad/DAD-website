@@ -59,6 +59,25 @@ function db(): PDO {
       );
     ");
     $pdo->exec('PRAGMA user_version = 2');
+    $ver = 2;
+  }
+  if ($ver < 3) {
+    // v3: opt-outs outlive the record they came from (a salted email hash, never the address),
+    // and a re-subscribe stays pending until the person clicks the link emailed to them.
+    // Concurrent first requests can each get here, and an earlier step may even lower user_version
+    // again, so take turns and test for the column itself rather than trusting the version.
+    $pdo->exec('BEGIN IMMEDIATE');
+    try {
+      $pdo->exec('CREATE TABLE IF NOT EXISTS suppressions(email_hash TEXT PRIMARY KEY, created_at INTEGER NOT NULL)');
+      $cols = $pdo->query("SELECT name FROM pragma_table_info('submissions')")->fetchAll(PDO::FETCH_COLUMN);
+      if (!in_array('resub_token', $cols, true)) $pdo->exec('ALTER TABLE submissions ADD COLUMN resub_token TEXT');
+      $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS submissions_resub_token ON submissions(resub_token) WHERE resub_token IS NOT NULL');
+      $pdo->exec('PRAGMA user_version = 3');
+      $pdo->exec('COMMIT');
+    } catch (Throwable $e) {
+      $pdo->exec('ROLLBACK');
+      throw $e;
+    }
   }
   return $pdo;
 }
@@ -89,6 +108,24 @@ function ip_salt(): string {
     $salt = (string)setting('ip_salt');
   }
   return $salt;
+}
+
+/** Salted hash that identifies an opted-out address without keeping it. */
+function suppression_hash(string $email): string {
+  return hash('sha256', ip_salt() . '|suppress|' . strtolower(trim($email)));
+}
+
+function is_suppressed(?string $email): bool {
+  if (!$email) return false;
+  return q('SELECT 1 FROM suppressions WHERE email_hash = ?', [suppression_hash($email)])->fetchColumn() !== false;
+}
+
+function suppress_email(string $email): void {
+  q('INSERT OR IGNORE INTO suppressions(email_hash, created_at) VALUES(?, ?)', [suppression_hash($email), time()]);
+}
+
+function unsuppress_email(string $email): void {
+  q('DELETE FROM suppressions WHERE email_hash = ?', [suppression_hash($email)]);
 }
 
 /**

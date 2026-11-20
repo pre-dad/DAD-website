@@ -1,5 +1,5 @@
 // Magnetic buttons (desktop): primary CTAs and [data-magnetic] lean toward the pointer.
-import { $$, isFinePointer, prefersReduced } from './util.js?v=52460dff95';
+import { $$, isFinePointer, prefersReduced } from './util.js?v=9487f1ac36';
 
 let items = [];
 

@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DAD Impact Map</title>
-<link rel="stylesheet" href="css/app.css?v=4dd640d4">
+<link rel="preload" href="vendor/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="vendor/fonts/SpaceGrotesk-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="vendor/fonts/fonts.css?v=ae905405">
+<link rel="stylesheet" href="css/app.css?v=ae905405">
 </head>
 <body>
 <a class="skip-link" href="#map-title">Skip to the map</a>
@@ -176,8 +179,8 @@
 
 <!-- ------------------------------------------------- mobile tab bar -->
 <nav class="mobile-bar" id="mobile-bar" aria-label="Map panels">
-  <button data-sheet="layers">Layers</button>
-  <button data-sheet="rank">Ranking</button>
+  <button data-sheet="layers" aria-controls="panel-left" aria-expanded="false">Layers</button>
+  <button data-sheet="rank" aria-controls="panel-right" aria-expanded="false">Ranking</button>
   <button data-sheet="search">Search</button>
   <button data-sheet="shortlist">Pinned <span class="pill" id="shortlist-count-m">0</span></button>
   <button data-sheet="sources">Sources</button>
@@ -193,6 +196,6 @@
 
 <script src="vendor/d3.v7.min.js"></script>
 <script src="vendor/topojson-client.min.js"></script>
-<script src="js/app.js?v=4dd640d4"></script>
+<script type="module" src="js/app.js?v=ae905405"></script>
 </body>
 </html>

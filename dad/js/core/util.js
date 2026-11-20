@@ -12,6 +12,7 @@ export const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 export const store = {
   get(k, s = localStorage) { try { return s.getItem(k); } catch (e) { return null; } },
   set(k, v, s = localStorage) { try { s.setItem(k, v); } catch (e) { /* private mode */ } },
+  remove(k, s = localStorage) { try { s.removeItem(k); } catch (e) { /* private mode */ } },
 };
 let uid = 0;
 export const id = (p = 'u') => `${p}-${(++uid).toString(36)}`;

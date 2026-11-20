@@ -1,7 +1,7 @@
 // First-visit preloader: ink screen, DAD glyphs rise, tail bars slide in,
 // "AID, DELIVERED.", then the whole screen wipes up revealing the hero.
 // Resolves the returned promise when the page should start revealing.
-import { html, store, emit, prefersReduced } from './util.js?v=52460dff95';
+import { html, store, emit, prefersReduced } from './util.js?v=9487f1ac36';
 
 const MIN = 1250;   // let the logo animation land
 const MAX = 1800;   // never longer than this before the wipe starts

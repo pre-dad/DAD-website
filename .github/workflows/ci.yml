@@ -31,6 +31,8 @@ jobs:
       - name: Generated files are up to date
         # Fails if css/site.css or the ?v= asset versions are stale.
         run: npm ci && npm run check
+      - name: Unit test the map scoring
+        run: npm test
       - name: Type check the e2e specs
         working-directory: dad/tests-e2e
         run: npm ci && npm run typecheck

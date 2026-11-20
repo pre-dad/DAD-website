@@ -99,6 +99,11 @@ test('admin: find, export, unsubscribe, resubscribe and delete a sign-up', async
     expect(await mailingList(page)).not.toContain(email);
   });
 
+  await test.step('signing up again does not undo an unsubscribe', async () => {
+    await signUp(page, email);
+    expect(await mailingList(page)).not.toContain(email);
+  });
+
   await test.step('delete every record', async () => {
     await page.goto('/api/admin/');
     await search(page, email);
@@ -107,6 +112,14 @@ test('admin: find, export, unsubscribe, resubscribe and delete a sign-up', async
     await expect(page.getByRole('status')).toContainText(`Deleted 1 record for ${email}.`);
     await search(page, email);
     await expectNoResults(page);
+  });
+
+  await test.step('an opt-out outlives the deleted record', async () => {
+    await signUp(page, email);
+    expect(await mailingList(page)).not.toContain(email);
+    await search(page, email);
+    await expect(page.locator('tbody tr')).toHaveCount(1);
+    await expect(page.locator('tbody tr')).toContainText('Unsubscribed');
   });
 });
 

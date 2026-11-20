@@ -5,8 +5,6 @@
    All assets local — the app must work with no network connection.
    ========================================================================== */
 
-@import url("../vendor/fonts/fonts.css");
-
 :root {
   /* brand tokens (dynamicaid.org) */
   --ink:        #0E1E1E;
@@ -441,19 +439,15 @@ table.brief td.num { font-family: var(--mono); text-align: right; }
 .sheet-head, .mobile-bar, .sheet-scrim, .btn-cancel-search { display: none; }
 
 @media (max-width: 1240px) { :root { --panel-w: 276px; } }
-@media (max-width: 1040px) and (min-width: 821px) {
-  .layout { grid-template-columns: var(--panel-w) 1fr; }
-  .panel-right { display: none; }
-}
 
 /* ===========================================================================
-   MOBILE / TABLET  (<= 820px)
+   MOBILE / TABLET  (<= 1040px)
    Full-bleed map with the panels as bottom sheets over it, driven by a tab
    bar. Side-by-side columns are unusable below this width - the map ends up
    a sliver and every tap target is too small.
    =========================================================================== */
 
-@media (max-width: 820px) {
+@media (max-width: 1040px) {
   :root {
     --topbar-h: 50px;
     --bar-h: 56px;
@@ -534,12 +528,13 @@ table.brief td.num { font-family: var(--mono); text-align: right; }
     border-radius: 20px 20px 0 0;
     box-shadow: 0 -18px 50px rgba(0,0,0,.55);
     transform: translateY(112%);
-    transition: transform .3s var(--ease);
+    visibility: hidden;   /* off-canvas sheets must not take focus or reach assistive tech */
+    transition: transform .3s var(--ease), visibility 0s .3s;
     will-change: transform;
   }
   .panel-left, .panel-right { border-right: 0; border-left: 0; }
-  body.sheet-layers .panel-left { transform: none; }
-  body.sheet-rank   .panel-right { transform: none; }
+  body.sheet-layers .panel-left,
+  body.sheet-rank   .panel-right { transform: none; visibility: visible; transition-delay: 0s; }
 
   .panel-scroll { padding: 12px 16px 24px; -webkit-overflow-scrolling: touch; }
 
@@ -583,7 +578,7 @@ table.brief td.num { font-family: var(--mono); text-align: right; }
     flex: 1; min-width: 0;
     background: none; border: 0; cursor: pointer;
     color: var(--mut);
-    font-family: var(--mono); font-size: 9.5px;
+    font-family: var(--mono); font-size: 11px;
     letter-spacing: .1em; text-transform: uppercase;
     display: flex; align-items: center; justify-content: center; gap: 3px;
     padding: 0 2px;
@@ -613,13 +608,28 @@ table.brief td.num { font-family: var(--mono); text-align: right; }
 }
 
 @media (max-width: 380px) {
-  .mobile-bar button { font-size: 8.5px; letter-spacing: .05em; }
+  .mobile-bar button { letter-spacing: 0; text-transform: none; }
+  .mobile-bar .pill { padding: 0 3px; }
 }
 
 @media print {
-  .topbar, .panel, .map-tools, .modal, .state-chip { display: none !important; }
-  body { overflow: visible; height: auto; }
+  .topbar, .panel, .map-tools, .modal, .state-chip, .mobile-bar, .sheet-scrim { display: none !important; }
+  html, body { overflow: visible; height: auto; }
   body::before { display: none; }
+  .layout, .map-wrap { display: block; height: auto; overflow: visible; padding: 0; }
+  .map { height: 520px; }
+
+  /* A county brief printed from its dialog: only the brief, in print colours. */
+  body.modal-open .layout { display: none !important; }
+  body.modal-open .modal {
+    display: block !important; position: static; padding: 0; background: none; backdrop-filter: none;
+  }
+  body.modal-open .modal-box {
+    position: static; max-width: none; max-height: none; overflow: visible;
+    border: 0; box-shadow: none; background: none; padding: 0;
+  }
+  body.modal-open .modal-box * { color: #000 !important; background: none !important; border-color: #999 !important; }
+  body.modal-open .modal-close, body.modal-open .detail-actions { display: none !important; }
 }
 
 :focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
