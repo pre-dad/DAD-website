@@ -64,12 +64,20 @@ function db(): PDO {
   if ($ver < 3) {
     // v3: opt-outs outlive the record they came from (a salted email hash, never the address),
     // and a re-subscribe stays pending until the person clicks the link emailed to them.
-    $pdo->exec("
-      CREATE TABLE IF NOT EXISTS suppressions(email_hash TEXT PRIMARY KEY, created_at INTEGER NOT NULL);
-      ALTER TABLE submissions ADD COLUMN resub_token TEXT;
-      CREATE UNIQUE INDEX IF NOT EXISTS submissions_resub_token ON submissions(resub_token) WHERE resub_token IS NOT NULL;
-    ");
-    $pdo->exec('PRAGMA user_version = 3');
+    // Concurrent first requests can each get here, and an earlier step may even lower user_version
+    // again, so take turns and test for the column itself rather than trusting the version.
+    $pdo->exec('BEGIN IMMEDIATE');
+    try {
+      $pdo->exec('CREATE TABLE IF NOT EXISTS suppressions(email_hash TEXT PRIMARY KEY, created_at INTEGER NOT NULL)');
+      $cols = $pdo->query("SELECT name FROM pragma_table_info('submissions')")->fetchAll(PDO::FETCH_COLUMN);
+      if (!in_array('resub_token', $cols, true)) $pdo->exec('ALTER TABLE submissions ADD COLUMN resub_token TEXT');
+      $pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS submissions_resub_token ON submissions(resub_token) WHERE resub_token IS NOT NULL');
+      $pdo->exec('PRAGMA user_version = 3');
+      $pdo->exec('COMMIT');
+    } catch (Throwable $e) {
+      $pdo->exec('ROLLBACK');
+      throw $e;
+    }
   }
   return $pdo;
 }
