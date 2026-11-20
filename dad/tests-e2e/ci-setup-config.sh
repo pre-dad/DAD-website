@@ -9,7 +9,7 @@
 #
 # Without --ci it refuses to replace an existing config.php. With it, an existing
 # config.php is first copied to config.php.ci-backup (never over an older backup,
-# which may hold the only real copy).
+# which may hold the only real copy). --restore also removes the temp data dir.
 
 set -euo pipefail
 
@@ -17,6 +17,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DAD_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 CONFIG="$DAD_DIR/api/config.php"
 BACKUP="$CONFIG.ci-backup"
+DATA_DIR_FILE="$CONFIG.ci-data"
 
 FORCE=0
 RESTORE=0
@@ -29,6 +30,13 @@ for arg in "$@"; do
 done
 
 if [[ "$RESTORE" -eq 1 ]]; then
+  if [[ -f "$DATA_DIR_FILE" ]]; then
+    ci_data_dir="$(cat "$DATA_DIR_FILE")"
+    case "$ci_data_dir" in
+      */dad-ci-data-*) rm -r "$ci_data_dir" ;;
+    esac
+    rm -f "$DATA_DIR_FILE"
+  fi
   if [[ -f "$BACKUP" ]]; then
     mv -f "$BACKUP" "$CONFIG"
     echo "ci-setup-config.sh: restored real config.php from backup"
@@ -60,6 +68,7 @@ SETUP_KEY_SHA256="$(printf '%s' 'ci-setup-key' | php -r 'echo hash("sha256", str
 
 DATA_DIR="$(mktemp -d "${TMPDIR:-/tmp}/dad-ci-data-XXXXXXXX")"
 echo "ci-setup-config.sh: SITE_DATA_DIR = $DATA_DIR"
+printf '%s\n' "$DATA_DIR" > "$DATA_DIR_FILE"
 
 cat > "$CONFIG" <<PHP
 <?php
