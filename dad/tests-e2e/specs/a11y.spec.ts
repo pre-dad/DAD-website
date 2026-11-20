@@ -35,10 +35,14 @@ for (const path of A11Y_PAGES) {
       let big: HTMLElement | null = null, h = 0;
       for (const s of secs) { if (s.offsetHeight > h) { h = s.offsetHeight; big = s; } }
       (big || document.body).scrollIntoView({ block: 'center' });
-      await frames(30);
       // A theme switch leaves a background-color transition that headless Chromium may not
       // have ticked yet; jump finite animations to their end state so axe reads the settled page.
-      document.getAnimations().forEach((an) => { try { an.finish(); } catch { /* infinite */ } });
+      // The switch itself starts a few frames after the scroll, so finish once it has begun and again after.
+      const settle = () => document.getAnimations().forEach((an) => { try { an.finish(); } catch { /* infinite */ } });
+      await frames(30);
+      settle();
+      await frames(10);
+      settle();
     });
 
     const results = await new AxeBuilder({ page }).analyze();
