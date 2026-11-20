@@ -35,6 +35,11 @@ test('submit: posts from another website are refused', async ({ request }) => {
   expect(r.status()).toBe(403);
 });
 
+test('submit: a post with Origin: null is refused', async ({ request }) => {
+  const r = await request.post('/api/submit.php', post({ type: 'updates', first_name: 'Ada', email: unique('null') }, { Origin: 'null' }));
+  expect(r.status()).toBe(403);
+});
+
 test('submit: a JSON post without ts_open is refused', async ({ request }) => {
   const r = await request.post('/api/submit.php', {
     headers: { 'Content-Type': 'application/json', Origin: ORIGIN },

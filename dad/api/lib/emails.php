@@ -156,7 +156,7 @@ function email_sample_vars(): array {
   return [
     'first_name' => 'Jordan', 'name' => 'Jordan Lee', 'email' => 'jordan@example.com', 'phone' => '(555) 010-0199',
     'zip' => '30303', 'city' => 'Atlanta', 'topic' => 'Partnership', 'company' => 'Northwind Foods',
-    'referral_link' => referral_url('k7m2p9qx4a'), 'page' => '/get-involved/',
+    'referral_link' => referral_url('k7m2p9qx4a'), 'page' => '/',
   ];
 }
 
@@ -280,7 +280,7 @@ function email_render_alert(string $type, array $fields, array $ctx, ?array $tpl
     $body .= "\n" . (($fields['note'] ?? '') !== '' ? "Note:\n" . $fields['note'] . "\n" : "(No note.)\n")
       . "\nReply to this email to answer " . $who . " directly.\n";
   }
-  if (!empty($ctx['resub'])) $body .= "\nThis person had unsubscribed before and just signed up again.\n";
+  if (!empty($ctx['resub'])) $body .= "\nThis person had unsubscribed before and signed up again. They stay unsubscribed until they click the confirmation link we emailed them.\n";
   $body .= "\nDashboard: " . rtrim(SITE_BASE, '/') . '/api/admin/?q=' . rawurlencode((string)($ctx['pid'] ?? '')) . "\n";
 
   $subject = clamp_str(clean_line(email_fill((string)$tpl['subject'], $vars)), 120);

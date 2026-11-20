@@ -59,14 +59,13 @@ function result_html(string $type, string $id, string $back): string {
 
 $page = '/';
 
-// ---- method
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
   json_exit(405, ['ok' => false, 'error' => 'Method not allowed'], ['Allow: POST']);
 }
 
 // ---- origin: refuse posts made from other websites (the site's own host is always allowed)
 $origin = (string)($_SERVER['HTTP_ORIGIN'] ?? '');
-if ($origin !== '' && $origin !== 'null') {
+if ($origin !== '') {
   $oHost = strtolower((string)parse_url($origin, PHP_URL_HOST));
   $self  = strtolower((string)preg_replace('/:\d+$/', '', (string)($_SERVER['HTTP_HOST'] ?? '')));
   $allowed = $oHost !== '' && $oHost === $self;
@@ -74,13 +73,11 @@ if ($origin !== '' && $origin !== 'null') {
   if (!$allowed) reply(403, ['ok' => false, 'error' => 'Forbidden']);
 }
 
-// ---- configured?
 if (!site_configured()) {
   error_log('[dad-site] submit.php: config.php missing or SITE_DATA_DIR not set');
   reply(503, ['ok' => false, 'error' => "We couldn't save that just now. Please try again in a few minutes."]);
 }
 
-// ---- read the body
 if ((int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 32768) reply(400, ['ok' => false, 'error' => "That's too long to send. Please shorten it."]);
 if ($isForm) {
   $in = $_POST;
@@ -99,7 +96,6 @@ try {
     reply(429, ['ok' => false, 'error' => 'Too many requests'], ['Retry-After: ' . hit_retry_after('s:' . $ipHash, 3600)]);
   }
 
-  // ---- type
   $type = is_string($in['type'] ?? null) ? strtolower(trim($in['type'])) : '';
   if (!in_array($type, SITE_TYPES, true)) reply(400, ['ok' => false, 'error' => MSG_GENERIC]);
 
@@ -118,7 +114,6 @@ try {
     if ($elapsed >= 0 && $elapsed < SITE_MIN_FILL_MS) reply(200, ['ok' => true, 'id' => new_pid(), 'type' => $type]);
   }
 
-  // ---- validate
   $v = validate_submission($type, $in);
   if (!$v['ok']) reply(400, $v);
   $fields = $v['fields'];
@@ -141,41 +136,44 @@ try {
   // ---- store (BEGIN IMMEDIATE serialises the dedupe check with the insert)
   $pdo = db();
   $pdo->exec('BEGIN IMMEDIATE');
-  $isNew = false; $resub = false; $pid = ''; $token = null;
+  $isNew = false; $resub = false; $pid = ''; $token = null; $resubToken = null;
   try {
     $row = null;
     if (in_array($type, SITE_LIST_TYPES, true)) {
-      $row = q('SELECT id, pid, unsub_token, unsubscribed_at FROM submissions WHERE type = ? AND email = ?', [$type, $email])->fetch() ?: null;
+      $row = q('SELECT id, pid, unsub_token, unsubscribed_at, resub_token FROM submissions WHERE type = ? AND email = ?', [$type, $email])->fetch() ?: null;
     }
     if ($row) {
-      // Same email joined this list before: one row per person. Keep their original details,
-      // unless they had unsubscribed: then this is a fresh opt-in and the new details win.
+      // Same email joined this list before: one row per person, original details kept.
+      // If they had unsubscribed, a sign-up from anyone is not enough to opt them back in:
+      // they get a link to confirm, and stay unsubscribed until they use it.
       $pid = (string)$row['pid'];
       $token = $row['unsub_token'] ?: tok();
-      $resub = $row['unsubscribed_at'] !== null;
-      if ($resub) {
-        q('UPDATE submissions SET fields = ?, page = ?, ip_hash = ?, ua = ?, unsub_token = ?, unsubscribed_at = NULL,
-             repeat_count = repeat_count + 1, updated_at = ? WHERE id = ?',
-          [$json, $page, $ipHash, $ua, $token, $now, $row['id']]);
-      } else {
-        q('UPDATE submissions SET repeat_count = repeat_count + 1, unsub_token = ?, updated_at = ?,
-             ref = COALESCE(ref, CASE WHEN ? = pid THEN NULL ELSE ? END) WHERE id = ?',
-          [$token, $now, $ref, $ref, $row['id']]);
-        if ($donor) {   // already on the list, now a donor too: keep their details, add the gift
-          $old = decode_fields((string)q('SELECT fields FROM submissions WHERE id = ?', [$row['id']])->fetchColumn());
-          if (empty($old['donor']['verified'])) {
-            $old['donor'] = $donor;
-            q('UPDATE submissions SET fields = ? WHERE id = ?', [json_encode($old, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), $row['id']]);
-          }
+      $pending = $row['unsubscribed_at'] !== null;
+      $resubToken = $pending ? ($row['resub_token'] ?: tok()) : null;
+      $resub = $pending && $row['resub_token'] === null;   // one pending link at a time: no repeat mail
+      q('UPDATE submissions SET repeat_count = repeat_count + 1, unsub_token = ?, resub_token = ?, updated_at = ?,
+           ref = COALESCE(ref, CASE WHEN ? = pid THEN NULL ELSE ? END) WHERE id = ?',
+        [$token, $resubToken, $now, $ref, $ref, $row['id']]);
+      if ($donor) {   // already on the list, now a donor too: keep their details, add the gift
+        // The first unverified claim stays; only a Stripe-verified one replaces it.
+        $old = decode_fields((string)q('SELECT fields FROM submissions WHERE id = ?', [$row['id']])->fetchColumn());
+        if (empty($old['donor']) || (!empty($donor['verified']) && empty($old['donor']['verified']))) {
+          $old['donor'] = $donor;
+          q('UPDATE submissions SET fields = ? WHERE id = ?', [json_encode($old, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), $row['id']]);
         }
       }
     } else {
       do { $pid = new_pid(); } while (q('SELECT 1 FROM submissions WHERE pid = ?', [$pid])->fetchColumn());
-      $token = in_array($type, SITE_LIST_TYPES, true) ? tok() : null;
-      q('INSERT INTO submissions(pid, type, email, fields, page, ref, ip_hash, ua, unsub_token, created_at, updated_at)
-           VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [$pid, $type, $email, $json, $page, $ref, $ipHash, $ua, $token, $now, $now]);
+      $isList = in_array($type, SITE_LIST_TYPES, true);
+      $token = $isList ? tok() : null;
+      // An address that opted out and whose record was deleted still counts as opted out.
+      $held = $isList && is_suppressed($email);
+      $resubToken = $held ? tok() : null;
+      q('INSERT INTO submissions(pid, type, email, fields, page, ref, ip_hash, ua, unsub_token, unsubscribed_at, resub_token, created_at, updated_at)
+           VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [$pid, $type, $email, $json, $page, $ref, $ipHash, $ua, $token, $held ? $now : null, $resubToken, $now, $now]);
       $isNew = true;
+      $resub = $held;
     }
     $pdo->exec('COMMIT');
   } catch (Throwable $e) {
@@ -198,8 +196,10 @@ if ($isForm) {
 if (!$isNew && !$resub) exit;   // a repeat sign-up: nothing new to tell anyone
 
 try {
-  // Confirmation to the person (only these two forms send one; the others answer on screen only)
-  if ($type === 'founding' && $email && $token) {
+  // Confirmation to the person (only these forms send one; the others answer on screen only)
+  if ($resub && $email && $resubToken) {
+    send_resubscribe_confirmation($email, (string)($fields['first_name'] ?? ''), $resubToken, (string)$token);
+  } elseif ($type === 'founding' && $email && $token) {
     send_founding_confirmation($email, (string)$fields['first_name'], $token, $pid);
   }
   if ($type === 'partner' && $email && $isNew) {

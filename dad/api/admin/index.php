@@ -45,8 +45,13 @@ if ($setupKey !== '') {
     ui_card_page('Setup | DAD', ui_logo() . '<h1>Setup isn\'t ready.</h1><p>Put the SHA-256 of a setup key in <b>config.php</b> first. See <b>api/README.txt</b>.</p>', 403);
     exit;
   }
+  $setupLimit = 'setup:' . ip_hash();
+  if (hit_count($setupLimit, 900, false) >= 10) {
+    ui_card_page('Setup | DAD', ui_logo() . '<h1>Too many attempts.</h1><p>Try again in 15 minutes.</p>', 429);
+    exit;
+  }
   if (!hash_equals($cfgHash, hash('sha256', $setupKey))) {
-    sleep(1);
+    hit_count($setupLimit, 900, true);
     ui_card_page('Setup | DAD', ui_logo() . '<h1>This setup link isn\'t valid.</h1><p>Check that you copied the whole link.</p>', 403);
     exit;
   }
@@ -116,7 +121,6 @@ if ($logged) {
       go($self);
     } else {
       hit_count($lk, 900, true);
-      sleep(1);
       $err = 'That password is not right.';
     }
   }
@@ -181,6 +185,8 @@ if ($method === 'POST') {
     go($back);
   }
   if ($act === 'delete' && $id > 0) {
+    $gone = q('SELECT email, unsubscribed_at FROM submissions WHERE id = ?', [$id])->fetch();
+    if ($gone && $gone['email'] && $gone['unsubscribed_at'] !== null) suppress_email((string)$gone['email']);
     q('DELETE FROM submissions WHERE id = ?', [$id]);
     $_SESSION['flash'] = 'Deleted.';
     go($back);
@@ -188,6 +194,7 @@ if ($method === 'POST') {
   if ($act === 'delete_email') {
     $em = strtolower(clean_line($_POST['email'] ?? ''));
     if (valid_email($em)) {
+      if (q('SELECT 1 FROM submissions WHERE email = ? AND unsubscribed_at IS NOT NULL', [$em])->fetchColumn() !== false) suppress_email($em);
       $n = q('DELETE FROM submissions WHERE email = ?', [$em])->rowCount();
       $_SESSION['flash'] = 'Deleted ' . $n . ' record' . ($n === 1 ? '' : 's') . ' for ' . $em . '.';
     }
@@ -357,7 +364,7 @@ function email_sample_fields(string $type): array {
 }
 
 function email_sample_ctx(): array {
-  return ['page' => '/get-involved/', 'pid' => 'k7m2p9qx4a', 'when' => time(), 'ref_line' => '', 'resub' => false];
+  return ['page' => '/', 'pid' => 'k7m2p9qx4a', 'when' => time(), 'ref_line' => '', 'resub' => false];
 }
 
 /** "Send me a test": this wording, made-up details, to SITE_NOTIFY_TO. */
@@ -395,7 +402,7 @@ if (isset($_GET['export'])) {
   $brought = [];
   if ($type === 'founding') foreach (q('SELECT ref, COUNT(*) c FROM submissions WHERE ref IS NOT NULL GROUP BY ref') as $b) $brought[$b['ref']] = (int)$b['c'];
 
-  $head = ['ID', 'Date (New York)'];
+  $head = ['ID', 'Date (' . date_default_timezone_get() . ')'];
   switch ($type) {
     case 'founding':  $head = array_merge($head, ['First name', 'Email', 'Status', 'Referral link', 'Referred by', 'People brought', 'Signed up again', 'Page', 'Unsubscribe link', 'Handled']); break;
     case 'updates':   $head = array_merge($head, ['First name', 'Email', 'Status', 'Referred by', 'Signed up again', 'Page', 'Unsubscribe link', 'Handled']); break;
@@ -611,12 +618,12 @@ $boxes = '<div class="grid2">'
   . '<a class="b b--ghost b--sm" href="' . h($self . '?page=emails') . '">Edit the emails</a>'
   . '</div></section>'
   . '<section class="box"><h2>Good to know</h2><p>Founding Donor and build-update sign-ups are one row per email: signing up twice updates the row. '
-  . 'Unsubscribes are kept so nobody is emailed again by mistake. Use the mailing list CSV when sending an update: it only has subscribed people, each with their own unsubscribe link.</p>'
+  . 'Unsubscribes are kept, even when their record is deleted (as a one-way hash of the address), so nobody is emailed again by mistake. Use the mailing list CSV when sending an update: it only has subscribed people, each with their own unsubscribe link.</p>'
   . '<p style="margin-top:8px">IP addresses are never stored, only a salted hash used for the 10-per-hour limit.</p></section>'
   . '</div>';
 
 // ---- page
-$body = '<div class="head"><h1>Submissions</h1><p class="sub">Everything people send through dynamicaid.org. Times are New York time.</p></div>'
+$body = '<div class="head"><h1>Submissions</h1><p class="sub">Everything people send through dynamicaid.org. Times are ' . h(date_default_timezone_get()) . ' time.</p></div>'
   . ($flash ? '<p class="flash" role="status">' . h($flash) . '</p>' : '')
   . '<nav class="tiles" aria-label="Types">' . $tiles . '</nav>' . $bar . $danger . $table . $pager . $boxes;
 

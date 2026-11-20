@@ -85,8 +85,10 @@ DAY TO DAY
 
   Founding Donor and Build updates are one row per email. Signing up again does
   not create a duplicate and does not resend the confirmation (it only counts
-  the repeat), unless the person had unsubscribed: then it re-subscribes them
-  and sends the confirmation again.
+  the repeat). If the person had unsubscribed, they stay unsubscribed and are
+  emailed a link to confirm; the link re-subscribes them. Deleting an
+  unsubscribed record keeps the opt-out as a salted hash of the address, so a
+  later sign-up also waits for that confirmation.
 
   Referrals: every Founding Donor gets a code (the "id" the site returns) and a
   link https://dynamicaid.org/?ref=<code>. Sign-ups that arrive with a code show
