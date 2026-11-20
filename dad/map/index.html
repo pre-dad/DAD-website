@@ -6,22 +6,24 @@
 <title>DAD Impact Map</title>
 <link rel="preload" href="vendor/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="vendor/fonts/SpaceGrotesk-500.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="vendor/fonts/fonts.css?v=ae905405">
-<link rel="stylesheet" href="css/app.css?v=ae905405">
+<link rel="stylesheet" href="vendor/fonts/fonts.css?v=0577f6b4">
+<link rel="stylesheet" href="css/app.css?v=0577f6b4">
 </head>
 <body>
 <a class="skip-link" href="#map-title">Skip to the map</a>
 
-<div id="boot">
-  <div class="boot-inner">
-    <div class="boot-mark">
-      <svg viewBox="-43 -4 366 108" role="img" aria-label="DAD wordmark">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="dad-wordmark" viewBox="-43 -4 366 108">
         <path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/>
         <path fill="#F8F9FA" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/>
         <g transform="translate(280,0) scale(-1,1)"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
         <rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/>
         <rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/>
-      </svg>
+</symbol></svg>
+
+<div id="boot">
+  <div class="boot-inner">
+    <div class="boot-mark">
+      <svg viewBox="-43 -4 366 108" role="img" aria-label="DAD wordmark"><use href="#dad-wordmark"/></svg>
     </div>
     <div class="boot-text">Loading impact data<span class="dots"><i>.</i><i>.</i><i>.</i></span></div>
     <div class="boot-err" id="boot-err"></div>
@@ -30,13 +32,7 @@
 
 <header class="topbar">
   <div class="brand">
-    <svg class="brand-logo" viewBox="-43 -4 366 108" role="img" aria-label="DAD">
-      <path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/>
-      <path fill="#F8F9FA" fill-rule="evenodd" d="M126,0 H154 L190,100 H164 L156,78 H124 L116,100 H90 Z M140,26 L149,58 H131 Z"/>
-      <g transform="translate(280,0) scale(-1,1)"><path fill="#F8F9FA" fill-rule="evenodd" d="M0,0 H38 A50,50 0 0 1 38,100 H0 Z M24,24 H36 A26,26 0 0 1 36,76 H24 Z"/></g>
-      <rect x="292" y="16" width="9" height="68" rx="4.5" fill="#FFB800"/>
-      <rect x="309" y="32" width="6" height="36" rx="3" fill="#FFB800"/>
-    </svg>
+    <svg class="brand-logo" viewBox="-43 -4 366 108" role="img" aria-label="DAD"><use href="#dad-wordmark"/></svg>
     <span class="brand-title">Impact Map</span>
   </div>
 
@@ -48,8 +44,9 @@
 
   <div class="topbar-right">
     <div class="search-wrap">
-      <input id="search" type="search" aria-label="Find a county" placeholder="Find a county…" autocomplete="off" spellcheck="false">
-      <div id="search-results" class="search-results" hidden></div>
+      <input id="search" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="search-results" aria-label="Find a county" placeholder="Find a county…" autocomplete="off" spellcheck="false">
+      <div id="search-results" class="search-results" role="listbox" aria-label="Matching counties" hidden></div>
+      <div id="search-status" class="sr-only" role="status" aria-live="polite"></div>
     </div>
     <button class="btn" id="btn-shortlist">Shortlist <span class="pill" id="shortlist-count">0</span></button>
     <button class="btn" id="btn-sources">Sources</button>
@@ -57,6 +54,7 @@
   </div>
 </header>
 
+<div id="live-status" class="sr-only" role="status" aria-live="polite"></div>
 <main class="layout">
 
   <!-- ------------------------------------------------ left: layer controls -->
@@ -116,7 +114,7 @@
 
   <!-- ---------------------------------------------------------- the map -->
   <section class="map-wrap">
-    <div id="coverage-warning" class="coverage-warning" hidden></div>
+    <div id="coverage-warning" class="coverage-warning" role="status" aria-live="polite" hidden></div>
 
     <div class="map-head">
       <h1 id="map-title" tabindex="-1">—</h1>
@@ -196,6 +194,6 @@
 
 <script src="vendor/d3.v7.min.js"></script>
 <script src="vendor/topojson-client.min.js"></script>
-<script type="module" src="js/app.js?v=ae905405"></script>
+<script type="module" src="js/app.js?v=0577f6b4"></script>
 </body>
 </html>
