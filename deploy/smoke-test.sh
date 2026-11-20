@@ -113,6 +113,13 @@ check_impactledger() {
     *text/html*) pass "GET $path -> 200 Content-Type: $ctype" ;;
     *) core_fail "GET $path 200 but Content-Type not text/html (got: ${ctype:-none})" ;;
   esac
+  local body
+  body="$(curl -s "$BASE_URL$path")"
+  case "$body" in
+    *'Example data, not real records'*'name="robots" content="noindex"'*|*'name="robots" content="noindex"'*'Example data, not real records'*)
+      pass "GET $path -> labelled as example data and noindex" ;;
+    *) core_fail "GET $path is missing the example-data banner or noindex" ;;
+  esac
 }
 
 now_ms() {
