@@ -93,12 +93,16 @@ function ip_salt(): string {
 
 /**
  * Sliding-window counter. Records one hit for $key and returns how many hits $key has in the
- * last $window seconds (including this one). Old rows are pruned as we go.
+ * last $window seconds (including this one). Rows past their retention are pruned when a hit is recorded.
  */
 function hit_count(string $key, int $window, bool $record = true): int {
+  if ($window > HITS_RETENTION) throw new InvalidArgumentException('window exceeds HITS_RETENTION');
   $now = time();
-  q('DELETE FROM hits WHERE ts < ?', [$now - 7200]);
-  if ($record) q('INSERT INTO hits(k, ts) VALUES(?, ?)', [$key, $now]);
+  if ($record) {
+    q('DELETE FROM hits WHERE ts < ?', [$now - HITS_RETENTION]);
+    q('DELETE FROM mail_log WHERE ts < ?', [$now - MAIL_LOG_RETENTION]);
+    q('INSERT INTO hits(k, ts) VALUES(?, ?)', [$key, $now]);
+  }
   return (int)q('SELECT COUNT(*) FROM hits WHERE k = ? AND ts > ?', [$key, $now - $window])->fetchColumn();
 }
 

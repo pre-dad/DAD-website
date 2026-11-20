@@ -24,6 +24,14 @@ WHAT IS WHERE (on the server)
                            "Require all denied".
 
 
+STRIPE KEY (optional)
+---------------------
+To confirm that a Founding Donor really gave, put a restricted Stripe key (permission:
+Checkout Sessions, read; nothing else) in SITE_DATA_DIR/stripe.key, one line, on the box.
+It is never committed or deployed, and the data folder denies web access. Without the key
+donors still sign up; their session id is saved unverified and can be checked later.
+
+
 FIRST-TIME SETUP: CREATE config.php
 -----------------------------------
 1. On the box, copy api/config.sample.php to /var/www/shared/config.php

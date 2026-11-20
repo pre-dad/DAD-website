@@ -6,6 +6,7 @@
 // The key is NOT in config.php (that file holds no secrets). It lives in <data dir>/stripe.key, which is
 // locked with "Require all denied" and never mirrored. No key = donors still sign up; their session id is
 // stored unverified and can be checked later.
+declare(strict_types=1);
 defined('SITE_API') || exit;
 
 function stripe_key(): ?string {
@@ -32,6 +33,7 @@ function stripe_session(string $id): ?array {
     ]);
     $body = curl_exec($ch);
     $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    if ($body === false) error_log('[dad-site] stripe: session lookup failed: ' . curl_error($ch));
   } else {
     $ctx = stream_context_create(['http' => ['header' => 'Authorization: Bearer ' . $key, 'timeout' => 8, 'ignore_errors' => true]]);
     $body = @file_get_contents($url, false, $ctx);

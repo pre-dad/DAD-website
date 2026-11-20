@@ -19,6 +19,20 @@ final class StripePrivacyTest extends TestCase
         $this->assertNull(donor_details($receipt, 'cs_test_syntheticreceipt', 'ada@example.com'));
     }
 
+    public function testOpenSessionIsNotAGift(): void
+    {
+        $receipt = $this->receipt();
+        $receipt['status'] = 'open';
+        $this->assertNull(donor_details($receipt, 'cs_test_syntheticreceipt', 'ada@example.com'));
+    }
+
+    public function testFreeCheckoutCountsAsComplete(): void
+    {
+        $receipt = $this->receipt();
+        $receipt['payment_status'] = 'no_payment_required';
+        $this->assertTrue(donor_details($receipt, 'cs_test_syntheticreceipt', 'ada@example.com')['verified']);
+    }
+
     public function testMatchingEmailStillRequiresCompletedPayment(): void
     {
         $receipt = $this->receipt();

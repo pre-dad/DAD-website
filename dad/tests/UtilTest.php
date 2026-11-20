@@ -44,6 +44,26 @@ final class UtilTest extends TestCase
         $this->assertSame('ab', clean_line("\u{200B}ab"));
     }
 
+    public function testCleanLineStripsBidiIsolatesAndMarks(): void
+    {
+        foreach (["\u{2066}", "\u{2069}", "\u{061C}", "\u{00AD}"] as $c) {
+            $this->assertSame('a b', clean_line("a{$c}b"));
+        }
+    }
+
+    public function testCleanTextStripsBidiIsolatesAndMarks(): void
+    {
+        $this->assertSame('ab', clean_text("a\u{2066}b\u{2069}"));
+        $this->assertSame('ab', clean_text("a\u{061C}b\u{00AD}"));
+    }
+
+    public function testAgoRoundsDown(): void
+    {
+        $this->assertSame('59 min ago', ago(time() - 3599));
+        $this->assertSame('23 h ago', ago(time() - 86399));
+        $this->assertSame('6 d ago', ago(time() - 86400 * 7 + 1));
+    }
+
     public function testCleanLineNonStringBecomesEmpty(): void
     {
         $this->assertSame('', clean_line(null));

@@ -49,7 +49,7 @@ function clean_line($v): string {
   if (!is_string($v) && !is_int($v) && !is_float($v)) return '';
   $s = (string)$v;
   if (!mb_check_encoding($s, 'UTF-8')) $s = mb_convert_encoding($s, 'UTF-8', 'UTF-8');
-  $s = (string)preg_replace('/[\x{0000}-\x{001F}\x{007F}-\x{009F}\x{200B}-\x{200F}\x{2028}-\x{202E}\x{2060}-\x{2064}\x{FEFF}]+/u', ' ', $s);
+  $s = (string)preg_replace('/[\x{0000}-\x{001F}\x{007F}-\x{009F}\x{200B}-\x{200F}\x{2028}-\x{202E}\x{061C}\x{00AD}\x{2060}-\x{2069}\x{FEFF}]+/u', ' ', $s);
   $s = (string)preg_replace('/\s+/u', ' ', $s);
   return trim($s);
 }
@@ -60,7 +60,7 @@ function clean_text($v): string {
   $s = (string)$v;
   if (!mb_check_encoding($s, 'UTF-8')) $s = mb_convert_encoding($s, 'UTF-8', 'UTF-8');
   $s = str_replace(["\r\n", "\r"], "\n", $s);
-  $s = (string)preg_replace('/[\x{0000}-\x{0008}\x{000B}-\x{001F}\x{007F}-\x{009F}\x{200B}-\x{200F}\x{2028}-\x{202E}\x{2060}-\x{2064}\x{FEFF}]+/u', '', $s);
+  $s = (string)preg_replace('/[\x{0000}-\x{0008}\x{000B}-\x{001F}\x{007F}-\x{009F}\x{200B}-\x{200F}\x{2028}-\x{202E}\x{061C}\x{00AD}\x{2060}-\x{2069}\x{FEFF}]+/u', '', $s);
   $s = (string)preg_replace("/\n{4,}/", "\n\n\n", $s);
   return trim($s);
 }
@@ -82,9 +82,9 @@ function fmt_time(int $t): string { return date('M j, Y g:i A', $t); }
 function ago(int $t): string {
   $d = time() - $t;
   if ($d < 45) return 'just now';
-  if ($d < 3600) return (int)round($d / 60) . ' min ago';
-  if ($d < 86400) return (int)round($d / 3600) . ' h ago';
-  if ($d < 86400 * 7) return (int)round($d / 86400) . ' d ago';
+  if ($d < 3600) return (int)floor($d / 60) . ' min ago';
+  if ($d < 86400) return (int)floor($d / 3600) . ' h ago';
+  if ($d < 86400 * 7) return (int)floor($d / 86400) . ' d ago';
   return date('M j', $t);
 }
 
@@ -119,7 +119,11 @@ function base_headers(): void {
  */
 function send_json(int $status, array $data, array $extraHeaders = []): void {
   $body = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-  if ($body === false) $body = '{"ok":false,"error":"Server error"}';
+  if ($body === false) {
+    error_log('[dad-site] send_json: ' . json_last_error_msg());
+    $status = 500;
+    $body = '{"ok":false,"error":"Server error"}';
+  }
   http_response_code($status);
   header('Content-Type: application/json; charset=utf-8');
   foreach ($extraHeaders as $hd) header($hd);

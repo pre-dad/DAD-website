@@ -5,6 +5,8 @@ defined('SITE_API') || exit;
 
 const SITE_TYPES      = ['founding', 'updates', 'support', 'volunteer', 'contact', 'partner'];
 const SITE_LIST_TYPES = ['founding', 'updates'];          // mailing lists: deduped by email, carry an unsubscribe token
+const HITS_RETENTION     = 7200;                   // seconds a rate-limit hit is kept; no window may exceed it
+const MAIL_LOG_RETENTION = 90 * 86400;             // seconds a mail_log row is kept
 const SITE_TOPICS     = ['Giving', 'Partnership', 'Press', 'Careers', 'Something else'];
 const SITE_TYPE_LABELS = [
   'founding'  => 'Founding Donor',
