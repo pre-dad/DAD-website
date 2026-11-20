@@ -1,5 +1,5 @@
 // Fixed top nav + full-screen menu.
-import { html, $, $$, isTouch, mq } from './util.js?v=8e047553f8';
+import { html, $, $$, isTouch, mq } from './util.js?v=52460dff95';
 
 let nav, burger, menu, progress, mcta, lastY = 0, ticking = false, open = false, lastFocus = null;
 
@@ -92,11 +92,11 @@ export function toggle(force) {
 
 export function init() {
   nav = document.getElementById('nav');
+  if (!nav) return;
   burger = $('.nav__burger', nav);
   menu = document.getElementById('menu');
   progress = $('.nav__progress', nav);
   mcta = document.getElementById('mobile-cta');
-  if (!nav) return;
   setActive();
   burger?.addEventListener('click', () => toggle());
   document.addEventListener('keydown', trap);
