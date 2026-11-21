@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 /** Unit tests for the validation predicates in api/lib/validate.php. */
 final class ValidateHelpersTest extends TestCase
 {
-    // ---- valid_email -------------------------------------------------------
-
     public static function emailProvider(): array
     {
         return [
@@ -28,8 +26,6 @@ final class ValidateHelpersTest extends TestCase
         $this->assertSame($expected, valid_email($email));
     }
 
-    // ---- valid_first_name --------------------------------------------------
-
     public static function firstNameProvider(): array
     {
         return [
@@ -43,6 +39,11 @@ final class ValidateHelpersTest extends TestCase
             'too long rejected'     => [str_repeat('a', 61), false],
             'digits rejected'       => ['José3', false],
             'angle brackets'        => ['<b>', false],
+            'non-Latin'             => ['Zoë', true],
+            'cyrillic'              => ['Иван', true],
+            'trailing dot'          => ['Jr.', true],
+            'exactly 60'            => [str_repeat('a', 60), true],
+            'leading hyphen'        => ['-Luc', false],
         ];
     }
 
@@ -51,8 +52,6 @@ final class ValidateHelpersTest extends TestCase
     {
         $this->assertSame($expected, valid_first_name($name));
     }
-
-    // ---- valid_phone -------------------------------------------------------
 
     public static function phoneProvider(): array
     {
@@ -64,6 +63,9 @@ final class ValidateHelpersTest extends TestCase
             'letters'               => ['abcdefg', false],
             'too many digits'       => ['1234567890123456', false],
             'too short overall'     => ['555-12', false],
+            'nine digits'           => ['555-123-456', false],
+            'ten digits'            => ['555-123-4567', true],
+            'fifteen digits'        => ['+44 20 7946 0958 123', true],
         ];
     }
 

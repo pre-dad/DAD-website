@@ -6,8 +6,8 @@
 //
 // dest: null (no anchors) or { i, state, pre, amb, x, y, R, aim, rain: {cx, top, w, vis}, line: {l, r, y, ly, fs} }
 // events (emit(type, data)): glow, top, screen, state, coverRes, pourCovered, pourCleared, pourRes,
-//   impact, rainDone, uline, perf, fail
-import { makeForm, copyForm, formInto, mat3, H1, iconMatrix, blendIcon, galaxyMatrix, ICON_STATES } from './forms.js?v=9487f1ac36';
+//   impact, rainDone, uline, fail
+import { makeForm, copyForm, formInto, mat3, H1, iconMatrix, blendIcon, galaxyMatrix, ICON_STATES } from './forms.js?v=e238772b0d';
 
 export const TIERS = {
   low: { dpr: 1.5, res: 1, steps: 48, stars: 600, adapt: true },
@@ -103,7 +103,6 @@ export class Engine {
     this._M = new Float32Array(9); this._Mp = new Float32Array(9); this._My = new Float32Array(9);
     this._Mg = new Float32Array(9); this._MgT = new Float32Array(9);
     this._P = { box: [0, 0, 0, 0], cam: [0, 0, 1, CAM], A: new Float32Array(N * 4), B: new Float32Array(N * 4), S: new Float32Array(24), look: new Float32Array(4), she: new Float32Array(4), k: 0.3, time: 0, bound: 1, I: new Float32Array(16), IM: new Float32Array(9), st: new Float32Array([1, 0, 1, 0]), px: new Float32Array(4) };
-    this._perfBuf = []; this._perfT = 0;
     this.resize(W, H, dpr);
   }
 
@@ -190,8 +189,6 @@ export class Engine {
   // Back up one notch only after 4s with no misses (8s+ if it bounced), so quality never flickers and
   // every change is too small to see.
   _perf(dt, T) {
-    if (dt > 0 && dt < 0.25) this._perfBuf.push(dt * 1000);
-    if (T - this._perfT > 0.25) { this._perfT = T; if (this._perfBuf.length) { this.emit('perf', this._perfBuf); this._perfBuf = []; } }
     if (!this.view.setSteps || !(dt > 0) || dt > 0.25) return;
     const B = this._bud;
     B.dts.push(dt); if (B.dts.length > 60) B.dts.shift();

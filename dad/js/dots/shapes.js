@@ -50,7 +50,7 @@ export const DISPLAY_FONT = '"Space Grotesk", "Inter", system-ui, sans-serif';
 /* ------------------------------------------------------------------ */
 // us-dots.js is generated offline (~/Library/Caches/dad-site-qa/gen-us-dots.mjs): hexagonal lattices at
 // several densities, each point flagged ocean / land / coast / state border, plus ~40 metro sites.
-import { US } from './us-dots.js?v=9487f1ac36';
+import { US } from './us-dots.js?v=e238772b0d';
 export const MAP_ASPECT = US.aspect;
 // site positions in unit space (100 tall). Deliberately unlabelled on screen: no names, no numbers.
 export const MAP_SITES = US.sites.map(s => [s[1], s[2]]);
@@ -112,8 +112,8 @@ const CV_EDGES = [
   ...CV_NODES.map((n, i) => [n, CV_HUB, i * .143]),                       // spokes: expert -> hub
   ...CV_NODES.map((n, i) => [n, CV_NODES[(i + 1) % 7], .5 + i * .07])      // the ring: neighbour to neighbour
 ];
-function linkPts(step, edges) {
-  const out = [], gap = step * 1.1;
+function linkPts(step, edges, spacing = 1.1) {
+  const out = [], gap = step * spacing;
   edges.forEach(([[ax, ay, ar], [bx, by, br], k]) => {
     const L = Math.hypot(bx - ax, by - ay), s0 = ar + step * .9, s1 = L - br - step * .9;
     const n = Math.max(1, Math.round((s1 - s0) / gap));
@@ -389,7 +389,7 @@ export const SHAPES = {
           }
         } },
       ...['food', 'health', 'opportunities', 'infrastructure'].map((cat, q) => ({
-        id: 'node-' + q, tone: 'cat:' + cat, monoTone: 'accent', inner: .6, anim: 'node', glow: true, phase: q / 4,
+        id: 'node-' + q, tone: 'cat:' + cat, inner: .6, anim: 'node', glow: true,
         draw(c) { const a = -Math.PI / 2 + q * Math.PI / 2; c.beginPath(); circle(c, 50 + Math.cos(a) * 37, 50 + Math.sin(a) * 37, 9.5); c.fill(); }
       }))
     ]
@@ -399,22 +399,10 @@ export const SHAPES = {
     aspect: 1.4, accent: 'cyan', label: 'A network of connected people',
     layers: [
       { id: 'links', tone: 'base', alpha: .5, inner: 1, edge: false, anim: 'edgeflow', r: .24,
-        pts(step) {
-          const out = [], gap = step * 1.15;
-          NET_EDGES.forEach(([i, j], e) => {
-            const [ax, ay, ar] = NET_NODES[i], [bx, by, br] = NET_NODES[j];
-            const L = Math.hypot(bx - ax, by - ay), s0 = ar + step * .9, s1 = L - br - step * .9;
-            const n = Math.max(1, Math.round((s1 - s0) / gap));
-            for (let m = 0; m <= n; m++) {
-              const s = s0 + (s1 - s0) * (m / n);
-              out.push({ x: ax + (bx - ax) * s / L, y: ay + (by - ay) * s / L, u: s / L, k: (e * .37) % 1 });
-            }
-          });
-          return out;
-        } },
+        pts(step) { return linkPts(step, NET_EDGES.map(([i, j], e) => [NET_NODES[i], NET_NODES[j], (e * .37) % 1]), 1.15); } },
       { id: 'nodes', tone: 'base', inner: .7, anim: 'node',
         draw(c) { c.beginPath(); NET_NODES.forEach(([x, y, r, hub]) => { if (!hub) circle(c, x, y, r); }); c.fill(); } },
-      { id: 'hubs', tone: 'accent', inner: .6, anim: 'node', glow: true, phase: .5,
+      { id: 'hubs', tone: 'accent', inner: .6, anim: 'node', glow: true,
         draw(c) { c.beginPath(); NET_NODES.forEach(([x, y, r, hub]) => { if (hub) circle(c, x, y, r); }); c.fill(); } }
     ]
   },
@@ -497,8 +485,7 @@ export const SHAPES = {
 export const ALIASES = {
   us: 'map', 'us-map': 'map', ledger: 'map', bowl: 'food', cross: 'health', ladder: 'opportunities', stairs: 'opportunities',
   city: 'infrastructure', skyline: 'infrastructure', hourglass: 'leak-1', magnifier: 'leak-2', pie: 'leak-3',
-  document: 'leak-4', pdf: 'leak-4', bandage: 'leak-5', network: 'people', check: 'shield', trust: 'shield', '$': 'dollar',
-  'globe-ish': 'globe', ambient: 'field'
+  document: 'leak-4', pdf: 'leak-4', bandage: 'leak-5', network: 'people', check: 'shield', trust: 'shield', '$': 'dollar'
 };
 
 export function getShape(name) {

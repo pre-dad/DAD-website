@@ -3,9 +3,10 @@
 //  - facts + "Why now" forces light up as they cross the reading line
 //  - scrubbed word-by-word reading for the verdict lines
 //  - desktop: the five leaks run as a pinned horizontal sequence (sticky stage)
-import { coinStage, readText, activeOnLine, desktopPin } from './ph-util.js?v=9487f1ac36';
+import { coinStage, readText, activeOnLine, DESKTOP_PIN } from './ph-util.js?v=e238772b0d';
 
 let cleanups = [];
+let mm = null;
 
 export function mount(main, ctx) {
   const ST = ctx.ScrollTrigger;
@@ -22,7 +23,7 @@ export function mount(main, ctx) {
   const track = main.querySelector('.ph-leaks__track');
   const bar = main.querySelector('.ph-leaks__bar');
   const leaks = [...main.querySelectorAll('.ph-leak')];
-  if (sec && track && ST && gsap && !reduced && desktopPin()) {
+  const pinLeaks = () => {
     const dist = () => Math.max(0, track.scrollWidth - innerWidth);
     const size = () => { sec.style.setProperty('--ph-h', `${innerHeight + dist()}px`); };
     size();
@@ -55,17 +56,28 @@ export function mount(main, ctx) {
       onUpdate: setActive,
     });
     setActive();
-    cleanups.push(() => {
+    return () => {
       ST.removeEventListener('refreshInit', size);
       tw.scrollTrigger?.kill();
       tw.kill();
       gsap.set(track, { clearProps: 'transform' });
       sec.style.removeProperty('--ph-h');
-    });
-  } else if (ST) {
+      leaks.forEach((l) => l.classList.remove('is-active'));
+    };
+  };
+  const revealLeaks = () => {
     // (92%: a leak already on screen at a scene stop must not wait for another scroll)
     const sts = leaks.map((l) => ST.create({ trigger: l, start: 'top 92%', once: true, onEnter: () => l.classList.add('is-in') }));
-    cleanups.push(() => sts.forEach((s) => s.kill()));
+    return () => sts.forEach((s) => s.kill());
+  };
+
+  if (sec && track && ST && gsap && !reduced) {
+    // the layout follows the viewport, so resizing across 960px or rotating a tablet needs no reload
+    mm = gsap.matchMedia();
+    mm.add({ desk: DESKTOP_PIN, other: `not all and ${DESKTOP_PIN}` }, (m) => (m.conditions.desk ? pinLeaks() : revealLeaks()));
+    cleanups.push(() => mm.revert());
+  } else if (ST) {
+    cleanups.push(revealLeaks());
   } else {
     leaks.forEach((l) => l.classList.add('is-in'));
   }

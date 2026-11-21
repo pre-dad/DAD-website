@@ -41,8 +41,8 @@ async function expectNoResults(page: Page) {
   await expect(page.locator('.panel .empty')).toBeVisible();
 }
 
-async function mailingList(page: Page) {
-  const r = await page.request.get('/api/admin/?export=founding&subscribed=1');
+async function mailingList(page: Page, type = 'founding') {
+  const r = await page.request.get(`/api/admin/?export=${type}&subscribed=1`);
   expect(r.headers()['content-type']).toContain('text/csv');
   return r.text();
 }
@@ -121,6 +121,29 @@ test('admin: find, export, unsubscribe, resubscribe and delete a sign-up', async
     await expect(page.locator('tbody tr')).toHaveCount(1);
     await expect(page.locator('tbody tr')).toContainText('Unsubscribed');
   });
+});
+
+test('admin: the unsubscribe undo restores every list it switched off, and a bare POST does nothing', async ({ page }) => {
+  const email = unique('lists');
+  await signUp(page, email);
+  await signUp(page, email, { type: 'updates' });
+  await logIn(page);
+  const link = (await mailingList(page)).split('\r\n').find((l) => l.includes(email))!.match(/"(http[^"]*unsubscribe\.php\?t=[a-f0-9]{32})"/)![1];
+
+  const bare = await page.request.post(link, { form: {} });
+  expect(bare.status()).toBe(400);
+  expect(await mailingList(page)).toContain(email);
+
+  await page.goto(link);
+  await page.getByRole('button', { name: 'Yes, unsubscribe me' }).click();
+  await expect(page.getByRole('heading', { name: "You're unsubscribed." })).toBeVisible();
+  expect(await mailingList(page)).not.toContain(email);
+  expect(await mailingList(page, 'updates')).not.toContain(email);
+
+  await page.getByRole('button', { name: 'Resubscribe' }).click();
+  await expect(page.getByRole('heading', { name: "You're back on the list." })).toBeVisible();
+  expect(await mailingList(page)).toContain(email);
+  expect(await mailingList(page, 'updates')).toContain(email);
 });
 
 test('admin: without a session the dashboard is closed and a forged delete does nothing', async ({ page }) => {

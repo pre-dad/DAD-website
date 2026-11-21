@@ -3,7 +3,7 @@
 // duration is set from its measured width, so both rows move at the same
 // pace whatever their content. Pauses on hover/focus, off-screen, and via
 // the toggle button. Reduced motion shows a static wrapped wall (CSS).
-import { $, $$ } from './util.js?v=9487f1ac36';
+import { $, $$ } from './util.js?v=e238772b0d';
 
 const PX_PER_SEC = 26;
 let cleanups = [];

@@ -10,7 +10,7 @@
    resolved once, in the pipeline. Nothing downstream has to think about it.
    ========================================================================== */
 
-import { computeIndex as scoreIndex, computeGap as scoreGap } from './scoring.js?v=ae905405';
+import { computeIndex as scoreIndex, computeGap as scoreGap } from './scoring.js?v=0577f6b4';
 
 (() => {
 'use strict';
@@ -150,10 +150,43 @@ function openSearch() {
   input.select();
 }
 
+function announce(msg) {
+  const el = $('#live-status');
+  if (el && el.textContent !== msg) el.textContent = msg;
+}
+
 function closeSearch() {
   document.body.classList.remove('search-open');
-  $('#search-results').hidden = true;
+  setSearchOpen(false);
   $('#search').value = '';
+}
+
+function setSearchOpen(open) {
+  $('#search-results').hidden = !open;
+  const input = $('#search');
+  input.setAttribute('aria-expanded', String(open));
+  if (!open) input.removeAttribute('aria-activedescendant');
+}
+
+function moveSearchActive(step) {
+  const items = $$('#search-results [data-fips]');
+  if (!items.length) return;
+  const at = items.findIndex(el => el.classList.contains('is-active'));
+  const next = items[(at + step + items.length) % items.length];
+  items.forEach(el => el.classList.toggle('is-active', el === next));
+  next.scrollIntoView({ block: 'nearest' });
+  $('#search').setAttribute('aria-activedescendant', next.id);
+}
+
+function chooseCounty(fips) {
+  setSearchOpen(false);
+  $('#search').value = '';
+  if (isMobile()) closeSearch();
+  State.selected = fips;
+  showRightView('county');
+  if (isMobile()) openSheet('rank');
+  render();
+  zoomToCounty(fips);
 }
 
 /**
@@ -428,6 +461,10 @@ function render() {
   for (const el of [$('#shortlist-count'), $('#shortlist-count-m')]) {
     if (el) el.textContent = State.shortlist.size;
   }
+  if (State.pinnedSeen !== undefined && State.pinnedSeen !== State.shortlist.size) {
+    announce(`${State.shortlist.size} ${State.shortlist.size === 1 ? 'county' : 'counties'} pinned`);
+  }
+  State.pinnedSeen = State.shortlist.size;
   syncTabBar();
 }
 
@@ -1150,7 +1187,7 @@ function resetZoom() {
 function runSearch(q) {
   const box = $('#search-results');
   const term = q.trim().toLowerCase();
-  if (term.length < 2) { box.hidden = true; return; }
+  if (term.length < 2) { setSearchOpen(false); return; }
 
   const hits = [];
   for (let i = 0; i < State.d.count && hits.length < 40; i++) {
@@ -1159,11 +1196,12 @@ function runSearch(q) {
 
   box.innerHTML = hits.length
     ? hits.map(i => `
-        <button type="button" class="search-item" data-fips="${esc(State.d.fips[i])}">
+        <div role="option" id="search-opt-${esc(State.d.fips[i])}" class="search-item" data-fips="${esc(State.d.fips[i])}">
           ${esc(State.d.county[i])} <small>${esc(State.d.state[i])}</small>
-        </button>`).join('')
-    : `<div class="search-item">No match</div>`;
-  box.hidden = false;
+        </div>`).join('')
+    : `<div class="search-item" role="option" aria-disabled="true">No match</div>`;
+  setSearchOpen(true);
+  $('#search-status').textContent = hits.length ? `${hits.length} ${hits.length === 1 ? 'county' : 'counties'} found` : 'No match';
 }
 
 /* /* ---------------------------------------------------------------- events */
@@ -1235,23 +1273,25 @@ function wireEvents() {
   });
 
   $('#search').addEventListener('input', debounce(e => runSearch(e.target.value), 140));
+  $('#search').addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if ($('#search-results').hidden) runSearch(e.target.value);
+      moveSearchActive(e.key === 'ArrowDown' ? 1 : -1);
+      e.preventDefault();
+    } else if (e.key === 'Enter') {
+      const active = $('#search-results .is-active[data-fips]') || ($$('#search-results [data-fips]').length === 1 ? $('#search-results [data-fips]') : null);
+      if (active) { chooseCounty(active.dataset.fips); e.preventDefault(); }
+    } else if (e.key === 'Escape' && !$('#search-results').hidden) {
+      setSearchOpen(false);
+      e.stopPropagation();
+    }
+  });
   $('#search-results').addEventListener('click', e => {
     const item = e.target.closest('[data-fips]');
-    if (!item) return;
-    const fips = item.dataset.fips;
-    $('#search-results').hidden = true;
-    $('#search').value = '';
-    if (isMobile()) closeSearch();
-    State.selected = fips;
-    showRightView('county');
-    if (isMobile()) openSheet('rank');
-    render();
-    zoomToCounty(fips);
+    if (item) chooseCounty(item.dataset.fips);
   });
   document.addEventListener('click', e => {
-    if (!e.target.closest('.search-wrap') && !e.target.closest('[data-sheet="search"]')) {
-      $('#search-results').hidden = true;
-    }
+    if (!e.target.closest('.search-wrap') && !e.target.closest('[data-sheet="search"]')) setSearchOpen(false);
   });
 
   $('#btn-back').onclick = clearSelection;

@@ -90,6 +90,23 @@ test('internal links across all pages resolve (200, or the known 301)', async ({
   expect(bad, `broken internal links:\n${bad.join('\n')}`).toEqual([]);
 });
 
+// ---------------------------------------------------------------------------
+// The /problem/ leaks layout follows the viewport instead of the width at load
+// ---------------------------------------------------------------------------
+test('problem: the pinned leaks layout switches on resize without a reload', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/problem/', { waitUntil: 'load' });
+  const pinned = () => page.locator('.ph-leaks').evaluate((el) => el.style.getPropertyValue('--ph-h') !== '');
+  await expect.poll(pinned).toBe(true);
+  await page.setViewportSize({ width: 800, height: 800 });
+  await expect.poll(pinned).toBe(false);
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await expect.poll(pinned).toBe(true);
+});
+
+// ---------------------------------------------------------------------------
+// Scroll-driven content stays readable when the app does not boot
+// ---------------------------------------------------------------------------
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
 

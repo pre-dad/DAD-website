@@ -124,6 +124,4 @@ export function activeOnLine(items, ST, { line = '55%' } = {}) {
   return () => sts.forEach((s) => s.kill());
 }
 
-export const desktopPin = () => {
-  try { return matchMedia('(min-width: 960px) and (hover: hover) and (pointer: fine)').matches; } catch (e) { return false; }
-};
+export const DESKTOP_PIN = '(min-width: 960px) and (hover: hover) and (pointer: fine)';

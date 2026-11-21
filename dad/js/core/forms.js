@@ -1,7 +1,7 @@
 // Forms: <form class="form" data-form="founding|updates|support|volunteer|contact|partner">
 // Progressive enhancement over a normal POST to /api/submit.php. With JS we post
 // JSON, validate inline, keep typed input on error and swap in the success copy.
-import { $, $$, store, id } from './util.js?v=9487f1ac36';
+import { $, $$, store, id } from './util.js?v=e238772b0d';
 
 const ENDPOINT = '/api/submit.php';
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/;
@@ -196,7 +196,18 @@ function captureDonationReference(form) {
     const url = new URL(location.href);
     const sid = url.searchParams.get('session_id') || '';
     const h = byName(form, 'session_id');
-    if (h && /^cs_(live|test)_[A-Za-z0-9]{10,200}$/.test(sid)) h.value = sid;
+    const valid = /^cs_(live|test)_[A-Za-z0-9]{10,200}$/.test(sid);
+    if (h && valid) h.value = sid;
+    // the id is removed from the URL below, so a reload keeps the "gift received" copy via sessionStorage
+    let gift = valid;
+    try {
+      if (valid) sessionStorage.setItem('dad-gift', '1');
+      else gift = sessionStorage.getItem('dad-gift') === '1';
+    } catch (e) { /* storage blocked: only a fresh redirect shows the gift copy */ }
+    const card = form.closest('.pg-formcard');
+    if (card) card.querySelectorAll('[data-gift]').forEach((el) => { el.hidden = (el.dataset.gift === 'yes') !== gift; });
+    const title = card && card.querySelector('[data-gift-title]');
+    if (title && gift) title.textContent = title.dataset.giftTitle;
     if (url.searchParams.has('session_id')) {
       url.searchParams.delete('session_id');
       history.replaceState(history.state, '', url.pathname + url.search + url.hash);

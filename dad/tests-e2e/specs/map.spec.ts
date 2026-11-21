@@ -136,3 +136,30 @@ test('map: no critical or serious axe violations with a sheet open on a phone', 
   const blocking = results.violations.filter((v) => v.impact === 'critical' || v.impact === 'serious');
   expect(blocking.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
 });
+
+test('map: the county search is a combobox that works from the keyboard', async ({ page }) => {
+  await open(page, 1280);
+  const input = page.locator('#search');
+  await expect(input).toHaveAttribute('role', 'combobox');
+  await expect(input).toHaveAttribute('aria-expanded', 'false');
+  await input.fill('Cook');
+  await expect(input).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('#search-results')).toHaveAttribute('role', 'listbox');
+  await expect(page.locator('#search-results [role="option"]').first()).toBeVisible();
+  await input.press('ArrowDown');
+  const active = await input.getAttribute('aria-activedescendant');
+  expect(active).toBeTruthy();
+  await expect(page.locator(`#${active}`)).toHaveClass(/is-active/);
+  await input.press('Enter');
+  await expect(input).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('#panel-right')).toContainText('Cook');
+});
+
+test('map: pinning a county is announced and the wordmark is defined once', async ({ page }) => {
+  await open(page, 1280);
+  await expect(page.locator('#live-status')).toHaveAttribute('aria-live', 'polite');
+  await expect(page.locator('#coverage-warning')).toHaveAttribute('role', 'status');
+  await page.locator('#ranking .rank-pin').first().click();
+  await expect(page.locator('#live-status')).toHaveText('1 county pinned');
+  await expect(page.locator('svg path[d^="M126,0"]')).toHaveCount(1);
+});

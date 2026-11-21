@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 /** Unit tests for the pure helpers in api/lib/util.php. */
 final class UtilTest extends TestCase
 {
-    // ---- is_quiet ----------------------------------------------------------
-
     public static function quietProvider(): array
     {
         return [
@@ -26,8 +24,6 @@ final class UtilTest extends TestCase
     {
         $this->assertSame($expected, is_quiet($email));
     }
-
-    // ---- clean_line --------------------------------------------------------
 
     public function testCleanLineCollapsesAndTrims(): void
     {
@@ -72,8 +68,6 @@ final class UtilTest extends TestCase
         $this->assertSame('42', clean_line(42));
     }
 
-    // ---- clean_text --------------------------------------------------------
-
     public function testCleanTextKeepsNewlines(): void
     {
         $this->assertSame("a\nb", clean_text("a\nb"));
@@ -90,19 +84,33 @@ final class UtilTest extends TestCase
         $this->assertSame("a\n\n\nb", clean_text("a\n\n\n\n\n\nb"));
     }
 
-    // ---- clamp_str ---------------------------------------------------------
-
     public function testClampStrMultibyteTruncation(): void
     {
         $this->assertSame('ábc', clamp_str('ábcdé', 3));
+    }
+
+    public function testClampStrAtTheLimitIsUnchanged(): void
+    {
+        $this->assertSame('ábc', clamp_str('ábc', 3));
+        $this->assertSame('', clamp_str('abc', 0));
+    }
+
+    public function testCleanTextRemovesZeroWidthWithoutASpace(): void
+    {
+        $this->assertSame('ab', clean_text("a\u{200B}b"));
+        $this->assertSame('ab', clean_text("a\u{FEFF}b"));
+    }
+
+    public function testCleanLineAndTextRepairInvalidUtf8(): void
+    {
+        $this->assertTrue(mb_check_encoding(clean_line("caf\xE9 ok"), 'UTF-8'));
+        $this->assertTrue(mb_check_encoding(clean_text("caf\xE9\nok"), 'UTF-8'));
     }
 
     public function testClampStrShortStringUnchanged(): void
     {
         $this->assertSame('hi', clamp_str('hi', 10));
     }
-
-    // ---- mail_domain -------------------------------------------------------
 
     public function testMailDomainExtractsAfterAt(): void
     {
@@ -113,8 +121,6 @@ final class UtilTest extends TestCase
     {
         $this->assertSame('dynamicaid.org', mail_domain('no-at-here'));
     }
-
-    // ---- like_escape -------------------------------------------------------
 
     public function testLikeEscape(): void
     {
