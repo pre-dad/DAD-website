@@ -33,9 +33,9 @@
 // Public API: new Dollar(canvas, {tier, reduced}) · bind(root) · unbind() · flyTo({duration})
 //             cover() · reveal() · rain(pts, opts) · rainReset() · pour({onCovered, onCleared}) · pour(null)
 //             pourReset() · pourDone() · setTheme('dark'|'light') · intro() · getScreenPosition() · ready · state · dispose()
-import { Engine, TIERS, tierQ, N_PRIMS, SIZES, COVER_IN, dispatch, hostTick, absNow } from './engine.js?v=209c519080';
-import { ICON_STATES } from './forms.js?v=209c519080';
-import { View } from './gl.js?v=209c519080';
+import { Engine, TIERS, tierQ, N_PRIMS, SIZES, COVER_IN, dispatch, hostTick, absNow } from './engine.js?v=e238772b0d';
+import { ICON_STATES } from './forms.js?v=e238772b0d';
+import { View } from './gl.js?v=e238772b0d';
 const TICK = { type: 'tick' };
 // WebKit's worker rAF is timer-driven (not display-synced), so there the page paces the worker. ?liqpace=0|1 overrides.
 const PACE_FROM_PAGE = (() => { try { const o = new URLSearchParams(location.search).get('liqpace'); if (o) return o === '1'; return /Apple/.test(navigator.vendor || ''); } catch (e) { return false; } })();

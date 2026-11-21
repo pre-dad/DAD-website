@@ -19,7 +19,7 @@
 //
 // Falls back to normal scrolling under reduced motion or on viewports shorter
 // than 560px. The page keeps its scene sizing either way.
-import { html, $$, prefersReduced, isTouch, mq, clamp } from './util.js?v=209c519080';
+import { html, $$, prefersReduced, isTouch, mq, clamp } from './util.js?v=e238772b0d';
 
 const MIN_H = 560;
 const DUR = 1.05;          // seconds per scene move
