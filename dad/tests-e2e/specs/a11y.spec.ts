@@ -16,6 +16,11 @@ for (const path of A11Y_PAGES) {
     // scans the settled page instead of a random mid-tween frame (which made
     // color-contrast results flaky).
     const context = await browser.newContext({ ...contextOptions, reducedMotion: 'reduce' });
+    // The WebGL dollar is aria-hidden decoration (html.no-gl only hides its canvas). Its first scroll-driven
+    // render blocks the main thread for about 5 s under software GL, so every scroll step after it waits on
+    // that stall and a loaded runner runs past the test timeout. Load the page without it, as a visitor
+    // without WebGL does.
+    await context.route('**/js/dollar/dollar.js*', (route) => route.abort());
     const page = await context.newPage();
     await page.goto(path, { waitUntil: 'load' });
     // app.js sets __booted once the page is wired up and __ready once the preloader is done; /map/ and /impactledger do not load it.
