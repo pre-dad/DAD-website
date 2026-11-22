@@ -30,7 +30,7 @@ tools/build.mjs       regenerates css/site.css and the ?v= asset versions
 
 ## Prerequisites
 
-PHP 8.4+ with `pdo_sqlite` and `mbstring`, Composer, and Node 20+.
+PHP 8.3+ with `pdo_sqlite` and `mbstring`, Composer, and Node 20+.
 
 ## Run it locally
 
@@ -67,6 +67,15 @@ from a third-party origin means widening that policy.
 After changing any CSS or JS, run `npm run build` from the repo root. It rebuilds
 `css/site.css` and rewrites every `?v=` version so browsers fetch the new files.
 CI fails if you forget (`npm run check`).
+
+### Map data
+
+`dad/map/data/` is generated outside this repo and committed as-is: `counties.json`
+(per-county indicators; `generated` and `count` record the run), `meta.json` (source
+registry) and `us-counties.topo.json` (geometry). To refresh it, re-run the external data
+pipeline, replace the three files together, and load `/map/` to confirm every county still
+renders. `population` appears twice per county (top level and `indicators.population.raw`);
+keep both in sync until the page code reads only one.
 
 ## Test
 

@@ -1,9 +1,11 @@
 // Rebuilds the generated parts of the site in dad/:
 //   css/site.css  - the minified bundle of every other css/*.css (the only stylesheet pages load)
 //   ?v=<hash>     - the cache-busting version on every site.css, vendor and js/ URL
+//   .htaccess     - the sha256 sources in script-src, one per distinct inline <script> body, so the CSP needs no 'unsafe-inline'
 // With --check nothing is written; it exits 1 if a generated file is stale (CI runs this).
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +25,8 @@ const check = process.argv.includes('--check');
 function siteFiles() {
   // Tracked plus new-but-not-ignored files, so local-only folders under dad/ are never touched.
   const out = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z', '--', '.'], { cwd: SITE, encoding: 'utf8' });
-  return [...new Set(out.split('\0').filter(Boolean))].sort();
+  // A tracked file deleted in the worktree is listed by git but cannot be read.
+  return [...new Set(out.split('\0').filter(Boolean))].filter((f) => existsSync(join(SITE, f))).sort();
 }
 
 const files = siteFiles();
@@ -34,13 +37,26 @@ const sources = await Promise.all([...CORE_CSS, ...extraCss].map(read));
 const { code: css } = await transform(sources.join('\n'), { loader: 'css', minify: true });
 
 const versioned = files.filter((f) => !UNVERSIONED.test(f) && (f.endsWith('.html') || f.endsWith('.js')));
-const hashed = files.filter((f) => /^(js|vendor)\/.+\.js$/.test(f));
+// vendor/three/ is imported through an import map (no ?v=), so it does not feed the version.
+const hashed = files.filter((f) => /^(js|vendor)\/.+\.js$/.test(f) && !f.startsWith('vendor/three/'));
 const hash = createHash('sha256').update(css);
 for (const f of hashed) hash.update(`${f}\0${(await read(f)).replace(VERSION_RE, '?v=')}\0`);
 const version = hash.digest('hex').slice(0, 10);
 
 const outputs = new Map([[BUNDLE, css]]);
 for (const f of versioned) outputs.set(f, (await read(f)).replace(VERSION_RE, `?v=${version}`));
+
+// Pages that get the site CSP: everything but the standalone viewers, which carry their own policy.
+const inline = new Set();
+for (const f of files.filter((f) => (f.endsWith('.html') || f === 'impactledger') && !/^(on-prem-infra|map)\//.test(f))) {
+  for (const m of (outputs.get(f) ?? (await read(f))).matchAll(/<script>([\s\S]*?)<\/script>/g)) {
+    inline.add(`'sha256-${createHash('sha256').update(m[1]).digest('base64')}'`);
+  }
+}
+const SCRIPT_SRC_RE = /(script-src 'self')(?: 'sha256-[^']+'| 'unsafe-inline')*(?=;[^"\n]*worker-src)/;
+const htaccess = await read('.htaccess');
+if (!SCRIPT_SRC_RE.test(htaccess)) throw new Error('.htaccess: site CSP script-src not found');
+outputs.set('.htaccess', htaccess.replace(SCRIPT_SRC_RE, `$1 ${[...inline].sort().join(' ')}`));
 
 const stale = [];
 for (const [f, content] of outputs) {

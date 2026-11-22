@@ -39,14 +39,15 @@ because the server cannot read `600` files.
 
 1. Prints the resolved source, SSH target, and remote webroot.
 2. **Dry run first** (`rsync --dry-run --itemize-changes`): shows exactly what
-   would be added, changed, or deleted. Nothing is uploaded.
+   would be added, changed, or deleted. It connects to the server read-only to
+   compare the trees; nothing is uploaded.
 3. **Confirmation**: either you passed `--go`, or you answer `y` to the prompt.
    Any other answer aborts with no changes.
 4. Runs the same `rsync` for real.
 5. Prints the post-deploy checklist (below).
 
-The script never runs anything against the server before step 4, and step 4 only
-happens after you confirm.
+The script never modifies the server before step 4, and step 4 only happens
+after you confirm.
 
 ## Safety guarantees
 
@@ -60,7 +61,7 @@ anything a sync replaces, for exactly this reason.
 
 ## Post-deploy checklist
 
-From `dad/api/README.txt`, after a real deploy:
+`deploy.sh` points here after a real deploy. Work through it once:
 
 1. Open `https://<host>/api/health.php` — must show `{"ok":true}`.
 2. Open `https://<host>/api/admin/?setup=THE-KEY` once; Chris sets his password

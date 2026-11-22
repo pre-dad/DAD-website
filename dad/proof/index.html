@@ -24,7 +24,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=7df28338d2">
+<link rel="stylesheet" href="/css/site.css?v=e238772b0d">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -40,15 +40,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/SplitText.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/lenis.min.js?v=7df28338d2"></script>
-<script type="module" src="/js/app.js?v=7df28338d2"></script>
+<script defer src="/vendor/gsap.min.js?v=e238772b0d"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=e238772b0d"></script>
+<script defer src="/vendor/SplitText.min.js?v=e238772b0d"></script>
+<script defer src="/vendor/lenis.min.js?v=e238772b0d"></script>
+<script type="module" src="/js/app.js?v=e238772b0d"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=7df28338d2">
+<link rel="modulepreload" href="/js/core/util.js?v=e238772b0d">
 </head>
 <body data-page="proof" data-mobile-cta="on">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -106,7 +106,7 @@
   </div>
 </div>
 
-<main id="swap" data-page="proof" data-module="/js/pages/proof.js?v=7df28338d2" data-scenes tabindex="-1">
+<main id="swap" data-page="proof" data-module="/js/pages/proof.js?v=e238772b0d" data-scenes tabindex="-1">
 <style>
 /* ---- THE PROOF (page-scoped) ---- */
 [data-page="proof"] .pp-field { position: absolute; inset: 0; width: auto; height: auto; aspect-ratio: auto; opacity: .5; pointer-events: none; -webkit-mask-image: linear-gradient(180deg, #000 50%, transparent 98%); mask-image: linear-gradient(180deg, #000 50%, transparent 98%); }
@@ -163,13 +163,10 @@ html.reduced [data-page="proof"] .pf-row__rule::after { transform: scaleX(1); }
 [data-page="proof"] .pf-hundred span::after { content: ""; position: absolute; left: -4%; right: -4%; top: 50%; height: clamp(6px, .8vw, 12px); margin-top: -4px; border-radius: 6px; background: var(--red); transform: scaleX(var(--p, 0)) rotate(-8deg); transform-origin: 0 50%; box-shadow: 0 8px 30px -6px rgba(255, 74, 34, .55); }
 [data-page="proof"] .pf-over__statement { max-width: 14ch; }
 
-/* live ledger: the Open Ledger stage (css/ledger.css) */
-
 [data-page="proof"].has-scenes .pf-row__title { font-size: clamp(22px, min(2.6vw + 10px, 5svh), 52px); }
 [data-page="proof"].has-scenes .pf-hundred span { font-size: clamp(100px, min(17vw, 30svh), 300px); }
 [data-page="proof"].has-scenes .pf-live .section-head { margin-bottom: 0; }
-/* principles: the base card (the list markers and the card frame had gone missing, so the
-   numerals read "1. 01" and the row collapsed to a plain list) */
+/* principles: the stacked cards */
 [data-page="proof"] .pf-stack { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(14px, 1.6vw, 24px); }
 [data-page="proof"] .pf-p { display: grid; gap: 14px; padding: clamp(22px, 2.4vw, 34px); border-radius: var(--r-l); background: var(--card); box-shadow: inset 0 0 0 1px var(--line-c); }
 [data-page="proof"] .pf-p__top { display: flex; align-items: center; gap: 14px; }
@@ -265,7 +262,7 @@ html.reduced [data-page="proof"] .pf-row__rule::after { transform: scaleX(1); }
   </div>
 </section>
 
-<!-- 4 · THE LIVE LEDGER (dark island: the drop rains onto the map, then the Open Ledger deck) -->
+<!-- 4 · THE LIVE LEDGER (the drop rains onto the map, then the Open Ledger deck) -->
 <section class="section pf-live" data-theme="light" aria-labelledby="pf-live-h">
   <div class="container">
     <div class="pf-live__head scene-flex" data-scene data-scene-name="The live ledger">
@@ -284,10 +281,9 @@ html.reduced [data-page="proof"] .pf-row__rule::after { transform: scaleX(1); }
       <div class="lgx__a" data-dollar="ambient"></div><!-- the rain throw is off: the opaque map card hides droplets drawn behind it -->
       <div class="lgx__a lgx__a--1" data-dollar="ambient"></div>
       <div class="lgx__a lgx__a--3" data-dollar="ambient"></div>
-      <!-- OPEN LEDGER STAGE. Include inside <div class="lgx" data-ledger data-scene data-scene-steps="4">.
-     Step 0: the drop rains onto the map. Steps 1-3: the three-window deck (Program register, Overview, Outcomes).
-     DOM order = shuffle order: the register is first so the flow lines land on its rows.
-     Behaviour: js/core/ledger.js. Look: css/ledger.css. All figures are example data. -->
+      <!-- Open Ledger stage. Step 0: the drop rains onto the map. Steps 1-3: the three-window deck
+           (Program register, Overview, Outcomes). DOM order is shuffle order: the register is first
+           so the flow lines land on its rows. All figures are example data. -->
 <div class="lgx__stage">
   <div class="island lgx__island">
     <div class="lgx__legend" aria-hidden="true"><i class="cat-food"></i><i class="cat-health"></i><i class="cat-opps"></i><i class="cat-infra"></i></div>
@@ -490,7 +486,7 @@ html.reduced [data-page="proof"] .pf-row__rule::after { transform: scaleX(1); }
     <p class="footer__big" aria-hidden="true" data-reveal="split-chars">Aid, delivered.</p>
     <div class="footer__legal">
       <p>Dynamic Aid Delivery, INC. is a Delaware non-stock corporation.</p>
-      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a></p>
+      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a> · <button class="linkbtn" type="button" data-cookie-settings>Cookie settings</button></p>
     </div>
   </div>
 </footer>

@@ -3,7 +3,7 @@ DirectoryIndex index.php
 AddDefaultCharset UTF-8
 
 # Never serve config, notes or data files from this folder
-<FilesMatch "^(config|config\.sample)\.php$|^README\.txt$|\.(sqlite|sqlite3|db|log|jsonl|bak|md|txt)$">
+<FilesMatch "^(config|config\.sample)\.php$|^README\.txt$|\.(sqlite|sqlite3|db|log|jsonl|bak|md|txt|ci-backup|ci-data)$">
   Require all denied
 </FilesMatch>
 

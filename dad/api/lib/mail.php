@@ -23,6 +23,17 @@ function addr_ok(string $a): bool {
   return $a !== '' && !preg_match('/[\r\n]/', $a) && filter_var($a, FILTER_VALIDATE_EMAIL) !== false;
 }
 
+/** AUTH LOGIN sends the password in the clear, so only over STARTTLS ('tls') or to this machine. */
+function smtp_secure_ok(string $host, string $secure): bool {
+  return strtolower($secure) === 'tls' || in_array(strtolower($host), ['localhost', '127.0.0.1', '::1'], true);
+}
+
+/** The message the SMTP path sends. mail() adds To and Subject itself; a relay needs them in the data. */
+function smtp_message(string $to, string $subject, array $hdr, string $body): string {
+  $eol = "\r\n";
+  return 'Subject: ' . mime_header($subject) . $eol . 'To: ' . $to . $eol . implode($eol, $hdr) . $eol . $eol . $body;
+}
+
 /**
  * Minimal SMTP client (PHP core only, no Composer/PHPMailer) for an SES-style relay.
  * Sends the already-assembled message ($data = headers + blank line + body) over
@@ -32,6 +43,7 @@ function addr_ok(string $a): bool {
  * (never throws). NEVER logs the password, the AUTH tokens, or the email addresses.
  */
 function smtp_send(string $host, int $port, string $secure, string $user, string $pass, string $from, string $to, string $data): bool {
+  if (!smtp_secure_ok($host, $secure)) return false;
   $fp = @stream_socket_client("tcp://$host:$port", $errno, $errstr, 15, STREAM_CLIENT_CONNECT);
   if (!$fp) return false;
   stream_set_timeout($fp, 15);
@@ -108,15 +120,14 @@ function smtp_send(string $host, int $port, string $secure, string $user, string
 }
 
 /**
- * Send one email. $html optional (multipart/alternative when given).
- * $o: from, from_name, reply_to, unsubscribe (URL, adds List-Unsubscribe + one-click), kind (mail_log label)
+ * Builds one email: [from address, header lines, body], or null when an address is invalid.
+ * $o: from, from_name, reply_to, unsubscribe (URL, adds List-Unsubscribe + one-click), auto
  */
-function send_mail(string $to, string $subject, string $text, ?string $html = null, array $o = []): bool {
+function compose_mail(string $to, string $text, ?string $html, array $o): ?array {
   $from     = (string)($o['from'] ?? SITE_NOTIFY_FROM);
   $fromName = (string)($o['from_name'] ?? SITE_NOTIFY_FROM_NAME);
   $replyTo  = (string)($o['reply_to'] ?? '');
-  $kind     = (string)($o['kind'] ?? 'mail');
-  if (!addr_ok($to) || !addr_ok($from) || ($replyTo !== '' && !addr_ok($replyTo))) { mail_log($kind, false); return false; }
+  if (!addr_ok($to) || !addr_ok($from) || ($replyTo !== '' && !addr_ok($replyTo))) return null;
 
   $eol = "\r\n";
   $hdr = [];
@@ -153,12 +164,24 @@ function send_mail(string $to, string $subject, string $text, ?string $html = nu
       . quoted_printable_encode(str_replace(["\r\n", "\r", "\n"], "\r\n", $html)) . $eol . $eol
       . '--' . $b . '--' . $eol;
   }
+  return [$from, $hdr, $body];
+}
+
+/**
+ * Send one email. $html optional (multipart/alternative when given).
+ * $o: see compose_mail(), plus kind (mail_log label)
+ */
+function send_mail(string $to, string $subject, string $text, ?string $html = null, array $o = []): bool {
+  $kind = (string)($o['kind'] ?? 'mail');
+  $mail = compose_mail($to, $text, $html, $o);
+  if ($mail === null) { mail_log($kind, false); return false; }
+  [$from, $hdr, $body] = $mail;
+  $eol = "\r\n";
 
   $smtpHost = defined('SITE_SMTP_HOST') ? (string)SITE_SMTP_HOST : '';
   $ok = false;
   if ($smtpHost !== '') {
-    // mail() takes the subject as its own argument, so it is not in $hdr.
-    $message = 'Subject: ' . mime_header($subject) . $eol . implode($eol, $hdr) . $eol . $eol . $body;
+    $message = smtp_message($to, $subject, $hdr, $body);
     $ok = smtp_send(
       $smtpHost,
       (int)(defined('SITE_SMTP_PORT') ? SITE_SMTP_PORT : 587),
@@ -223,13 +246,36 @@ function send_founding_confirmation(string $email, string $firstName, string $to
   ]);
 }
 
+function resubscribe_confirm_url(string $resubToken): string {
+  return rtrim(SITE_BASE, '/') . '/api/unsubscribe.php?c=' . rawurlencode($resubToken);
+}
+
+/** Asks a previously unsubscribed address to confirm before it is mailed again. Same quiet list and cap. */
+function send_resubscribe_confirmation(string $email, string $firstName, string $resubToken, string $unsubToken): bool {
+  if (is_quiet($email)) return false;
+  if (confirm_capped()) return false;
+  $hi = $firstName !== '' ? $firstName . ",\n\n" : '';
+  $text = $hi . "Someone asked to add this address to the DAD mailing list again. You unsubscribed earlier, so nothing changes unless you confirm:\n\n"
+    . resubscribe_confirm_url($resubToken) . "\n\nIf that wasn't you, ignore this email. You will stay unsubscribed.\n\nDAD\n";
+  return send_mail($email, 'Confirm you want DAD emails again', $text, null, [
+    'from' => SITE_MAIL_FROM, 'from_name' => SITE_MAIL_FROM_NAME, 'reply_to' => SITE_MAIL_REPLY_TO,
+    'unsubscribe' => unsubscribe_url($unsubToken), 'kind' => 'confirm',
+  ]);
+}
+
 /** Footer line on the partner confirmation (it is a one-off reply, not a mailing list). */
 const PARTNER_EMAIL_FOOTER = 'You got this because you sent the "Partner with us" form on dynamicaid.org. It is a one-time reply: you are not on any list.';
+
+/** True when this address already got a partner confirmation in the last hour: a stranger cannot make us mail someone repeatedly. */
+function partner_confirm_repeat(string $email): bool {
+  return hit_count('pc:' . hash('sha256', ip_salt() . '|' . strtolower($email)), 3600) > 1;
+}
 
 /** Sends the short confirmation to someone who sent the Partner form. Same quiet list and cap. */
 function send_partner_confirmation(string $email, string $name, string $company): bool {
   if (is_quiet($email)) return false;
   if (confirm_capped()) return false;
+  if (partner_confirm_repeat($email)) return false;
   $r = email_render_confirm('confirm_partner', ['first_name' => first_word($name), 'name' => $name, 'company' => $company],
     ['footer' => PARTNER_EMAIL_FOOTER]);
   return send_mail($email, $r['subject'], $r['text'], $r['html'], [

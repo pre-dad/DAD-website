@@ -69,8 +69,6 @@
   color: var(--accent-text);
   margin-bottom: clamp(18px, 2.2vw, 30px);
 }
-/* no leading rule before eyebrows (CEO, 10 Oct 2026): the label stands alone, aligned to the text edge */
-.eyebrow::before { content: none; display: none; }
 .eyebrow--center { justify-content: center; }
 
 /* source notes / fine print */
@@ -129,8 +127,6 @@
 .btn__roll > span + span { transform: translateY(115%); }
 .btn__icon { width: 1.1em; height: 1.1em; flex: none; transition: transform .6s var(--ease); }
 
-.btn--primary { background: var(--red); color: var(--ink); }
-.btn--primary::before { background: var(--red-hi); }
 .btn--ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 1px var(--line-strong); }
 .btn--ghost::before { background: var(--fg); }
 .btn--ink { background: var(--fg); color: var(--bg); }
@@ -1274,12 +1270,13 @@ html.no-pl .preloader { display: none; }
   letter-spacing: -.055em;
   color: var(--paper);
   white-space: nowrap;
-  margin-left: -.04em;
 }
 .footer__big .ch:nth-child(n) { display: inline-block; }
 .footer__legal { display: grid; gap: 8px; padding-top: 22px; border-top: 1px solid rgba(248, 249, 250, .1); font: 400 12.5px/1.6 var(--f-mono); letter-spacing: .02em; color: var(--mut); }
 @media (min-width: 900px) { .footer__legal { grid-template-columns: 1fr auto; } }
-.footer__legal p a { color: var(--dkmut); text-decoration: underline; }
+.footer__legal p a, .footer__legal .linkbtn { color: var(--dkmut); text-decoration: underline; }
+.footer__legal .linkbtn { padding: 0; border: 0; background: none; font: inherit; letter-spacing: inherit; cursor: pointer; }
+.footer__legal .linkbtn:hover { color: var(--paper); }
 .footer__legal a:hover { color: var(--paper); }
 body:has(.mobile-cta.is-on) .footer { padding-bottom: 104px; }
 
@@ -1362,14 +1359,15 @@ html.reveal-all [data-reveal], html.reduced [data-reveal] { opacity: 1 !importan
 .logo-panel__grid li.is-wide { flex-basis: 50%; }
 .logo-panel__grid li.is-wide img { opacity: 1; }
 
-/* ---- "Join the Movement" liquid button (Chris, 2026-10-11: option A, toned-down shine) ---- */
+/* ---- "Join the Movement" liquid button ----
+   Ink text: every gradient stop keeps at least 4.5:1 against #0E1E1E (#FF7448 6.41, #FF4A22 5.11,
+   #F0461B 4.58; hover #FF8656 7.19, #FF5A30 5.52, #F2481D 4.68). White was 2.68 to 4.34. */
 .btn--primary {
-  color: #fff;
-  background: radial-gradient(120% 140% at 30% 0%, #FF7448 0%, #FF4A22 50%, #E3380F 100%);
+  color: var(--ink);
+  background: radial-gradient(120% 140% at 30% 0%, #FF7448 0%, #FF4A22 50%, #F0461B 100%);
   box-shadow: inset 0 -6px 14px rgba(120, 20, 0, .32), inset 0 2px 0 rgba(255, 255, 255, .22), 0 10px 24px -6px rgba(255, 74, 34, .38);
-  text-shadow: 0 1px 1px rgba(120, 25, 0, .28);
 }
-.btn--primary::before { background: radial-gradient(120% 140% at 30% 0%, #FF8656 0%, #FF5A30 50%, #EA4116 100%); }
+.btn--primary::before { background: radial-gradient(120% 140% at 30% 0%, #FF8656 0%, #FF5A30 50%, #F2481D 100%); }
 .btn--primary::after {
   content: ""; position: absolute; left: 14%; right: 26%; top: 3px; height: 40%; border-radius: 999px; pointer-events: none;
   background: linear-gradient(rgba(255, 255, 255, .42), rgba(255, 255, 255, 0)); filter: blur(1px);
@@ -1378,13 +1376,13 @@ html.reveal-all [data-reveal], html.reduced [data-reveal] { opacity: 1 !importan
   .btn--primary:hover { box-shadow: inset 0 -6px 14px rgba(120, 20, 0, .32), inset 0 2px 0 rgba(255, 255, 255, .22), 0 16px 36px -8px rgba(255, 74, 34, .55); }
 }
 
-/* footer: a liquid DAD mark fills the empty space above "Aid, delivered." (Chris, 2026-10-11) */
+/* footer: a liquid DAD mark fills the empty space above "Aid, delivered." */
 .footer > .container { display: flex; flex-direction: column; flex: 1 1 auto; width: 100%; }
 .footer__mark { position: relative; flex: 1 1 auto; min-height: clamp(140px, 22svh, 260px); margin-top: clamp(24px, 4vw, 56px); }
 .footer__mark + .footer__big { margin-top: clamp(16px, 3vw, 40px); }
 /* any scene-level drop anchor is positioned within its own section, never a distant ancestor */
 .section:has(> .dollar-anchor) { position: relative; }
-/* footer: "Aid, delivered." centred under the liquid D (Chris, 2026-10-11) */
+/* footer: "Aid, delivered." centred under the liquid D */
 .footer__big { text-align: center; margin-left: 0; margin-right: 0; }
 /* footer on phones: the whole thing, logo to legal line, on ONE screen (sized off svh so it holds
    with Safari's bars showing too). The liquid D keeps its box; it just takes what's left. */

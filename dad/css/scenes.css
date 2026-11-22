@@ -52,9 +52,6 @@ main.has-scenes {
     --fs-body: clamp(18px, .3vw + 15.6px, 20px);
     --fs-small: 16px;
   }
-}
-
-@media (min-width: 1024px) {
   main.has-scenes .form__note { font-size: 15.5px; color: var(--fg-mut); }
   main.has-scenes .person__bio { font-size: clamp(16.5px, .25vw + 14px, 18px); }
   main.has-scenes .source-note { font-size: 12.5px; }
@@ -108,8 +105,7 @@ main.has-scenes .scene-m.is-scene {
   .swipe-m.team-grid .person__title { margin: 4px 0 6px; }
   .swipe-m.team-grid .person__bio { font-size: 14.5px; line-height: 1.45; }
   .swipe-m__hint { display: flex; gap: 6px; justify-content: center; margin-top: 12px; }
-  .swipe-m__hint i { width: 6px; height: 6px; border-radius: 3px; background: var(--line-strong); }
-  .swipe-m__hint i { transition: width .4s var(--ease), background-color .4s; }
+  .swipe-m__hint i { width: 6px; height: 6px; border-radius: 3px; background: var(--line-strong); transition: width .4s var(--ease), background-color .4s; }
   .swipe-m__hint i.is-on { width: 18px; background: var(--accent); }
 }
 @media (min-width: 720px) { .swipe-m__hint { display: none; } }
@@ -166,7 +162,7 @@ html.scene-snap, html.scene-snap body { touch-action: pan-x pinch-zoom; }
   display: grid;
   place-items: center;
   width: 26px;
-  height: 20px;
+  height: 24px;
   border-radius: 6px;
 }
 .scene-rail__dot::before {

@@ -1,5 +1,5 @@
 /* =====================================================================
-   Give page (/give/): four monthly tiers, each a Stripe Payment Link.
+   Give page (/give/): three monthly tiers, each a Stripe Payment Link.
    Scoped under #swap[data-page="give"]; reads only theme variables.
    ===================================================================== */
 

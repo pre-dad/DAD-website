@@ -10,7 +10,7 @@
 //   data-count-prefix / data-count-suffix
 // data-parallax="0.2"         gentle scroll parallax (+ moves slower, - moves faster)
 // data-progress               element gets --p 0..1 scrubbed while it crosses the viewport
-import { $$, html, prefersReduced } from './util.js?v=7df28338d2';
+import { $$, html, prefersReduced } from './util.js?v=e238772b0d';
 
 let ctx = null;
 let killers = [];
@@ -54,7 +54,7 @@ function splitReveal(el, type) {
       linesClass: 'sl',
       wordsClass: 'sw',
       charsClass: 'sc',
-      mask: kind === 'chars' ? 'lines' : kind === 'words' ? 'lines' : 'lines',
+      mask: 'lines',
       // aria:'none' leaves the host element's own text in the a11y tree (no
       // aria-label added to the <p>, no aria-hidden on the split pieces). A <p>
       // has no role that permits aria-label, so aria:'auto' produced an
@@ -129,25 +129,31 @@ function buildOdometer(el, finalText) {
   return cols;
 }
 
+function countTarget(el) {
+  return parseFloat(el.dataset.countTo || el.textContent.replace(/[^\d.]/g, '')) || 0;
+}
+
 function countReveal(el) {
   const gsap = window.gsap;
-  const to = parseFloat(el.dataset.countTo || el.textContent.replace(/[^\d.]/g, '')) || 0;
+  const to = countTarget(el);
   const finalText = fmt(to, el);
   if (!gsap) { el.textContent = finalText; return null; }
   if (el.dataset.countStyle === 'roll') {
     const cols = buildOdometer(el, finalText);
     cols.forEach(({ strip }) => gsap.set(strip, { yPercent: 0 }));
+    const tweens = [];
     return {
+      kill() { tweens.forEach((t) => t.kill()); },
       play() {
         gate.then(() => {
           const n = cols.length;
           cols.forEach(({ strip, steps }, i) => {
-            gsap.to(strip, {
+            tweens.push(gsap.to(strip, {
               y: () => -steps * strip.firstChild.getBoundingClientRect().height,
               duration: 1.6 + (n - i) * 0.07,
               delay: delayOf(el) + i * 0.035,
               ease: 'expo.inOut',
-            });
+            }));
           });
           el.classList.add('is-in');
         });
@@ -155,20 +161,23 @@ function countReveal(el) {
     };
   }
   const st = { v: 0 };
+  const scale = 10 ** (+el.dataset.countDecimals || 0);
+  let tween = null;
   // No aria-label here: a <p> has no role permitting it (aria-prohibited-attr).
   // The element's own text is the accessible name, and onComplete restores the
   // exact finalText, so the resting announcement is correct without the attr.
   el.textContent = fmt(0, el);
   return {
+    kill() { tween?.kill(); },
     play() {
       gate.then(() => {
         el.classList.add('is-in');
-        gsap.to(st, {
+        tween = gsap.to(st, {
           v: to,
           duration: 2.2,
           delay: delayOf(el),
           ease: 'power3.out',
-          onUpdate: () => { el.textContent = fmt(Math.round(st.v * 10 ** (+el.dataset.countDecimals || 0)) / 10 ** (+el.dataset.countDecimals || 0), el); },
+          onUpdate: () => { el.textContent = fmt(Math.round(st.v * scale) / scale, el); },
           onComplete: () => { el.textContent = finalText; },
         });
       });
@@ -208,7 +217,7 @@ function bindRoot(root) {
   if (reduced || !gsap || !ST) {
     els.forEach((el) => {
       el.classList.add('is-in');
-      if (el.dataset.reveal === 'count') el.textContent = fmt(parseFloat(el.dataset.countTo) || 0, el);
+      if (el.dataset.reveal === 'count') el.textContent = fmt(countTarget(el), el);
     });
     return;
   }

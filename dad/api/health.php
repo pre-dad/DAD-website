@@ -1,5 +1,5 @@
 <?php
-// GET /api/health.php  ->  200 {"ok":true} when config is in place and the database is writable.
+// GET /api/health.php  ->  200 {"ok":true} when config is in place, the data folder is writable and the database answers a read.
 //                          503 {"ok":false,"error":"..."} otherwise (no paths or details leak).
 declare(strict_types=1);
 require __DIR__ . '/lib/bootstrap.php';
@@ -13,7 +13,6 @@ try {
   $dir = site_data_dir();
   if (!is_writable($dir)) throw new RuntimeException('data folder not writable');
   db()->query('SELECT COUNT(*) FROM settings')->fetchColumn();
-  set_setting('last_health_check', (string)time());   // proves a write works
 } catch (Throwable $e) {
   error_log('[dad-site] health.php: ' . $e->getMessage());
   json_exit(503, ['ok' => false, 'error' => 'Storage unavailable']);

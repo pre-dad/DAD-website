@@ -32,6 +32,14 @@ final class EmailsTest extends TestCase
         $this->assertStringNotContainsString('href="https://evil.example', $r['html']);
     }
 
+    public function testTheFullRenderLinksTheReferralUrl(): void
+    {
+        $tpl = ['subject' => 'Hi', 'greeting' => '', 'body' => 'Share {referral_link} with friends.', 'closer' => '', 'signature' => ''];
+        $r = email_render_confirm('confirm_founding', ['referral_link' => referral_url('k7m2p9qx4a')], ['unsubscribe' => self::UNSUB], $tpl);
+        $this->assertStringContainsString('href="https://dynamicaid.test/?ref=k7m2p9qx4a"', $r['html']);
+        $this->assertStringContainsString('Share https://dynamicaid.test/?ref=k7m2p9qx4a with friends.', $r['text']);
+    }
+
     public function testANonHttpReferralValueIsNeverLinked(): void
     {
         $html = email_fill_html('{referral_link}', ['referral_link' => 'javascript:alert(1)']);

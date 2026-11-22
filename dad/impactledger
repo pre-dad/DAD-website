@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DAD — The Open Ledger</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgcng9IjI2IiBmaWxsPSIjRkY0QTIyIi8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTEsMjIpIHNjYWxlKDAuNzYpIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4OCwwKSBzY2FsZSgtMSwxKSI+PHBhdGggZmlsbD0iI0Y4RjlGQSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMCwwIEgzOCBBNTAsNTAgMCAwIDEgMzgsMTAwIEgwIFogTTI0LDI0IEgzNiBBMjYsMjYgMCAwIDEgMzYsNzYgSDI0IFoiLz48L2c+PHJlY3QgeD0iMTAwIiB5PSIxNiIgd2lkdGg9IjkiIGhlaWdodD0iNjgiIHJ4PSI0LjUiIGZpbGw9IiNGOEY5RkEiLz48cmVjdCB4PSIxMTciIHk9IjMyIiB3aWR0aD0iNiIgaGVpZ2h0PSIzNiIgcng9IjMiIGZpbGw9IiNGOEY5RkEiLz48L2c+PC9zdmc+Cg=="/>
-<link rel="apple-touch-icon" href="dad-app-icon.svg"/>
 <meta name="theme-color" content="#0E1E1E"/>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="robots" content="noindex">
 <style>
+@font-face{font-family:'Inter';src:url('/assets/fonts/Inter-400.woff2') format('woff2');font-weight:400;font-display:swap;}
+@font-face{font-family:'Inter';src:url('/assets/fonts/Inter-500.woff2') format('woff2');font-weight:500;font-display:swap;}
+@font-face{font-family:'Inter';src:url('/assets/fonts/Inter-600.woff2') format('woff2');font-weight:600;font-display:swap;}
+@font-face{font-family:'Inter';src:url('/assets/fonts/Inter-700.woff2') format('woff2');font-weight:700;font-display:swap;}
+@font-face{font-family:'Space Grotesk';src:url('/assets/fonts/SpaceGrotesk-500.woff2') format('woff2');font-weight:400 500;font-display:swap;}
+@font-face{font-family:'Space Grotesk';src:url('/assets/fonts/SpaceGrotesk-700.woff2') format('woff2');font-weight:700;font-display:swap;}
 :root{
   --red:#FF4A22; --gold:#FFB800; --teal:#007A7A; --cyan:#00D4FF;
   --paper:#F8F9FA; --ink:#0E1E1E;
@@ -43,9 +46,9 @@ body::after{
 .page{position:relative;z-index:2;}
 .wrap{max-width:1320px;margin:0 auto;padding:0 32px;}
 h1,h2,h3,.grotesk{font-family:'Space Grotesk',sans-serif;}
-.mono{font-family:'IBM Plex Mono',monospace;}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
 .kicker{
-  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.18em;
   text-transform:uppercase;color:var(--red);
 }
 
@@ -57,7 +60,7 @@ h1,h2,h3,.grotesk{font-family:'Space Grotesk',sans-serif;}
 .topbar .wrap{display:flex;align-items:center;gap:28px;height:68px;}
 .brand{display:flex;align-items:center;gap:12px;}
 .brand .name{font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:14px;letter-spacing:.16em;text-transform:uppercase;}
-.brand .sub{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;color:var(--dim-2);text-transform:uppercase;}
+.brand .sub{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.14em;color:var(--dim-2);text-transform:uppercase;}
 nav{display:flex;gap:26px;margin-left:auto;}
 nav a{
   font-size:13px;color:var(--dim);text-decoration:none;padding:6px 0;
@@ -77,7 +80,7 @@ nav a:hover{color:var(--paper);border-bottom-color:var(--red);}
 .live{
   display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line-2);
   border-radius:999px;padding:6px 14px 6px 11px;
-  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--cyan);background:rgba(0,212,255,.05);
 }
 .dot-live{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 0 rgba(0,212,255,.7);animation:pulse 2s infinite;}
@@ -99,7 +102,7 @@ nav a:hover{color:var(--paper);border-bottom-color:var(--red);}
 }
 .hero-top{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap;}
 .hero-meta{
-  font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--dim-2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;color:var(--dim-2);
   letter-spacing:.1em;text-transform:uppercase;text-align:right;line-height:2;
 }
 .hero-meta b{color:var(--paper);font-weight:500;}
@@ -113,7 +116,7 @@ nav a:hover{color:var(--paper);border-bottom-color:var(--red);}
 .band > div{padding:32px 28px;border-right:1px solid var(--line);position:relative;overflow:hidden;}
 .band > div:last-child{border-right:none;}
 .band .lbl{
-  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--dim);margin-bottom:14px;
 }
 .band .num{
@@ -122,7 +125,7 @@ nav a:hover{color:var(--paper);border-bottom-color:var(--red);}
 }
 .band .cap{font-size:13px;color:#9FB2B2;margin-top:10px;}
 .band .trend{
-  display:inline-block;margin-top:12px;font-family:'IBM Plex Mono',monospace;
+  display:inline-block;margin-top:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   font-size:11px;letter-spacing:.06em;padding:3px 9px;border-radius:6px;
   background:rgba(0,212,255,.10);color:var(--cyan);border:1px solid rgba(0,212,255,.2);
 }
@@ -147,12 +150,12 @@ section{padding:78px 0;}
   padding:18px 24px;border-bottom:1px solid var(--line);
 }
 .panel-head h3{font-size:14px;font-weight:500;letter-spacing:.04em;}
-.panel-head .sm{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--dim-2);letter-spacing:.12em;text-transform:uppercase;}
+.panel-head .sm{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10.5px;color:var(--dim-2);letter-spacing:.12em;text-transform:uppercase;}
 #usmap{display:block;width:100%;height:auto;}
 .map-wrap{position:relative;padding:8px 10px 4px;}
 .legend{
   display:flex;flex-wrap:wrap;gap:8px 20px;padding:14px 26px 20px;border-top:1px solid var(--line);
-  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.07em;color:var(--dim);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.07em;color:var(--dim);
 }
 .legend span{display:inline-flex;align-items:center;gap:8px;}
 .legend i{width:8px;height:8px;border-radius:50%;display:inline-block;}
@@ -168,9 +171,9 @@ section{padding:78px 0;}
   box-shadow:0 18px 40px rgba(0,0,0,.5);
 }
 #tip .t-city{font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:14px;}
-#tip .t-prog{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-top:5px;}
+#tip .t-prog{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-top:5px;}
 #tip .t-row{display:flex;justify-content:space-between;gap:14px;font-size:12px;color:#A9BCBC;margin-top:9px;}
-#tip .t-row b{color:var(--paper);font-weight:600;font-family:'IBM Plex Mono',monospace;}
+#tip .t-row b{color:var(--paper);font-weight:600;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
 
 /* ---------- feed ---------- */
 .feed{height:100%;display:flex;flex-direction:column;}
@@ -184,8 +187,8 @@ section{padding:78px 0;}
 @keyframes slidein{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:none;}}
 .f-item .bul{width:8px;height:8px;border-radius:50%;margin-top:6px;}
 .f-item .l1{font-size:13px;font-weight:500;}
-.f-item .l2{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--dim-2);letter-spacing:.07em;margin-top:3px;text-transform:uppercase;}
-.f-item .amt{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--cyan);}
+.f-item .l2{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10.5px;color:var(--dim-2);letter-spacing:.07em;margin-top:3px;text-transform:uppercase;}
+.f-item .amt{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:var(--cyan);}
 
 /* ---------- metric grid ---------- */
 .mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;}
@@ -196,7 +199,7 @@ section{padding:78px 0;}
 }
 .mcard:hover{transform:translateY(-3px);border-color:rgba(0,212,255,.3);}
 .mcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent,var(--red));}
-.mcard .lbl{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);}
+.mcard .lbl{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);}
 .mcard .num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:42px;letter-spacing:-.03em;line-height:1.05;margin-top:12px;}
 .mcard .cap{font-size:12.5px;color:#93A6A6;margin-top:8px;}
 .spark{display:flex;align-items:flex-end;gap:3px;height:30px;margin-top:16px;}
@@ -212,20 +215,20 @@ section{padding:78px 0;}
 .lrow:last-child{border-bottom:none;}
 .lrow:hover{background:rgba(0,122,122,.10);}
 .lhead{
-  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--dim-2);background:rgba(8,20,20,.7);
 }
 .lhead:hover{background:rgba(8,20,20,.7);}
 .p-name{display:flex;align-items:center;gap:13px;}
 .p-name i{width:9px;height:9px;border-radius:2px;flex:none;}
 .p-name .n{font-weight:500;font-size:14.5px;}
-.p-name .c{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim-2);letter-spacing:.1em;text-transform:uppercase;}
-.lrow .val{font-family:'IBM Plex Mono',monospace;font-size:14px;}
+.p-name .c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10px;color:var(--dim-2);letter-spacing:.1em;text-transform:uppercase;}
+.lrow .val{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;}
 .bar{height:6px;border-radius:3px;background:rgba(248,249,250,.09);overflow:hidden;}
 .bar span{display:block;height:100%;border-radius:3px;width:0;transition:width 1.4s cubic-bezier(.2,.7,.2,1);}
-.bar-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim-2);margin-top:6px;letter-spacing:.08em;}
+.bar-lbl{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10px;color:var(--dim-2);margin-top:6px;letter-spacing:.08em;}
 .tag{
-  font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
   padding:4px 9px;border-radius:6px;text-align:center;white-space:nowrap;
 }
 .tag.ok{background:rgba(0,212,255,.11);color:var(--cyan);border:1px solid rgba(0,212,255,.22);}
@@ -241,7 +244,7 @@ section{padding:78px 0;}
 .ocard h3{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:500;}
 .ocard .big{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:52px;letter-spacing:-.035em;line-height:1;margin:14px 0 6px;}
 .ocard .note{font-size:12.5px;color:#8FA3A3;}
-.ocard .src{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim-2);letter-spacing:.1em;text-transform:uppercase;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);}
+.ocard .src{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10px;color:var(--dim-2);letter-spacing:.1em;text-transform:uppercase;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);}
 .chart{display:flex;align-items:flex-end;gap:7px;height:76px;margin:18px 0 4px;}
 .chart div{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--cyan),rgba(0,212,255,.15));height:0;transition:height 1.2s cubic-bezier(.2,.7,.2,1);}
 
@@ -249,10 +252,10 @@ section{padding:78px 0;}
 .init{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;}
 .icard{border:1px solid var(--line);border-radius:18px;padding:24px;background:rgba(11,26,26,.66);transition:.25s;}
 .icard:hover{border-color:rgba(255,74,34,.34);transform:translateY(-3px);}
-.icard .co{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
+.icard .co{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
 .icard h3{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:500;margin:10px 0 8px;}
 .icard p{font-size:13.5px;color:#93A6A6;min-height:42px;}
-.imeta{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--dim-2);letter-spacing:.08em;margin:16px 0 7px;text-transform:uppercase;}
+.imeta{display:flex;justify-content:space-between;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10.5px;color:var(--dim-2);letter-spacing:.08em;margin:16px 0 7px;text-transform:uppercase;}
 
 /* ---------- partners ---------- */
 .pstrip{
@@ -260,7 +263,7 @@ section{padding:78px 0;}
   border:1px solid var(--line);border-radius:20px;padding:30px 26px;background:rgba(11,26,26,.6);
 }
 .pchip{
-  font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.1em;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;letter-spacing:.1em;
   border:1px solid var(--line);border-radius:999px;padding:9px 17px;color:#A9BCBC;transition:.2s;
 }
 .pchip:hover{border-color:var(--gold);color:var(--gold);}
@@ -274,7 +277,7 @@ section{padding:78px 0;}
 .cta p{color:#A9BCBC;max-width:520px;margin:14px auto 26px;font-size:15.5px;}
 
 footer{border-top:1px solid var(--line);padding:34px 0 60px;}
-.fbot{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim-2);letter-spacing:.1em;text-transform:uppercase;}
+.fbot{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:var(--dim-2);letter-spacing:.1em;text-transform:uppercase;}
 
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease;}
 .reveal.in{opacity:1;transform:none;}
@@ -300,6 +303,12 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
   .hero-meta{text-align:left;}
 }
 .panel-head .btn{padding:6px 14px;font-size:12px;}
+.mock-banner{position:relative;z-index:2;background:#0B1A1A;border-bottom:1px solid var(--line-2);color:var(--paper);text-align:center;padding:10px 20px;font-size:13px;font-weight:500;}
+.btn[disabled]{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none;}
+.map-tools{display:flex;justify-content:flex-end;padding:0 26px 6px;}
+.pin:focus{outline:none;}
+.pin:focus-visible .core{stroke:var(--cyan);stroke-width:2.4;}
+.pin:focus-visible .halo{opacity:.5;}
 .skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--paper);color:var(--ink);padding:10px 16px;border-radius:999px;font-weight:600;font-size:14px;text-decoration:none;}
 .skip:focus{top:12px;}
 :focus-visible{outline:2px solid var(--cyan);outline-offset:3px;}
@@ -313,6 +322,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
 <body>
 <a class="skip" href="#content">Skip to content</a>
 <div class="page">
+<div class="mock-banner" role="note"><b>Example data, not real records.</b> This page is a product mockup of the Open Ledger.</div>
 
 <!-- ============ TOP BAR ============ -->
 <header class="topbar">
@@ -335,8 +345,8 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
       <a href="#initiatives">Initiatives</a>
       <a href="#partners">Partners</a>
     </nav>
-    <button class="btn btn-ghost">Download data</button>
-    <button class="btn">Give $1 a day</button>
+    <button class="btn btn-ghost" type="button" disabled aria-disabled="true" title="Not available in this mockup">Download data</button>
+    <button class="btn" type="button" disabled aria-disabled="true" title="Not available in this mockup">Give $1 a day</button>
   </div>
 </header>
 
@@ -346,7 +356,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
   <div class="wrap">
     <div class="hero-top">
       <div>
-        <div class="live"><span class="dot-live"></span> Ledger live · syncing every 11 seconds</div>
+        <div class="live"><span class="dot-live"></span> Example ledger · simulated updates every 11 seconds</div>
         <h1>Aid, delivered.<br><em>Verified on arrival.</em></h1>
         <p class="lede">Every dollar is traced from donation to program to verified outcome, then published continuously — not summarised once a year. This is the whole ledger. Nothing is held back.</p>
       </div>
@@ -407,6 +417,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
         </div>
         <div class="map-wrap">
           <svg id="usmap" viewBox="0 0 1000 540" role="img" aria-label="Map of United States delivery sites"></svg>
+          <div class="map-tools"><button class="btn btn-ghost" id="map-pause" type="button" aria-pressed="false">Pause map animation</button></div>
           <div id="tip">
             <div class="t-city"></div>
             <div class="t-prog"></div>
@@ -496,7 +507,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
         <h2>Program by program, dollar by dollar</h2>
         <p>The full register is downloadable as CSV. Any number here can be traced to a delivery record, a partner invoice and a verification timestamp.</p>
       </div>
-      <button class="btn btn-ghost">Export full register (CSV)</button>
+      <button class="btn btn-ghost" type="button" disabled aria-disabled="true" title="Not available in this mockup">Export full register (CSV)</button>
     </div>
 
     <div class="ledger reveal">
@@ -608,7 +619,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 60px;}
         <h2>62 initiatives in progress</h2>
         <p>Initiatives are built with a partner and run on the same ledger as everything else. Six of the largest are shown; the register lists all 62.</p>
       </div>
-      <button class="btn btn-ghost">View all 62</button>
+      <button class="btn btn-ghost" type="button" disabled aria-disabled="true" title="Not available in this mockup">View all 62</button>
     </div>
     <div class="init reveal">
       <div class="icard">
@@ -815,6 +826,15 @@ const pinLayer = document.createElementNS(NS,'g');
 svg.appendChild(pinLayer);
 
 const tip = document.getElementById('tip');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mapPause = document.getElementById('map-pause');
+if (reduceMotion) mapPause.hidden = true;
+else mapPause.addEventListener('click', () => {
+  const paused = mapPause.getAttribute('aria-pressed') !== 'true';
+  if (paused) svg.pauseAnimations(); else svg.unpauseAnimations();
+  mapPause.setAttribute('aria-pressed', String(paused));
+  mapPause.textContent = paused ? 'Resume map animation' : 'Pause map animation';
+});
 const fmt = n => n.toLocaleString('en-US');
 
 SITES.forEach((s,i)=>{
@@ -824,7 +844,10 @@ SITES.forEach((s,i)=>{
 
   const g = document.createElementNS(NS,'g');
   g.setAttribute('class','pin');
-  g.setAttribute('opacity','0');
+  g.setAttribute('opacity', reduceMotion ? '1' : '0');
+  g.setAttribute('tabindex','0');
+  g.setAttribute('role','img');
+  g.setAttribute('aria-label', `${city}: ${CAT[cat].label}, ${fmt(people)} people reached, ${amt} deployed, last report ${time}`);
 
   const halo = document.createElementNS(NS,'circle');
   halo.setAttribute('class','halo');
@@ -845,13 +868,13 @@ SITES.forEach((s,i)=>{
   g.append(halo, ring, core);
   pinLayer.appendChild(g);
 
-  setTimeout(()=>{
+  if(!reduceMotion) setTimeout(()=>{
     g.style.transition='opacity .6s ease';
     g.setAttribute('opacity','1');
   }, 900 + i*38);
 
   // slow breathing on the biggest sites
-  if(people > 40000){
+  if(people > 40000 && !reduceMotion){
     const an = document.createElementNS(NS,'animate');
     an.setAttribute('attributeName','r');
     an.setAttribute('values', `${r*1.9};${r*3.6};${r*1.9}`);
@@ -865,7 +888,7 @@ SITES.forEach((s,i)=>{
     ring.append(an, an2);
   }
 
-  g.addEventListener('mouseenter', ()=>{
+  const showTip = ()=>{
     tip.querySelector('.t-city').textContent = city;
     const p = tip.querySelector('.t-prog');
     p.textContent = CAT[cat].label;
@@ -877,8 +900,14 @@ SITES.forEach((s,i)=>{
     tip.style.left = (x/1000*box.width + 10) + 'px';
     tip.style.top  = (y/540*box.height + 8) + 'px';
     tip.style.opacity = 1;
-  });
-  g.addEventListener('mouseleave', ()=> tip.style.opacity = 0);
+  };
+  const hideTip = ()=> tip.style.opacity = 0;
+  g.addEventListener('mouseenter', showTip);
+  g.addEventListener('focus', showTip);
+  g.addEventListener('click', showTip);
+  g.addEventListener('keydown', e=>{ if(e.key === 'Escape') hideTip(); });
+  g.addEventListener('blur', hideTip);
+  g.addEventListener('mouseleave', hideTip);
 });
 
 /* ---------- animated delivery arcs ---------- */
@@ -899,7 +928,7 @@ function arc(a,b,col,dur,delay){
   p.appendChild(an);
   arcLayer.appendChild(p);
 }
-[[[95,88],[592,178]],[[128,330],[720,308]],[[906,446],[492,338]],
+if(!reduceMotion) [[[95,88],[592,178]],[[128,330],[720,308]],[[906,446],[492,338]],
  [[216,344],[878,156]],[[520,122],[832,214]],[[522,386],[592,178]]]
  .forEach((pair,i)=> arc(pair[0],pair[1],'#00D4FF', 3.4+i*0.5, i*0.7));
 

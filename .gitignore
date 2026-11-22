@@ -25,6 +25,7 @@ dad/tests-e2e/test-results/
 dad/tests-e2e/.cache/
 dad/dad-ci-data-*/
 dad/api/config.php.ci-backup
+dad/api/config.php.ci-data
 
 # Other apps that share the old webroot locally but live outside this repo
 dad/decksend/

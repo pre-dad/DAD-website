@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 /** The per-type matrix for validate_submission(). */
 final class ValidateSubmissionTest extends TestCase
 {
-    // ---- founding / updates (first_name + email) ---------------------------
-
     public static function listTypeProvider(): array
     {
         return [['founding'], ['updates']];
@@ -63,8 +61,6 @@ final class ValidateSubmissionTest extends TestCase
             $r
         );
     }
-
-    // ---- support (email-OR-phone branch + zip) -----------------------------
 
     public function testSupportSuccessEmailOrPhoneHoldingEmail(): void
     {
@@ -139,6 +135,15 @@ final class ValidateSubmissionTest extends TestCase
         );
     }
 
+    public function testSupportKeepsBothAnEmailAndAPhone(): void
+    {
+        $r = validate_submission('support', ['first_name' => 'Sam', 'email' => 'Sam@Place.org', 'phone' => '(555) 123-4567', 'zip' => '12345']);
+        $this->assertTrue($r['ok']);
+        $this->assertSame('sam@place.org', $r['fields']['email']);
+        $this->assertSame('(555) 123-4567', $r['fields']['phone']);
+        $this->assertSame('sam@place.org', $r['email']);
+    }
+
     public function testSupportBadZip(): void
     {
         $r = validate_submission('support', ['first_name' => 'Sam', 'email' => 'sam@place.org', 'zip' => '1234']);
@@ -147,8 +152,6 @@ final class ValidateSubmissionTest extends TestCase
             $r
         );
     }
-
-    // ---- volunteer (first_name + email + city) -----------------------------
 
     public function testVolunteerSuccess(): void
     {
@@ -183,8 +186,6 @@ final class ValidateSubmissionTest extends TestCase
             $r
         );
     }
-
-    // ---- contact (name + email + topic + message) --------------------------
 
     public function testContactSuccessTopicCanonicalized(): void
     {
@@ -245,8 +246,6 @@ final class ValidateSubmissionTest extends TestCase
             $r
         );
     }
-
-    // ---- partner (name + email + company, optional note) -------------------
 
     public function testPartnerSuccessWithNote(): void
     {
@@ -311,14 +310,41 @@ final class ValidateSubmissionTest extends TestCase
         );
     }
 
+    // ---- boundaries and extra branches ------------------------------------
+
+    public function testValuesExactlyAtTheirLimitsAreAccepted(): void
+    {
+        $this->assertTrue(validate_submission('contact', [
+            'name' => str_repeat('n', 120), 'email' => 'a@place.org', 'topic' => 'Giving', 'message' => str_repeat('m', 5000),
+        ])['ok']);
+        $this->assertTrue(validate_submission('partner', [
+            'name' => 'Pat', 'email' => 'pat@place.org', 'company' => 'Acme Inc', 'note' => str_repeat('x', 2000),
+        ])['ok']);
+        $this->assertTrue(validate_submission('volunteer', [
+            'first_name' => 'Lee', 'email' => 'lee@place.org', 'city' => str_repeat('a', 100),
+        ])['ok']);
+    }
+
+    public function testNameAndCityOverTheLimitAreRejected(): void
+    {
+        $r = validate_submission('contact', ['name' => str_repeat('n', 121), 'email' => 'a@place.org', 'topic' => 'Giving', 'message' => 'Hello']);
+        $this->assertSame(['ok' => false, 'error' => 'Please enter just your name.', 'field' => 'name'], $r);
+        $r = validate_submission('volunteer', ['first_name' => 'Lee', 'email' => 'lee@place.org', 'city' => str_repeat('a', 101)]);
+        $this->assertSame(['ok' => false, 'error' => 'Please enter just your city.', 'field' => 'city'], $r);
+    }
+
+    public function testPlusAddressingAndSurroundingSpacesAreAcceptedInEmail(): void
+    {
+        $r = validate_submission('updates', ['first_name' => 'Pat', 'email' => '  pat+news@place.org  ']);
+        $this->assertTrue($r['ok']);
+        $this->assertSame('pat+news@place.org', $r['email']);
+    }
+
     // ---- unknown type ------------------------------------------------------
 
-    public function testUnknownTypeTreatedAsListTypeFirstNamePath(): void
+    public function testUnknownTypeIsRejected(): void
     {
-        // An unrecognised type falls into the else branch (first_name + email), with
-        // no type-specific block, and succeeds with just those two fields.
         $r = validate_submission('mystery', ['first_name' => 'Pat', 'email' => 'pat@place.org']);
-        $this->assertTrue($r['ok']);
-        $this->assertSame(['first_name' => 'Pat', 'email' => 'pat@place.org'], $r['fields']);
+        $this->assertSame(['ok' => false, 'error' => MSG_GENERIC], $r);
     }
 }

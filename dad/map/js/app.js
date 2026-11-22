@@ -10,6 +10,8 @@
    resolved once, in the pipeline. Nothing downstream has to think about it.
    ========================================================================== */
 
+import { computeIndex as scoreIndex, computeGap as scoreGap } from './scoring.js?v=0577f6b4';
+
 (() => {
 'use strict';
 
@@ -86,9 +88,32 @@ function debounce(fn, ms) {
 
 const allFinite = (...nums) => nums.every(Number.isFinite);
 
+const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+/** Escape a value for HTML text or a quoted attribute. */
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ESCAPES[c]);
+
+/** Only web links from the data are made clickable. */
+const safeUrl = u => (/^https:\/\//i.test(String(u)) ? String(u) : '');
+
+const fetchJson = url => fetch(url).then(r => {
+  if (!r.ok) throw new Error(`${url}: ${r.status}`);
+  return r.json();
+});
+
+/** Run fn on the next animation frame, once however many times it is called before then. */
+function frameOnce(fn) {
+  let queued = false;
+  return () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; fn(); });
+  };
+}
+
 /* --------------------------------------------------------- mobile sheets */
 
-const isMobile = () => window.matchMedia('(max-width: 820px)').matches;
+const MOBILE_QUERY = '(max-width: 1040px)';
+const isMobile = () => window.matchMedia(MOBILE_QUERY).matches;
 
 /** Which bottom sheet is showing: 'layers', 'rank', or null. */
 let openSheetName = null;
@@ -112,6 +137,7 @@ function syncTabBar() {
       (b.dataset.sheet === 'layers' && openSheetName === 'layers') ||
       (b.dataset.sheet === 'rank' && openSheetName === 'rank');
     b.classList.toggle('is-active', on);
+    if (b.hasAttribute('aria-controls')) b.setAttribute('aria-expanded', String(on));
   });
   const t = $('#sheet-title-right');
   if (t) t.textContent = State.selected ? 'County detail' : 'Ranking';
@@ -124,17 +150,45 @@ function openSearch() {
   input.select();
 }
 
+function announce(msg) {
+  const el = $('#live-status');
+  if (el && el.textContent !== msg) el.textContent = msg;
+}
+
 function closeSearch() {
   document.body.classList.remove('search-open');
-  $('#search-results').hidden = true;
+  setSearchOpen(false);
   $('#search').value = '';
 }
 
-/**
- * The zoom transform is applied to a <g> inside the SVG, so all zoom maths must
- * be in viewBox units - not CSS pixels. Those differ whenever preserveAspectRatio
- * scales the SVG, and the element rect can read 0 in a hidden or background tab.
- */
+function setSearchOpen(open) {
+  $('#search-results').hidden = !open;
+  const input = $('#search');
+  input.setAttribute('aria-expanded', String(open));
+  if (!open) input.removeAttribute('aria-activedescendant');
+}
+
+function moveSearchActive(step) {
+  const items = $$('#search-results [data-fips]');
+  if (!items.length) return;
+  const at = items.findIndex(el => el.classList.contains('is-active'));
+  const next = items[(at + step + items.length) % items.length];
+  items.forEach(el => el.classList.toggle('is-active', el === next));
+  next.scrollIntoView({ block: 'nearest' });
+  $('#search').setAttribute('aria-activedescendant', next.id);
+}
+
+function chooseCounty(fips) {
+  setSearchOpen(false);
+  $('#search').value = '';
+  if (isMobile()) closeSearch();
+  State.selected = fips;
+  showRightView('county');
+  if (isMobile()) openSheet('rank');
+  render();
+  zoomToCounty(fips);
+}
+
 /**
  * Apply a zoom transform. Animates normally, but jumps straight there when the
  * tab is hidden (requestAnimationFrame is throttled, so a transition would
@@ -149,6 +203,11 @@ function applyZoom(transform, duration = 700) {
   else svg.transition().duration(duration).call(zoomBehavior.transform, transform);
 }
 
+/**
+ * The zoom transform is applied to a <g> inside the SVG, so all zoom maths must
+ * be in viewBox units - not CSS pixels. Those differ whenever preserveAspectRatio
+ * scales the SVG, and the element rect can read 0 in a hidden or background tab.
+ */
 function viewBoxDims() {
   const vb = (svg && svg.attr('viewBox') || '').split(/[\s,]+/).map(Number);
   return (vb.length === 4 && vb[2] >= 2 && vb[3] >= 2)
@@ -161,9 +220,9 @@ function viewBoxDims() {
 async function boot() {
   try {
     const [counties, meta, topo] = await Promise.all([
-      fetch('data/counties.json').then(r => r.json()),
-      fetch('data/meta.json').then(r => r.json()),
-      fetch('data/us-counties.topo.json').then(r => r.json()),
+      fetchJson('data/counties.json'),
+      fetchJson('data/meta.json'),
+      fetchJson('data/us-counties.topo.json'),
     ]);
 
     State.d = counties;
@@ -185,7 +244,6 @@ async function boot() {
       }
     }
 
-    initTheme();
     buildLayerList();
     buildWeightList();
     buildGapControls();
@@ -194,86 +252,38 @@ async function boot() {
 
     // Open on the strongest complete indicator we have.
     State.active = counties.default_scored[0] || [...State.indicators.keys()][0];
+    syncLayerList();
     setDefaultWeights('balanced');
 
     initMap();
     render();
 
-    // Debug handle - lets you inspect state from the browser console.
-    window.DADMap = {
-      State,
-      bounds: fips => {
-        const f = countyFeature(fips);
-        return f ? pathGen.bounds(f) : null;
-      },
-      feature: countyFeature,
-      path: () => pathGen,
-      projection: () => projectionRef,
-    };
+    // Debug handle for the browser console, only with ?debug in the URL.
+    if (new URLSearchParams(location.search).has('debug')) {
+      window.DADMap = {
+        State,
+        bounds: fips => {
+          const f = countyFeature(fips);
+          return f ? pathGen.bounds(f) : null;
+        },
+        feature: countyFeature,
+        path: () => pathGen,
+        projection: () => projectionRef,
+      };
+    }
 
     $('#boot').classList.add('is-gone');
     setTimeout(() => $('#boot').remove(), 400);
   } catch (err) {
-    $('#boot-err').textContent =
-      `Could not load the map data.\n\n${err}\n\n` +
-      `If this is a fresh checkout, build the data first:\n  ./refresh.sh`;
+    $('#boot-err').textContent = 'The map data could not be loaded. Please try again later.';
     console.error(err);
   }
 }
 
 /* -------------------------------------------------------------- scoring */
 
-function severityCol(key) {
-  const ind = State.d.indicators[key];
-  return ind ? ind.sev : null;
-}
-
-/** Weighted mean of severities, renormalised per county over available data. */
-function computeIndex(weights) {
-  const keys = Object.keys(weights).filter(k => weights[k] > 0 && State.d.indicators[k]);
-  const n = State.d.count;
-  const out = new Float64Array(n).fill(NaN);
-  const completeness = new Float64Array(n);
-
-  if (!keys.length) return { scores: out, completeness, keys };
-
-  const cols = keys.map(k => State.d.indicators[k].sev);
-  const w = keys.map(k => weights[k]);
-  const totalW = w.reduce((a, b) => a + b, 0);
-
-  for (let i = 0; i < n; i++) {
-    let sum = 0, wsum = 0;
-    for (let j = 0; j < cols.length; j++) {
-      const v = cols[j][i];
-      if (v === null || v === undefined) continue;
-      sum += v * w[j];
-      wsum += w[j];
-    }
-    completeness[i] = wsum / totalW;
-    // Require at least half the requested weight to be backed by real data,
-    // otherwise a county with one lucky indicator outranks a fully-measured one.
-    out[i] = wsum > 0 && completeness[i] >= 0.5 ? sum / wsum : NaN;
-  }
-  return { scores: out, completeness, keys };
-}
-
-function computeGap() {
-  const need = computeIndex(State.weights);
-  const supplyCol = severityCol(State.gapSupply);
-  const n = State.d.count;
-  const out = new Float64Array(n).fill(NaN);
-
-  if (!supplyCol) return { scores: out, missingSupply: true };
-
-  const a = State.gapNeedShare / 100, b = 1 - a;
-  for (let i = 0; i < n; i++) {
-    const nv = need.scores[i], sv = supplyCol[i];
-    // supply indicators are higher_is_better, so their severity is already
-    // "high = underserved". Both high = high need, nobody working there.
-    out[i] = (Number.isNaN(nv) || sv === null) ? NaN : nv * a + sv * b;
-  }
-  return { scores: out, missingSupply: false };
-}
+const computeIndex = weights => scoreIndex(State.d, weights);
+const computeGap = () => scoreGap(State.d, State.weights, State.gapSupply, State.gapNeedShare);
 
 function currentScores() {
   if (State.mode === 'single') {
@@ -409,12 +419,13 @@ function initMap() {
 
 function paintMap(score) {
   const vals = score.sev;
+  const nodata = getCss('--nodata');
   gCounties.selectAll('path').each(function (d) {
     const i = State.idx.get(d.id);
     const node = d3.select(this);
 
     if (i === undefined) {
-      node.attr('fill', 'var(--nodata)').classed('is-nodata', true);
+      node.attr('fill', nodata).classed('is-nodata', true);
       return;
     }
     const v = vals[i];
@@ -422,8 +433,7 @@ function paintMap(score) {
     const filtered = !passesFilter(i);
 
     node
-      .attr('fill', missing ? getCss('--nodata') : RAMP(v / 100))
-      .attr('stroke', getCss('--ink'))
+      .attr('fill', missing ? nodata : RAMP(v / 100))
       .classed('is-nodata', missing)
       .classed('is-filtered', filtered)
       .classed('is-selected', State.selected === d.id)
@@ -451,6 +461,10 @@ function render() {
   for (const el of [$('#shortlist-count'), $('#shortlist-count-m')]) {
     if (el) el.textContent = State.shortlist.size;
   }
+  if (State.pinnedSeen !== undefined && State.pinnedSeen !== State.shortlist.size) {
+    announce(`${State.shortlist.size} ${State.shortlist.size === 1 ? 'county' : 'counties'} pinned`);
+  }
+  State.pinnedSeen = State.shortlist.size;
   syncTabBar();
 }
 
@@ -475,7 +489,7 @@ function renderHeader(score) {
     title.textContent = 'Need vs. Supply';
     sub.textContent = supply
       ? `${State.gapNeedShare}% need / ${100 - State.gapNeedShare}% service scarcity, measured by ${supply.label.toLowerCase()}. Darkest = high need, fewest organisations.`
-      : 'The nonprofit supply layer has not been ingested yet — run ./refresh.sh.';
+      : 'Supply data is not available yet.';
   }
 }
 
@@ -514,7 +528,7 @@ function renderCoverageWarning(score) {
     msgs.push(
       `<strong>${missing.toLocaleString()} counties have no data for this measure.</strong> ` +
       `They are shown in grey — that means unknown, never zero.` +
-      (critical ? ` ${critical.replace(/^CRITICAL[:\s-]*/i, '')}` : '')
+      (critical ? ` ${esc(critical.replace(/^CRITICAL[:\s-]*/i, ''))}` : '')
     );
   }
 
@@ -526,14 +540,14 @@ function renderCoverageWarning(score) {
     if (weak.length) {
       msgs.push(
         `<strong>Incomplete measures are carrying weight:</strong> ` +
-        weak.map(i => `${i.label} (${Math.round(i.coverage * 100)}%)`).join(', ') +
+        weak.map(i => `${esc(i.label)} (${Math.round(i.coverage * 100)}%)`).join(', ') +
         `. Counties missing them are ranked on whatever is left, so treat the ordering as indicative.`
       );
     }
   }
 
   if (score.missingSupply) {
-    msgs.push(`<strong>The nonprofit supply layer is not built yet.</strong> Run <code>./refresh.sh</code> to enable this view.`);
+    msgs.push('<strong>Supply data is not available yet.</strong> This view cannot be drawn without it.');
   }
 
   el.innerHTML = msgs.join('<br>');
@@ -557,20 +571,30 @@ function buildLayerList() {
 
   $('#layer-list').innerHTML = groups.map(g => `
     <div class="layer-group">
-      <div class="layer-group-name">${g}</div>
+      <div class="layer-group-name">${esc(g)}</div>
       ${byGroup.get(g).map(i => layerItemHtml(i)).join('')}
     </div>`).join('');
+  syncLayerList();
+}
+
+/** Mark the active layer's radio and row, so the opening map has a visible selection. */
+function syncLayerList() {
+  $$('.layer-item').forEach(el => {
+    const on = el.dataset.key === State.active;
+    el.classList.toggle('is-active', on);
+    el.querySelector('input').checked = on;
+  });
 }
 
 function layerItemHtml(i) {
   const cov = Math.round(i.coverage * 100);
   const flag = i.coverage < 0.9 ? `<span class="layer-flag">${cov}%</span>` : '';
   return `
-    <label class="layer-item" data-key="${i.key}">
-      <input type="radio" name="layer" value="${i.key}">
+    <label class="layer-item" data-key="${esc(i.key)}">
+      <input type="radio" name="layer" value="${esc(i.key)}">
       <span class="layer-item-body">
-        <span class="layer-item-label">${i.label}${flag}</span>
-        <span class="layer-item-meta">${i.sourceName}</span>
+        <span class="layer-item-label">${esc(i.label)}${flag}</span>
+        <span class="layer-item-meta">${esc(i.sourceName)}</span>
       </span>
     </label>`;
 }
@@ -610,12 +634,12 @@ function buildWeightList() {
     const cov = Math.round(i.coverage * 100);
     const flag = i.coverage < 0.9 ? `<span class="layer-flag">${cov}%</span>` : '';
     return `
-      <div class="weight-row" data-key="${key}">
+      <div class="weight-row" data-key="${esc(key)}">
         <div class="weight-head">
-          <span class="weight-name">${i.label}${flag}</span>
-          <span class="weight-val" data-out="${key}">0</span>
+          <span class="weight-name">${esc(i.label)}${flag}</span>
+          <span class="weight-val" data-out="${esc(key)}">0</span>
         </div>
-        <input type="range" min="0" max="100" step="5" value="0" data-weight="${key}" aria-label="${i.label} weight">
+        <input type="range" min="0" max="100" step="5" value="0" data-weight="${esc(key)}" aria-label="${esc(i.label)} weight">
       </div>`;
   }).join('');
 }
@@ -633,8 +657,8 @@ function syncWeightInputs() {
 function buildGapControls() {
   const supply = [...State.indicators.entries()].filter(([, i]) => i.group === 'Supply');
   const opts = supply.length
-    ? supply.map(([k, i]) => `<option value="${k}">${i.label}</option>`).join('')
-    : `<option value="">(supply layer not built yet)</option>`;
+    ? supply.map(([k, i]) => `<option value="${esc(k)}">${esc(i.label)}</option>`).join('')
+    : `<option value="">(supply data not available yet)</option>`;
 
   $('#gap-controls').innerHTML = `
     <label class="field">
@@ -655,7 +679,7 @@ function buildStateFilter() {
   const states = [...new Set(State.d.state_abbr)].filter(Boolean).sort();
   $('#state-select').innerHTML =
     `<option value="">All states</option>` +
-    states.map(s => `<option value="${s}">${STATE_NAMES[s] || s}</option>`).join('');
+    states.map(s => `<option value="${esc(s)}">${esc(STATE_NAMES[s] || s)}</option>`).join('');
 }
 
 function zoomToState(abbr) {
@@ -720,12 +744,12 @@ function renderRanking(score) {
       : fmtValue(r.raw, score.ind);
     const pinned = State.shortlist.has(r.fips);
     return `
-      <div class="rank-row ${State.selected === r.fips ? 'is-selected' : ''}" data-fips="${r.fips}">
+      <div class="rank-row ${State.selected === r.fips ? 'is-selected' : ''}" data-fips="${esc(r.fips)}">
         <span class="rank-n">${n + 1}</span>
-        <button type="button" class="rank-name" title="${State.d.name[r.i]}">${State.d.name[r.i]}</button>
-        <span class="rank-val">${val}</span>
-        <button class="rank-pin ${pinned ? 'is-on' : ''}" data-pin="${r.fips}" aria-pressed="${pinned}"
-                aria-label="Pin ${State.d.name[r.i]} to shortlist" title="${pinned ? 'Remove from shortlist' : 'Add to shortlist'}">●</button>
+        <button type="button" class="rank-name" title="${esc(State.d.name[r.i])}">${esc(State.d.name[r.i])}</button>
+        <span class="rank-val">${esc(val)}</span>
+        <button class="rank-pin ${pinned ? 'is-on' : ''}" data-pin="${esc(r.fips)}" aria-pressed="${pinned}"
+                aria-label="Pin ${esc(State.d.name[r.i])} to shortlist" title="${pinned ? 'Remove from shortlist' : 'Add to shortlist'}">●</button>
       </div>`;
   }).join('');
 }
@@ -741,11 +765,11 @@ function selectCounty(fips) {
 }
 
 /** The right panel swaps between the ranking and one county's detail. */
-function showRightView(which) {
+function showRightView(which, { resetScroll = true } = {}) {
   $('#rank-view').hidden = which === 'county';
   $('#county-view').hidden = which !== 'county';
   const scroll = $('#panel-right .panel-scroll');
-  if (scroll) scroll.scrollTop = 0;
+  if (scroll && resetScroll) scroll.scrollTop = 0;
   if (which === 'county') $('#btn-back').focus({ preventScroll: true });
 }
 
@@ -760,7 +784,7 @@ function renderDetail() {
   const el = $('#detail');
   if (!State.selected || !State.idx.has(State.selected)) {
     el.innerHTML = '';
-    showRightView('rank');
+    showRightView('rank', { resetScroll: false });
     return;
   }
 
@@ -777,19 +801,19 @@ function renderDetail() {
 
   const body = [...groups.entries()].map(([g, items]) => `
     <div class="layer-group">
-      <div class="layer-group-name">${g}</div>
+      <div class="layer-group-name">${esc(g)}</div>
       ${items.map(({ key, ind }) => statRowHtml(key, ind, i)).join('')}
     </div>`).join('');
 
   el.innerHTML = `
     <div class="detail-head">
       <div>
-        <h2 class="detail-name">${State.d.county[i]}</h2>
-        <div class="detail-state">${State.d.state[i]} · FIPS ${State.d.fips[i]}</div>
+        <h2 class="detail-name">${esc(State.d.county[i])}</h2>
+        <div class="detail-state">${esc(State.d.state[i])} · FIPS ${esc(State.d.fips[i])}</div>
         <div class="detail-pop">${fmtInt(State.d.population[i] ?? 0)} residents</div>
       </div>
     </div>
-    ${rank ? `<div class="detail-pop">${score.label}: ${ordinal(rank.pos)} of ${fmtInt(rank.total)}</div>` : ''}
+    ${rank ? `<div class="detail-pop">${esc(score.label)}: ${ordinal(rank.pos)} of ${fmtInt(rank.total)}</div>` : ''}
     <div class="detail-actions">
       <button class="btn btn-sm" id="btn-pin">${pinned ? 'Unpin' : 'Add to shortlist'}</button>
       <button class="btn btn-sm" id="btn-brief">County brief</button>
@@ -806,12 +830,12 @@ function statRowHtml(key, ind, i) {
   const col = State.d.indicators[key];
   const raw = col.raw[i], sev = col.sev[i];
   if (raw === null || sev === null) {
-    return `<div class="stat-row"><span class="stat-name">${ind.label}</span>
+    return `<div class="stat-row"><span class="stat-name">${esc(ind.label)}</span>
             <span class="stat-na">no data</span></div>`;
   }
   return `
-    <div class="stat-row" title="${ind.description}">
-      <span class="stat-name">${ind.label}</span>
+    <div class="stat-row" title="${esc(ind.description)}">
+      <span class="stat-name">${esc(ind.label)}</span>
       <span class="stat-bar"><i style="width:${sev}%;background:${RAMP(sev / 100)}"></i></span>
       <span class="stat-val">${fmtValue(raw, ind)}</span>
       <span class="stat-rank">${ordinal(Math.round(sev))} pct</span>
@@ -846,7 +870,8 @@ function saveShortlist() {
 function loadShortlist() {
   try {
     const raw = localStorage.getItem('dad.shortlist');
-    if (raw) State.shortlist = new Set(JSON.parse(raw));
+    const saved = raw ? JSON.parse(raw) : null;
+    if (Array.isArray(saved)) State.shortlist = new Set(saved.filter(f => State.idx.has(f)));
   } catch {}
 }
 
@@ -859,7 +884,7 @@ function showShortlist() {
   }
 
   const keys = State.d.default_scored.slice(0, 8);
-  const head = keys.map(k => `<th>${State.indicators.get(k)?.label ?? k}</th>`).join('');
+  const head = keys.map(k => `<th>${esc(State.indicators.get(k)?.label ?? k)}</th>`).join('');
   const rows = [...State.shortlist].map(f => {
     const i = State.idx.get(f);
     if (i === undefined) return '';
@@ -867,7 +892,7 @@ function showShortlist() {
       const ind = State.indicators.get(k);
       return `<td class="num">${fmtValue(State.d.indicators[k].raw[i], ind)}</td>`;
     }).join('');
-    return `<tr><td>${State.d.name[i]}</td><td class="num">${fmtInt(State.d.population[i] ?? 0)}</td>${cells}</tr>`;
+    return `<tr><td>${esc(State.d.name[i])}</td><td class="num">${fmtInt(State.d.population[i] ?? 0)}</td>${cells}</tr>`;
   }).join('');
 
   openModal(`
@@ -902,17 +927,17 @@ function showBrief(fips) {
   }
 
   const sections = [...groups.entries()].map(([g, items]) => `
-    <h3>${g}</h3>
+    <h3>${esc(g)}</h3>
     <table class="brief">
       <thead><tr><th>Measure</th><th>Value</th><th>National percentile</th><th>Source</th></tr></thead>
       <tbody>${items.map(({ key, ind }) => {
         const raw = State.d.indicators[key].raw[i];
         const sev = State.d.indicators[key].sev[i];
         return `<tr>
-          <td>${ind.label}</td>
-          <td class="num">${fmtValue(raw, ind)}</td>
+          <td>${esc(ind.label)}</td>
+          <td class="num">${esc(fmtValue(raw, ind))}</td>
           <td class="num">${sev === null ? '—' : ordinal(Math.round(sev))}</td>
-          <td><small>${ind.sourceName}</small></td>
+          <td><small>${esc(ind.sourceName)}</small></td>
         </tr>`;
       }).join('')}</tbody>
     </table>`).join('');
@@ -922,16 +947,16 @@ function showBrief(fips) {
     .filter(Boolean);
 
   openModal(`
-    <h2>${State.d.county[i]}, ${State.d.state[i]}</h2>
+    <h2>${esc(State.d.county[i])}, ${esc(State.d.state[i])}</h2>
     <p class="block-hint">
-      FIPS ${fips} · ${fmtInt(State.d.population[i] ?? 0)} residents
-      ${rank ? ` · ${ordinal(rank.pos)} of ${fmtInt(rank.total)} on ${score.label}` : ''}
-      · generated ${new Date().toLocaleDateString()}
+      FIPS ${esc(fips)} · ${fmtInt(State.d.population[i] ?? 0)} residents
+      ${rank ? ` · ${ordinal(rank.pos)} of ${fmtInt(rank.total)} on ${esc(score.label)}` : ''}
+      · data built ${new Date(State.meta.generated).toLocaleDateString()}
     </p>
     ${sections}
     <h3>Sources &amp; vintages</h3>
     <ul class="caveats">
-      ${usedSources.map(s => `<li><b>${s.name}</b> — ${s.publisher}. ${s.release_pattern}</li>`).join('')}
+      ${usedSources.map(s => `<li><b>${esc(s.name)}</b> — ${esc(s.publisher)}. ${esc(s.release_pattern)}</li>`).join('')}
     </ul>
     <p class="block-hint" style="margin-top:14px">
       Percentiles rank this county against all ${fmtInt(State.d.count)} U.S. counties.
@@ -954,23 +979,23 @@ function showSources() {
       : `<b style="color:var(--warn)">not ingested yet</b>`;
     return `
       <div class="source-card">
-        <h3>${s.name}</h3>
+        <h3>${esc(s.name)}</h3>
         <div class="source-meta">
-          <span><b>Publisher:</b> ${s.publisher}</span>
-          <span><b>Updates:</b> ${s.cadence}</span>
-          <span><b>Reported at:</b> ${s.native_geography}</span>
-          ${m.vintage ? `<span><b>Vintage:</b> ${m.vintage}</span>` : ''}
+          <span><b>Publisher:</b> ${esc(s.publisher)}</span>
+          <span><b>Updates:</b> ${esc(s.cadence)}</span>
+          <span><b>Reported at:</b> ${esc(s.native_geography)}</span>
+          ${m.vintage ? `<span><b>Vintage:</b> ${esc(m.vintage)}</span>` : ''}
           ${m.last_fetched ? `<span><b>Pulled:</b> ${new Date(m.last_fetched).toLocaleDateString()}</span>` : ''}
           <span>${status}</span>
         </div>
         <p class="block-hint" style="margin-bottom:6px">
-          <b>Release pattern:</b> ${s.release_pattern}<br>
-          <b>How we get it to county level:</b> ${s.county_method}
+          <b>Release pattern:</b> ${esc(s.release_pattern)}<br>
+          <b>How we get it to county level:</b> ${esc(s.county_method)}
         </p>
         <ul class="caveats">
-          ${s.caveats.map(c => `<li class="${c.startsWith('CRITICAL') ? 'is-critical' : ''}">${c}</li>`).join('')}
+          ${s.caveats.map(c => `<li class="${c.startsWith('CRITICAL') ? 'is-critical' : ''}">${esc(c)}</li>`).join('')}
         </ul>
-        <p class="block-hint"><a href="${s.landing_url}" target="_blank" rel="noopener">${s.landing_url}</a></p>
+        ${safeUrl(s.landing_url) ? `<p class="block-hint"><a href="${esc(safeUrl(s.landing_url))}" target="_blank" rel="noopener">${esc(s.landing_url)}</a></p>` : ''}
       </div>`;
   }).join('');
 
@@ -997,7 +1022,7 @@ function exportCsv(fipsList, filename) {
     if (i === undefined) continue;
     const row = [
       f,
-      `"${State.d.county[i]}"`,
+      `"${String(State.d.county[i]).replaceAll('"', '""')}"`,
       State.d.state_abbr[i],
       State.d.population[i] ?? '',
       ...keys.map(k => State.d.indicators[k].raw[i] ?? ''),
@@ -1023,28 +1048,46 @@ function exportPng() {
   const node = svg.node();
   const { width, height } = node.getBoundingClientRect();
   const scale = 2;
+  const SVG_NS = 'http://www.w3.org/2000/svg';
 
   const clone = node.cloneNode(true);
+  clone.setAttribute('xmlns', SVG_NS);
   clone.setAttribute('width', width);
   clone.setAttribute('height', height);
-  // The SVG is serialised out of the document, so background must be explicit.
-  const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+
+  // The SVG is serialised out of the document, so the page stylesheet and its
+  // custom properties are gone: carry the rules the map relies on, with values resolved.
+  const style = document.createElementNS(SVG_NS, 'style');
+  style.textContent =
+    `.county{stroke:${getCss('--ink')};stroke-width:.4px;vector-effect:non-scaling-stroke}` +
+    `.county.is-nodata{fill:${getCss('--nodata')}}` +
+    '.county.is-filtered{opacity:.1}' +
+    `.county.is-selected{stroke:${getCss('--cyan')};stroke-width:1.6px}` +
+    `.county.is-pinned{stroke:${getCss('--gold')};stroke-width:1.3px}` +
+    '.state-line{fill:none;stroke:rgba(248,249,250,.34);stroke-width:.7px;vector-effect:non-scaling-stroke}';
+  clone.insertBefore(style, clone.firstChild);
+
+  const bg = document.createElementNS(SVG_NS, 'rect');
   bg.setAttribute('width', '100%');
   bg.setAttribute('height', '100%');
   bg.setAttribute('fill', getCss('--ink'));
   clone.insertBefore(bg, clone.firstChild);
 
-  const xml = new XMLSerializer().serializeToString(clone);
+  const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' }));
   const img = new Image();
   img.onload = () => {
     const canvas = Object.assign(document.createElement('canvas'), {
       width: width * scale, height: height * scale,
     });
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob(b => download(b, `dad-impact-map-${Date.now()}.png`));
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(b => { if (b) download(b, `dad-impact-map-${Date.now()}.png`); });
   };
-  img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(xml)));
+  img.onerror = () => {
+    URL.revokeObjectURL(url);
+    console.error('Could not render the map image');
+  };
+  img.src = url;
 }
 
 /* ------------------------------------------------------------------ modal */
@@ -1054,10 +1097,12 @@ function openModal(html) {
   modalOpener = document.activeElement;
   $('#modal-body').innerHTML = html;
   $('#modal').hidden = false;
+  document.body.classList.add('modal-open');
   $('#modal .modal-box').focus();
 }
 function closeModal() {
   $('#modal').hidden = true;
+  document.body.classList.remove('modal-open');
   if (modalOpener && document.contains(modalOpener)) modalOpener.focus();
   modalOpener = null;
 }
@@ -1078,9 +1123,9 @@ function onHover(event, d) {
     : (score.isIndex ? v.toFixed(1) : fmtValue(v, score.ind));
 
   tip.innerHTML = `
-    <div class="tooltip-name">${State.d.name[i]}</div>
-    <div class="tooltip-val">${shown}</div>
-    <div class="tooltip-sub">${score.label} · ${fmtInt(State.d.population[i] ?? 0)} residents</div>`;
+    <div class="tooltip-name">${esc(State.d.name[i])}</div>
+    <div class="tooltip-val">${esc(shown)}</div>
+    <div class="tooltip-sub">${esc(score.label)} · ${fmtInt(State.d.population[i] ?? 0)} residents</div>`;
   tip.hidden = false;
 
   const pad = 14;
@@ -1142,7 +1187,7 @@ function resetZoom() {
 function runSearch(q) {
   const box = $('#search-results');
   const term = q.trim().toLowerCase();
-  if (term.length < 2) { box.hidden = true; return; }
+  if (term.length < 2) { setSearchOpen(false); return; }
 
   const hits = [];
   for (let i = 0; i < State.d.count && hits.length < 40; i++) {
@@ -1151,22 +1196,19 @@ function runSearch(q) {
 
   box.innerHTML = hits.length
     ? hits.map(i => `
-        <button type="button" class="search-item" data-fips="${State.d.fips[i]}">
-          ${State.d.county[i]} <small>${State.d.state[i]}</small>
-        </button>`).join('')
-    : `<div class="search-item">No match</div>`;
-  box.hidden = false;
+        <div role="option" id="search-opt-${esc(State.d.fips[i])}" class="search-item" data-fips="${esc(State.d.fips[i])}">
+          ${esc(State.d.county[i])} <small>${esc(State.d.state[i])}</small>
+        </div>`).join('')
+    : `<div class="search-item" role="option" aria-disabled="true">No match</div>`;
+  setSearchOpen(true);
+  $('#search-status').textContent = hits.length ? `${hits.length} ${hits.length === 1 ? 'county' : 'counties'} found` : 'No match';
 }
 
-/* ---------------------------------------------------------------- theme */
-
-// The brand is dark-only, matching the Impact Ledger.
-function initTheme() {}
-
-/* ---------------------------------------------------------------- events */
+/* /* ---------------------------------------------------------------- events */
 
 function wireEvents() {
   loadShortlist();
+  const renderSoon = frameOnce(render);
 
   $$('.mode-btn').forEach(btn => btn.onclick = () => {
     State.mode = btn.dataset.mode;
@@ -1180,7 +1222,7 @@ function wireEvents() {
   $('#layer-list').addEventListener('change', e => {
     if (e.target.name !== 'layer') return;
     State.active = e.target.value;
-    $$('.layer-item').forEach(el => el.classList.toggle('is-active', el.dataset.key === State.active));
+    syncLayerList();
     render();
   });
 
@@ -1190,18 +1232,18 @@ function wireEvents() {
     State.weights[key] = +e.target.value;
     $(`[data-out="${key}"]`).textContent = e.target.value;
     e.target.closest('.weight-row').classList.toggle('is-zero', +e.target.value === 0);
-    render();
+    renderSoon();
   });
 
   $$('[data-preset]').forEach(b => b.onclick = () => { setDefaultWeights(b.dataset.preset); render(); });
 
   $('#panel-left').addEventListener('input', e => {
-    if (e.target.id === 'gap-supply') { State.gapSupply = e.target.value; render(); }
+    if (e.target.id === 'gap-supply') { State.gapSupply = e.target.value; renderSoon(); }
     if (e.target.id === 'gap-balance') {
       State.gapNeedShare = +e.target.value;
       $('#gap-balance-out').textContent =
         `${State.gapNeedShare}% need / ${100 - State.gapNeedShare}% scarcity`;
-      render();
+      renderSoon();
     }
   });
 
@@ -1209,7 +1251,7 @@ function wireEvents() {
     State.filters.minPop = POP_STEPS[+e.target.value];
     $('#filter-pop-out').textContent =
       State.filters.minPop ? `${fmtInt(State.filters.minPop)}+ residents` : 'Any size';
-    render();
+    renderSoon();
   };
   $('#state-select').onchange = e => {
     State.filters.state = e.target.value;
@@ -1231,23 +1273,25 @@ function wireEvents() {
   });
 
   $('#search').addEventListener('input', debounce(e => runSearch(e.target.value), 140));
+  $('#search').addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if ($('#search-results').hidden) runSearch(e.target.value);
+      moveSearchActive(e.key === 'ArrowDown' ? 1 : -1);
+      e.preventDefault();
+    } else if (e.key === 'Enter') {
+      const active = $('#search-results .is-active[data-fips]') || ($$('#search-results [data-fips]').length === 1 ? $('#search-results [data-fips]') : null);
+      if (active) { chooseCounty(active.dataset.fips); e.preventDefault(); }
+    } else if (e.key === 'Escape' && !$('#search-results').hidden) {
+      setSearchOpen(false);
+      e.stopPropagation();
+    }
+  });
   $('#search-results').addEventListener('click', e => {
     const item = e.target.closest('[data-fips]');
-    if (!item) return;
-    const fips = item.dataset.fips;
-    $('#search-results').hidden = true;
-    $('#search').value = '';
-    if (isMobile()) closeSearch();
-    State.selected = fips;
-    showRightView('county');
-    if (isMobile()) openSheet('rank');
-    render();
-    zoomToCounty(fips);
+    if (item) chooseCounty(item.dataset.fips);
   });
   document.addEventListener('click', e => {
-    if (!e.target.closest('.search-wrap') && !e.target.closest('[data-sheet="search"]')) {
-      $('#search-results').hidden = true;
-    }
+    if (!e.target.closest('.search-wrap') && !e.target.closest('[data-sheet="search"]')) setSearchOpen(false);
   });
 
   $('#btn-back').onclick = clearSelection;
@@ -1269,7 +1313,7 @@ function wireEvents() {
   $$('[data-close-sheet]').forEach(el => el.addEventListener('click', closeSheets));
 
   // Dropping below the mobile breakpoint must not leave a sheet stuck open.
-  window.matchMedia('(max-width: 820px)').addEventListener('change', e => {
+  window.matchMedia(MOBILE_QUERY).addEventListener('change', e => {
     if (!e.matches) { closeSheets(); closeSearch(); }
   });
   $('#btn-reset-zoom').onclick = resetZoom;

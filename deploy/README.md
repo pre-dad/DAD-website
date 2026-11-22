@@ -2,8 +2,8 @@
 
 This directory holds the **pull-based** deploy automation for the DAD website plus
 the post-deploy smoke test. It is tooling, **not** part of the served site
-(the served site is `dad/`); both `deploy.sh` and `pull-deploy.sh` exclude this
-`deploy/` dir from every sync.
+(the served site is `dad/`); both `deploy.sh` and `pull-deploy.sh` sync only `dad/`, so
+this `deploy/` dir is never part of a deploy.
 
 ## Why pull-based
 
@@ -69,14 +69,16 @@ Do this once on each box (staging and prod). Run as the deploy user (`admin`).
 
 ```sh
 # copy the whole deploy/ dir to /home/admin/deploy/ (e.g. via the checkout below);
-# pull-deploy.sh reads rsync-excludes from its own directory
+# pull-deploy.sh reads rsync-excludes from its own directory.
+# The box runs this copy, not the checkout: copy it again after every change to deploy/.
 chmod +x /home/admin/deploy/pull-deploy.sh /home/admin/deploy/smoke-test.sh
 ```
 
 ### 2. Clone the repo (the box's working copy it pulls into)
 
 ```sh
-git clone <repo-url> /home/admin/dad-main-website
+REPO_URL=https://github.com/pre-dad/DAD-website.git   # or the SSH URL if the box has a deploy key
+git clone "$REPO_URL" /home/admin/dad-main-website
 cd /home/admin/dad-main-website
 git checkout staging   # staging box;   use `main` on the prod box
 ```
@@ -90,7 +92,21 @@ sudo chown admin:admin /var/log/dad-deploy
 
 Logs that land here: `deploy.log` (every run), `cron.log` (raw cron stdout/stderr),
 `ALERT` (appended only on a smoke failure), and on prod `candidate-serve.log` (the
-short-lived candidate php server output).
+short-lived candidate php server output). `deploy.log` and `cron.log` grow on every
+cron tick, so rotate them:
+
+```sh
+sudo tee /etc/logrotate.d/dad-deploy >/dev/null <<'EOF'
+/var/log/dad-deploy/deploy.log /var/log/dad-deploy/cron.log /var/log/dad-deploy/candidate-serve.log {
+    weekly
+    rotate 8
+    compress
+    missingok
+    notifempty
+    copytruncate
+}
+EOF
+```
 
 ### 4. Create the shared config + data dir (server-only, once)
 
@@ -117,8 +133,9 @@ sudo mkdir -p /var/www/html
 sudo mkdir -p /var/www/releases
 # seed the first release however you like (e.g. let pull-deploy.sh build it, or
 # do an initial manual rsync of dad/ into /var/www/releases/<timestamp>), then:
-sudo ln -sfn /var/www/releases/<first-release> /var/www/html
-# ensure <first-release>/api/config.php -> /var/www/shared/config.php
+FIRST_RELEASE=$(ls -1 /var/www/releases | head -n 1)   # check this is the release you seeded
+sudo ln -sfn "/var/www/releases/$FIRST_RELEASE" /var/www/html
+# ensure that release's api/config.php -> /var/www/shared/config.php
 ```
 
 On prod, `/var/www/html` must be a **symlink** to a release dir. `pull-deploy.sh`
@@ -131,8 +148,8 @@ only the newest five `<timestamp>-<commit>` release dirs are kept
 
 ```sh
 crontab -e
-# paste the STAGING line on the staging box, or the PROD line on the prod box,
-# from dad-deploy.cron.
+# uncomment the STAGING line on the staging box, or the PROD line on the prod box,
+# in dad-deploy.cron.
 ```
 
 ## Reading logs
@@ -142,27 +159,30 @@ tail -f /var/log/dad-deploy/deploy.log     # one line per run: timestamp, before
 tail -f /var/log/dad-deploy/cron.log       # raw cron output
 cat     /var/log/dad-deploy/ALERT          # only present/appended when a smoke test failed
 journalctl -t dad-deploy                   # the same lines via logger (syslog/journald)
-cat     /var/log/dad-deploy/last-good      # the commit that was live BEFORE the most recent deploy
-cat     /var/log/dad-deploy/last-deployed  # the commit most recently deployed; a run whose deploy failed before
-                                           # this was written retries on the next cron tick
+cat     /var/log/dad-deploy/last-good      # the last commit that had deployed before the current attempt
+cat     /var/log/dad-deploy/last-deployed  # the commit most recently deployed (written after the rsync / swap)
+cat     /var/log/dad-deploy/last-failed    # the commit whose deploy last failed; skipped until the branch moves
 ```
 
 Any failed deploy (smoke test, rsync, build) writes one line to `ALERT`, logs at
 priority `err` via `logger`, and makes the cron run exit non-zero (so it stands out
-in `cron.log`). The box does not retry a failed commit: push a fix, or reset the
-checkout to the previous commit so the next run redeploys it.
+in `cron.log`). The box does not retry a failed commit: it logs "already failed" and
+waits for a new commit on the branch, so push a fix (or revert the bad commit).
+Resetting the checkout does nothing, because every run resets it to `origin/<branch>`.
 
 ## Manual rollback (prod) — one command
 
 Prod keeps the previous release dir. To roll back, repoint the symlink to it:
 
 ```sh
-ln -sfn /var/www/releases/<previous-release> /var/www/html.new && mv -T /var/www/html.new /var/www/html
+PREVIOUS_RELEASE=$(ls -1d /var/www/releases/*-"$(cut -c1-12 /var/log/dad-deploy/last-good)" | tail -n 1)
+echo "$PREVIOUS_RELEASE"   # must name exactly one release dir
+ln -sfn "$PREVIOUS_RELEASE" /var/www/html.new && mv -T /var/www/html.new /var/www/html
 ```
 
-The rename makes the swap atomic. To find the previous release, list `/var/www/releases/` (dirs
-are named `<timestamp>-<commit>`); `cat /var/log/dad-deploy/last-good` shows the
-commit that was live before the most recent deploy.
+The rename makes the swap atomic. Release dirs are named `<timestamp>-<commit>` (12-character
+commit), and `last-good` holds the commit that was live before the most recent deploy,
+which is what the first line selects.
 
 Staging has no release dirs (it syncs straight into the webroot); to recover staging,
 let the next cron run redeploy the fixed branch, or run `deploy.sh` manually.

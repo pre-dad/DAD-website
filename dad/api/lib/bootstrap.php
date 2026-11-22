@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 define('SITE_API', 1);
 
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+error_reporting(E_ALL);
+
 require __DIR__ . '/constants.php';
 
 // The real config.php is created at deploy. Without it we load the sample so pages can still
@@ -15,10 +19,6 @@ if (is_file(dirname(__DIR__) . '/config.php')) {
   require dirname(__DIR__) . '/config.sample.php';
   define('SITE_HAS_CONFIG', false);
 }
-
-ini_set('display_errors', '0');
-ini_set('log_errors', '1');
-error_reporting(E_ALL);
 date_default_timezone_set(SITE_TZ);
 if (function_exists('mb_internal_encoding')) mb_internal_encoding('UTF-8');
 

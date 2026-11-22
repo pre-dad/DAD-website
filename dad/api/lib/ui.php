@@ -24,8 +24,7 @@ function ui_fonts_css(): string {
     return '@font-face{font-family:"' . $fam . '";src:url(/assets/fonts/' . $file . '.woff2) format("woff2");font-weight:' . $w . ';font-style:normal;font-display:swap}';
   };
   return $f('Space Grotesk', 'SpaceGrotesk-700', 700) . $f('Space Grotesk', 'SpaceGrotesk-500', 500)
-    . $f('Inter', 'Inter-400', 400) . $f('Inter', 'Inter-500', 500) . $f('Inter', 'Inter-600', 600) . $f('Inter', 'Inter-700', 700)
-    . $f('IBM Plex Mono', 'IBMPlexMono-500', 500) . $f('IBM Plex Mono', 'IBMPlexMono-600', 600);
+    . $f('Inter', 'Inter-400', 400) . $f('Inter', 'Inter-500', 500) . $f('Inter', 'Inter-600', 600) . $f('Inter', 'Inter-700', 700);
 }
 
 /** The DAD logo (from the partner page nav): D, A, mirrored D, two gold tail bars that stream. */
@@ -45,7 +44,7 @@ function ui_base_css(): string {
   return ':root{--ink:#0E1E1E;--ink2:#0A1616;--paper:#F8F9FA;--red:#FF4A22;--cyan:#00D4FF;--gold:#FFB800;--teal:#007A7A;'
     . '--mut:#8FA3A3;--line:#E3E6E8;--body:#4A5757;--dkmut:#B9C6C6;--ease:cubic-bezier(.16,1,.3,1);'
     . '--f-disp:"Space Grotesk",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;--f-body:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;'
-    . '--f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}'
+    . '--f-mono:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}'
     . '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}'
     . '::selection{background:var(--red);color:#fff}'
     . '.ml{animation:stream 2.8s ease-in-out infinite;transform-box:fill-box}.ml.l2{animation-delay:.35s}'

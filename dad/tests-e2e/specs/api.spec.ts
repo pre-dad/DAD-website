@@ -1,11 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { ORIGIN, unique } from './support';
 
 // The forms API contract (api/README.txt), exercised over HTTP against the real
 // submit.php and a throwaway SQLite database. example.com is a quiet domain, so
 // rows are saved but no email is sent.
 
-const ORIGIN = 'http://127.0.0.1:8080';
-const unique = (tag: string) => `${tag}+${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
 const post = (data: Record<string, unknown>, headers: Record<string, string> = {}) => ({
   headers: { 'Content-Type': 'application/json', Origin: ORIGIN, ...headers },
   data: JSON.stringify({ website: '', ts_open: 1, page: '/', ...data }),
@@ -36,12 +35,32 @@ test('submit: posts from another website are refused', async ({ request }) => {
   expect(r.status()).toBe(403);
 });
 
+test('submit: a post with Origin: null is refused', async ({ request }) => {
+  const r = await request.post('/api/submit.php', post({ type: 'updates', first_name: 'Ada', email: unique('null') }, { Origin: 'null' }));
+  expect(r.status()).toBe(403);
+});
+
 test('submit: a JSON post without ts_open is refused', async ({ request }) => {
   const r = await request.post('/api/submit.php', {
     headers: { 'Content-Type': 'application/json', Origin: ORIGIN },
     data: JSON.stringify({ type: 'updates', first_name: 'Ada', email: unique('nots'), website: '' }),
   });
   expect(r.status()).toBe(400);
+});
+
+test('submit: a malformed JSON body is rejected', async ({ request }) => {
+  const r = await request.post('/api/submit.php', {
+    headers: { 'Content-Type': 'application/json', Origin: ORIGIN },
+    data: '{"type": "updates", ',
+  });
+  expect(r.status()).toBe(400);
+  expect((await r.json()).ok).toBe(false);
+});
+
+test('submit: an oversized body is rejected', async ({ request }) => {
+  const r = await request.post('/api/submit.php', post({ type: 'contact', first_name: 'Ada', email: unique('big'), message: 'x'.repeat(40000) }));
+  expect(r.status()).toBe(400);
+  expect((await r.json()).ok).toBe(false);
 });
 
 test('submit: only POST is allowed', async ({ request }) => {
@@ -84,6 +103,17 @@ test('retired donor lookup never returns personal data', async ({ request }) => 
     expect(response.headers()['cache-control']).toContain('no-store');
     expect(await response.json()).toEqual({ ok: false });
   }
+});
+
+test('welcome page only claims a received gift after a donation return', async ({ page }) => {
+  await page.goto('/give/welcome/');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Join the Founding Donor waitlist.');
+  await expect(page.getByText('Your monthly gift is set')).toBeHidden();
+
+  await page.goto('/give/welcome/?session_id=cs_test_syntheticreceipt');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText("Thank you. You're in.");
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText("Thank you. You're in.");
 });
 
 test('donation return keeps details blank and removes the receipt from the URL', async ({ page }) => {

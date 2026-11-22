@@ -24,7 +24,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=7df28338d2">
+<link rel="stylesheet" href="/css/site.css?v=e238772b0d">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -40,15 +40,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/SplitText.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/lenis.min.js?v=7df28338d2"></script>
-<script type="module" src="/js/app.js?v=7df28338d2"></script>
+<script defer src="/vendor/gsap.min.js?v=e238772b0d"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=e238772b0d"></script>
+<script defer src="/vendor/SplitText.min.js?v=e238772b0d"></script>
+<script defer src="/vendor/lenis.min.js?v=e238772b0d"></script>
+<script type="module" src="/js/app.js?v=e238772b0d"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=7df28338d2">
+<link rel="modulepreload" href="/js/core/util.js?v=e238772b0d">
 </head>
 <body data-page="about" data-mobile-cta="on">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -106,7 +106,7 @@
   </div>
 </div>
 
-<main id="swap" data-page="about" data-module="/js/pages/about.js?v=7df28338d2" data-scenes tabindex="-1">
+<main id="swap" data-page="about" data-module="/js/pages/about.js?v=e238772b0d" data-scenes tabindex="-1">
 <style>
 /* ---------- ABOUT (page-scoped) ---------- */
 [data-page="about"] .ab-hero__field { position: absolute; inset: 0; width: auto; aspect-ratio: auto; z-index: 0; opacity: .5; pointer-events: none; -webkit-mask-image: radial-gradient(ellipse at 72% 48%, #000 14%, transparent 70%); mask-image: radial-gradient(ellipse at 72% 48%, #000 14%, transparent 70%); }
@@ -155,10 +155,9 @@ html.reduced [data-page="about"] .ab-scroll::after { animation: none; }
 [data-page="about"] .ab-are .list-x li > span { color: var(--fg-mut); }
 
 /* the plan */
-[data-page="about"] .ab-plan { list-style: none; margin: 0; padding: 0; position: relative; display: grid; counter-reset: none; }
+[data-page="about"] .ab-plan { list-style: none; margin: 0; padding: 0; position: relative; display: grid; }
 @media (min-width: 900px) { [data-page="about"] .ab-plan { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-/* the rule runs per step, from just past each numeral to the next one, so nothing sits behind a numeral
-   (they used to carry an opaque var(--bg) box that flashed as paper rectangles while the theme changed) */
+/* the rule runs per step, from just past each numeral to the next one, so nothing sits behind a numeral */
 [data-page="about"] .ab-plan { --cg: clamp(24px, 3vw, 48px); --rg: clamp(36px, 5vw, 56px); gap: var(--rg); }
 [data-page="about"] .ab-plan > li:nth-child(1) { --pi: 0; }
 [data-page="about"] .ab-plan > li:nth-child(2) { --pi: 1; }
@@ -249,12 +248,11 @@ html.reduced [data-page="about"] .ab-scroll::after { animation: none; }
   <div class="container">
     <div class="ab-letter__grid" data-progress data-progress-start="top 70%" data-progress-end="bottom 75%">
       <div class="ab-letter__rail">
-        <h2 class="h-m" data-reveal="split-lines">A letter from our founder</h2>
+        <h2 id="letter-h" class="h-m" data-reveal="split-lines">A letter from our founder</h2>
         <div class="dollar-anchor ab-letter__coin" data-dollar="ambient" data-dollar-align="center"></div>
         <div class="ab-letter__meter" aria-hidden="true"></div>
       </div>
       <article class="letter" aria-labelledby="letter-h">
-        <span id="letter-h" class="sr-only">A letter from our founder</span>
         <div class="letter__body" data-readalong>
           <div class="letter__part scene-flex" data-scene data-scene-name="The letter">
             <p>Growing up poor, I watched my grandmother and our neighbors struggle while resources and help were hard to come by, non-existent, or barely enough. As a single father since the age of 16, I have seen firsthand what accessing resources is like. There are good charities and good people out there; however, people are still in need. I've lost everything before and been homeless with a child. I've been to food banks and seen the low-quality food provided, and I've spoken to others about how slow or broken these systems are. I know firsthand that we can do better!</p>
@@ -374,7 +372,7 @@ html.reduced [data-page="about"] .ab-scroll::after { animation: none; }
     <p class="footer__big" aria-hidden="true" data-reveal="split-chars">Aid, delivered.</p>
     <div class="footer__legal">
       <p>Dynamic Aid Delivery, INC. is a Delaware non-stock corporation.</p>
-      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a></p>
+      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a> · <button class="linkbtn" type="button" data-cookie-settings>Cookie settings</button></p>
     </div>
   </div>
 </footer>

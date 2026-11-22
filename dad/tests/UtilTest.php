@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 /** Unit tests for the pure helpers in api/lib/util.php. */
 final class UtilTest extends TestCase
 {
-    // ---- is_quiet ----------------------------------------------------------
-
     public static function quietProvider(): array
     {
         return [
@@ -27,8 +25,6 @@ final class UtilTest extends TestCase
         $this->assertSame($expected, is_quiet($email));
     }
 
-    // ---- clean_line --------------------------------------------------------
-
     public function testCleanLineCollapsesAndTrims(): void
     {
         $this->assertSame('a b', clean_line("  a\tb  "));
@@ -44,6 +40,26 @@ final class UtilTest extends TestCase
         $this->assertSame('ab', clean_line("\u{200B}ab"));
     }
 
+    public function testCleanLineStripsBidiIsolatesAndMarks(): void
+    {
+        foreach (["\u{2066}", "\u{2069}", "\u{061C}", "\u{00AD}"] as $c) {
+            $this->assertSame('a b', clean_line("a{$c}b"));
+        }
+    }
+
+    public function testCleanTextStripsBidiIsolatesAndMarks(): void
+    {
+        $this->assertSame('ab', clean_text("a\u{2066}b\u{2069}"));
+        $this->assertSame('ab', clean_text("a\u{061C}b\u{00AD}"));
+    }
+
+    public function testAgoRoundsDown(): void
+    {
+        $this->assertSame('59 min ago', ago(time() - 3599));
+        $this->assertSame('23 h ago', ago(time() - 86399));
+        $this->assertSame('6 d ago', ago(time() - 86400 * 7 + 1));
+    }
+
     public function testCleanLineNonStringBecomesEmpty(): void
     {
         $this->assertSame('', clean_line(null));
@@ -51,8 +67,6 @@ final class UtilTest extends TestCase
         // numeric scalars are allowed through
         $this->assertSame('42', clean_line(42));
     }
-
-    // ---- clean_text --------------------------------------------------------
 
     public function testCleanTextKeepsNewlines(): void
     {
@@ -70,19 +84,33 @@ final class UtilTest extends TestCase
         $this->assertSame("a\n\n\nb", clean_text("a\n\n\n\n\n\nb"));
     }
 
-    // ---- clamp_str ---------------------------------------------------------
-
     public function testClampStrMultibyteTruncation(): void
     {
         $this->assertSame('ábc', clamp_str('ábcdé', 3));
+    }
+
+    public function testClampStrAtTheLimitIsUnchanged(): void
+    {
+        $this->assertSame('ábc', clamp_str('ábc', 3));
+        $this->assertSame('', clamp_str('abc', 0));
+    }
+
+    public function testCleanTextRemovesZeroWidthWithoutASpace(): void
+    {
+        $this->assertSame('ab', clean_text("a\u{200B}b"));
+        $this->assertSame('ab', clean_text("a\u{FEFF}b"));
+    }
+
+    public function testCleanLineAndTextRepairInvalidUtf8(): void
+    {
+        $this->assertTrue(mb_check_encoding(clean_line("caf\xE9 ok"), 'UTF-8'));
+        $this->assertTrue(mb_check_encoding(clean_text("caf\xE9\nok"), 'UTF-8'));
     }
 
     public function testClampStrShortStringUnchanged(): void
     {
         $this->assertSame('hi', clamp_str('hi', 10));
     }
-
-    // ---- mail_domain -------------------------------------------------------
 
     public function testMailDomainExtractsAfterAt(): void
     {
@@ -94,10 +122,60 @@ final class UtilTest extends TestCase
         $this->assertSame('dynamicaid.org', mail_domain('no-at-here'));
     }
 
-    // ---- like_escape -------------------------------------------------------
-
     public function testLikeEscape(): void
     {
         $this->assertSame('50\\%\\_\\\\', like_escape('50%_\\'));
+    }
+
+    // ---- safe_path ---------------------------------------------------------
+
+    public static function pathProvider(): array
+    {
+        return [
+            'plain path'        => ['/give/', '/give/'],
+            'path with query'   => ['/give/?a=1', '/give/?a=1'],
+            'empty'             => ['', '/'],
+            'protocol-relative' => ['//evil.com', '/'],
+            'backslash trick'   => ['/\\evil.com', '/'],
+            'absolute url'      => ['https://x', '/'],
+            'javascript scheme' => ['javascript:alert(1)', '/'],
+            'not a string'      => [['/x'], '/'],
+            'clamped to 300'    => ['/' . str_repeat('a', 400), '/' . str_repeat('a', 299)],
+        ];
+    }
+
+    #[DataProvider('pathProvider')]
+    public function testSafePath(mixed $in, string $expected): void
+    {
+        $this->assertSame($expected, safe_path($in));
+    }
+
+    // ---- csv_cell ----------------------------------------------------------
+
+    public static function csvProvider(): array
+    {
+        return [
+            'plain'             => ['Ada', '"Ada"'],
+            'quotes doubled'    => ['say "hi"', '"say ""hi"""'],
+            'comma kept inside' => ['a,b', '"a,b"'],
+            'formula ='         => ['=SUM(A1)', '"\'=SUM(A1)"'],
+            'formula +'         => ['+1', '"\'+1"'],
+            'formula -'         => ['-1', '"\'-1"'],
+            'formula @'         => ['@cmd', '"\'@cmd"'],
+            'formula tab'       => ["\tx", "\"'\tx\""],
+            'empty'             => ['', '""'],
+            'int'               => [5, '"5"'],
+        ];
+    }
+
+    #[DataProvider('csvProvider')]
+    public function testCsvCell(mixed $in, string $expected): void
+    {
+        $this->assertSame($expected, csv_cell($in));
+    }
+
+    public function testCsvLineEndsWithCrlf(): void
+    {
+        $this->assertSame("\"a\",\"b\"\r\n", csv_line(['a', 'b']));
     }
 }

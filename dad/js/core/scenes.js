@@ -19,14 +19,13 @@
 //
 // Falls back to normal scrolling under reduced motion or on viewports shorter
 // than 560px. The page keeps its scene sizing either way.
-import { html, $$, prefersReduced, isTouch, mq, clamp } from './util.js?v=7df28338d2';
+import { html, $$, prefersReduced, isTouch, mq, clamp } from './util.js?v=e238772b0d';
 
 const MIN_H = 560;
 const DUR = 1.05;          // seconds per scene move
 const STEP_DUR = 1.0;      // sub-step inside a pinned sequence
 const TOL = 3;             // px tolerance when matching stops
 const GAP = 190;           // ms of wheel silence that starts a new gesture
-const RAIL_MQ = '(min-width: 1024px) and (hover: hover) and (pointer: fine)';
 // premium out-ease: fast start, long soft landing (between quart and expo)
 const ease = (t) => (t >= 1 ? 1 : 1 - Math.pow(1 - t, 4.4));
 
@@ -179,12 +178,16 @@ function gapHasContent(y0, y1) {
   return found;
 }
 
+function navHeight() {
+  const nav = document.getElementById('nav');
+  return nav ? nav.offsetHeight : 76;
+}
+
 /** Empty padding a near-fit scene may give up: the top down to just under the
  *  fixed nav, the bottom down to the strip kept clear for the cookie chip (and,
  *  on phones, the sticky donor bar, so none there). */
 function slackOf(el, top, h) {
-  const nav = document.getElementById('nav');
-  const navH = nav ? nav.offsetHeight : 76;
+  const navH = navHeight();
   const phone = innerWidth < 720;
   const keep = phone ? 84 : html.classList.contains('has-cookie') ? 64 : 16;
   const ext = contentExtent(el, top);
@@ -643,7 +646,7 @@ function onFocusIn(e) {
   if (el.closest?.('#nav, .menu, .skip-link, .cookie, .mobile-cta')) return;
   requestAnimationFrame(() => {
     const r = el.getBoundingClientRect();
-    const navH = 76;
+    const navH = navHeight();
     const visible = r.top >= navH - 4 && r.bottom <= innerHeight + 2;
     const y = stopFor(el);
     if (y == null) return;

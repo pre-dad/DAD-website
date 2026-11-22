@@ -3,8 +3,9 @@
 // fills the screen in ~.55s; dollar.flyTo()/reveal() after the swap pulls the liquid back out into
 // the new page). The swap never waits more than .7s for the cover.
 // Any error falls back to a normal navigation.
-import { html, $, $$, wait, prefersReduced } from './util.js?v=7df28338d2';
+import { html, $, $$, wait, prefersReduced } from './util.js?v=e238772b0d';
 
+const CACHE_MS = 5 * 60 * 1000;
 const cache = new Map();
 let busy = false;
 let hooks = {};
@@ -34,14 +35,16 @@ function samePage(url) {
 
 async function fetchPage(url) {
   const key = url.pathname + url.search;
-  if (cache.has(key)) return cache.get(key);
+  const hit = cache.get(key);
+  if (hit && Date.now() - hit.t < CACHE_MS) return hit.p;
   const p = fetch(key, { credentials: 'same-origin', headers: { 'X-Requested-With': 'dad-router' } })
     .then((r) => {
+      if (!r.ok) throw new Error(`http ${r.status}`);
       const ct = r.headers.get('content-type') || '';
       if (!ct.includes('text/html')) throw new Error('not html');
       return r.text().then((t) => ({ status: r.status, text: t }));
     });
-  cache.set(key, p);
+  cache.set(key, { t: Date.now(), p });
   p.catch(() => cache.delete(key));
   return p;
 }
@@ -183,7 +186,7 @@ export async function navigate(href, { push = true, restore = null } = {}) {
     }
     const anchor = $('[data-dollar]', main);
     try {
-      if (anchor) window.__dollar?.flyTo?.(anchor, { duration: reduced ? 0 : 1.3 });
+      if (anchor) window.__dollar?.flyTo?.({ duration: reduced ? 0 : 1.3 });
       else window.__dollar?.reveal?.();
     } catch (e) { /* ignore */ }
 
@@ -246,14 +249,23 @@ function onClick(e) {
   const raw = a.getAttribute('href') || '';
   // in-page hash links: smooth scroll with Lenis
   if (raw.startsWith('#') && raw.length > 1) {
-    if (scrollToHash(raw, reduced)) { e.preventDefault(); history.pushState(history.state, '', raw); focusHash(raw); }
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (scrollToHash(raw, reduced)) {
+      e.preventDefault();
+      if (location.hash !== raw) history.pushState(history.state, '', raw);
+      focusHash(raw);
+    }
     return;
   }
   if (!eligible(a, e)) return;
   const url = new URL(a.href, location.href);
   if (samePage(url)) {
     e.preventDefault();
-    if (url.hash) { scrollToHash(url.hash, reduced); history.pushState(history.state, '', url.hash); focusHash(url.hash); }
+    if (url.hash) {
+      scrollToHash(url.hash, reduced);
+      if (location.hash !== url.hash) history.pushState(history.state, '', url.hash);
+      focusHash(url.hash);
+    }
     else scrollToY(0, reduced);
     return;
   }

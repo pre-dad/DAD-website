@@ -74,6 +74,7 @@ DAD_SMOKE_ROUTER="${DAD_SMOKE_ROUTER:-$REPO/dad/tests-e2e/router.php}"
 LOG_FILE="$DAD_DEPLOY_LOG_DIR/deploy.log"
 LAST_GOOD="$DAD_DEPLOY_LOG_DIR/last-good"
 LAST_DEPLOYED="$DAD_DEPLOY_LOG_DIR/last-deployed"
+LAST_FAILED="$DAD_DEPLOY_LOG_DIR/last-failed"
 ALERT_MARKER="$DAD_DEPLOY_LOG_DIR/ALERT"
 
 ts() { date '+%Y-%m-%dT%H:%M:%S%z'; }
@@ -123,7 +124,7 @@ prune_releases() {
   while IFS= read -r dir; do
     n=$((n + 1))
     [[ $n -le $DAD_RELEASES_KEPT || "$dir" == "$live" || "$dir" == "$prev" ]] && continue
-    rm -rf -- "$dir"
+    rm -rf -- "$dir" || true
   done < <(find "$DAD_RELEASE_ROOT" -mindepth 1 -maxdepth 1 -type d -name '[0-9]*-*' | sort -r)
 }
 
@@ -150,6 +151,12 @@ if [[ "$DEPLOYED" == "$AFTER" ]]; then
   exit 0
 fi
 
+# A commit whose deploy failed is not retried every tick; it waits for origin to move.
+if [[ -f "$LAST_FAILED" && "$(cat "$LAST_FAILED" 2>/dev/null || true)" == "$AFTER" ]]; then
+  log "deploy of ${AFTER:0:12} already failed; waiting for a new commit on $BRANCH"
+  exit 0
+fi
+
 ALERTED=0
 SMOKE_PID=""
 CANDIDATE=""
@@ -157,16 +164,33 @@ PUBLISHED=0
 # Any failure from here on alerts once, and a prod candidate that was never published is discarded.
 on_exit() {
   local rc=$?
-  [[ -n "$SMOKE_PID" ]] && kill "$SMOKE_PID" 2>/dev/null
-  [[ -n "$CANDIDATE" && "$PUBLISHED" -eq 0 ]] && rm -rf -- "$CANDIDATE"
-  [[ $rc -ne 0 && "$ALERTED" -eq 0 ]] && alert "deploy FAILED (exit $rc) at ${AFTER:0:12}; live site untouched on prod. See cron.log"
+  if [[ -n "$SMOKE_PID" ]]; then
+    # PHP_CLI_SERVER_WORKERS forks workers that keep the port after the parent dies.
+    pkill -P "$SMOKE_PID" 2>/dev/null || true
+    kill "$SMOKE_PID" 2>/dev/null || true
+    wait "$SMOKE_PID" 2>/dev/null || true
+  fi
+  if [[ -n "$CANDIDATE" && "$PUBLISHED" -eq 0 ]]; then
+    rm -rf -- "$CANDIDATE"
+  fi
+  if [[ $rc -ne 0 ]]; then
+    printf '%s\n' "$AFTER" > "$LAST_FAILED" 2>/dev/null || true
+    if [[ "$ALERTED" -eq 0 ]]; then
+      local state="live site untouched"
+      if [[ "$MODE" == "staging" ]]; then state="staging webroot may be partly updated"; fi
+      if [[ "$PUBLISHED" -eq 1 ]]; then state="release already published"; fi
+      alert "deploy FAILED (exit $rc) at ${AFTER:0:12}; $state. See cron.log"
+    fi
+  fi
   return 0
 }
 trap on_exit EXIT
 
-# Record the pre-deploy commit BEFORE we touch anything (rollback context).
-printf '%s\n' "$BEFORE" > "$LAST_GOOD" 2>/dev/null || true
-log "deploying $BRANCH: ${BEFORE:0:12} -> ${AFTER:0:12} (prior good commit recorded in $LAST_GOOD)"
+# Rollback context is the last commit that actually deployed, never the checkout, which may be a failed one.
+if [[ -n "$DEPLOYED" ]]; then
+  printf '%s\n' "$DEPLOYED" > "$LAST_GOOD" 2>/dev/null || true
+fi
+log "deploying $BRANCH: ${BEFORE:0:12} -> ${AFTER:0:12} (last deployed commit recorded in $LAST_GOOD)"
 
 # Move the working tree to the new commit.
 git checkout "$BRANCH" --quiet
@@ -186,10 +210,11 @@ if [[ "$MODE" == "staging" ]]; then
   printf '%s\n' "$AFTER" > "$LAST_DEPLOYED"
 
   if "$DAD_SMOKE_TEST" --base-url "http://127.0.0.1/" --form; then
+    rm -f "$LAST_FAILED"
     log "smoke PASS (staging) now live at ${AFTER:0:12}"
     exit 0
   else
-    alert "smoke FAIL (staging) at ${AFTER:0:12} — deploy left in place (preview only, no auto-rollback). Prior good: ${BEFORE:0:12}"
+    alert "smoke FAIL (staging) at ${AFTER:0:12} — deploy left in place (preview only, no auto-rollback). Prior good: ${DEPLOYED:0:12}"
     exit 1
   fi
 fi
@@ -209,15 +234,23 @@ PHP_CLI_SERVER_WORKERS=4 "$DAD_PHP_BIN" -S "127.0.0.1:$DAD_SMOKE_PORT" -t "$CAND
 SMOKE_PID="$!"
 
 CANDIDATE_URL="http://127.0.0.1:$DAD_SMOKE_PORT"
+CANDIDATE_UP=0
 for _ in 1 2 3 4 5 6 7 8 9 10; do
+  sleep 0.5
+  # A dead child means the port was already taken: a health answer would come from another server.
+  kill -0 "$SMOKE_PID" 2>/dev/null || break
   if curl -fsS "$CANDIDATE_URL/api/health.php" 2>/dev/null | grep -q '"ok":true'; then
+    CANDIDATE_UP=1
     break
   fi
-  sleep 0.5
 done
+if [[ "$CANDIDATE_UP" -ne 1 ]]; then
+  alert "candidate server did not start on port $DAD_SMOKE_PORT (port busy?) at ${AFTER:0:12} — candidate DISCARDED, live site untouched. See candidate-serve.log"
+  exit 1
+fi
 
 if ! "$DAD_SMOKE_TEST" --base-url "$CANDIDATE_URL" --form; then
-  alert "smoke FAIL (prod) at ${AFTER:0:12} — candidate DISCARDED, live site untouched. Prior good commit: ${BEFORE:0:12}"
+  alert "smoke FAIL (prod) at ${AFTER:0:12} — candidate DISCARDED, live site untouched. Prior good commit: ${DEPLOYED:0:12}"
   exit 1
 fi
 
@@ -228,5 +261,6 @@ ln -sfn "$CANDIDATE" "$WEBROOT.new"
 mv -T "$WEBROOT.new" "$WEBROOT"
 PUBLISHED=1
 printf '%s\n' "$AFTER" > "$LAST_DEPLOYED"
+rm -f "$LAST_FAILED"
 prune_releases "$CANDIDATE" "$PREV_RELEASE"
 log "smoke PASS (prod) — published ${AFTER:0:12} at $CANDIDATE (previous release kept for rollback: ${PREV_RELEASE:-none})"

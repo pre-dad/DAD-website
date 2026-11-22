@@ -11,7 +11,7 @@
 //           from the lit sites onto the register rows of the same colour; each row lights as its line lands.
 //   step 2  Overview to the front.   step 3  Outcomes to the front.  (Window DOM order = shuffle order.)
 // Reduced motion: the sites are lit at once and the three windows sit stacked in the flow.
-import { html, $, $$, clamp, prefersReduced } from './util.js?v=7df28338d2';
+import { html, $, $$, clamp, prefersReduced } from './util.js?v=e238772b0d';
 
 let items = [];
 const SVGNS = 'http://www.w3.org/2000/svg';
@@ -91,7 +91,7 @@ class Ledger {
     addEventListener('touchend', this.onTouch, { passive: true });
     addEventListener('touchcancel', this.onTouch, { passive: true });
     addEventListener('keydown', this.onKey);
-    this.poll = setInterval(() => this.tick(), 60);
+    this.startPoll();
     this.update(true);
   }
 
@@ -134,8 +134,14 @@ class Ledger {
   }
 
   // the sites light at once and fast (LIGHT_GAP apart); then, if armed, a beat and on to the deck
+  startPoll() {
+    clearInterval(this.poll);
+    this.poll = setInterval(() => this.tick(), 60);
+  }
+
   rain() {
     this.rained = true;
+    clearInterval(this.poll);
     this.chosen.forEach((c, i) => this.timers.push(setTimeout(() => this.light(c), i * LIGHT_GAP)));
     if (this.auto) this.timers.push(setTimeout(() => this.advance(), (this.chosen.length - 1) * LIGHT_GAP + HOLD));
   }
@@ -167,6 +173,7 @@ class Ledger {
     this.el.classList.toggle('is-deck', deck);
     if (s === -1 && this.rained) { // left upwards: the sites light again on the way back down
       this.rained = false;
+      this.startPoll();
       window.__dollar?.rainReset?.();
     }
     // auto-advance only on the way down into the map, never when the reader came back up to it

@@ -24,7 +24,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=7df28338d2">
+<link rel="stylesheet" href="/css/site.css?v=e238772b0d">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -40,15 +40,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/SplitText.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/lenis.min.js?v=7df28338d2"></script>
-<script type="module" src="/js/app.js?v=7df28338d2"></script>
+<script defer src="/vendor/gsap.min.js?v=e238772b0d"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=e238772b0d"></script>
+<script defer src="/vendor/SplitText.min.js?v=e238772b0d"></script>
+<script defer src="/vendor/lenis.min.js?v=e238772b0d"></script>
+<script type="module" src="/js/app.js?v=e238772b0d"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=7df28338d2">
+<link rel="modulepreload" href="/js/core/util.js?v=e238772b0d">
 </head>
 <body data-page="index" data-mobile-cta="on">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -106,7 +106,7 @@
   </div>
 </div>
 
-<main id="swap" data-page="index" data-module="/js/pages/home.js?v=7df28338d2" data-scenes tabindex="-1">
+<main id="swap" data-page="index" data-module="/js/pages/home.js?v=e238772b0d" data-scenes tabindex="-1">
 <!-- HOME: "Follow one dollar". Page CSS lives in the <style> block below (scoped to [data-page="index"]);
      choreography (pins, flood, strikes, slams, strip) lives in js/pages/home.js. -->
 <style>
@@ -445,9 +445,8 @@ html.reduced [data-page="index"] .hm-turn__h, html.reveal-all [data-page="index"
   [data-page="index"].has-scenes .hm-close .scene-m.is-scene { align-items: center; text-align: center; }
   [data-page="index"].has-scenes .hm-close__join { margin-top: 0; }
 }
-[data-page="index"] .hm-gov-sec .container { min-height: 100%; display: flex; align-items: center; }
+[data-page="index"] .hm-gov-sec .container { min-height: 100%; display: flex; align-items: center; position: relative; }
 [data-page="index"] .hm-gov { max-width: 980px; }
-[data-page="index"] .hm-gov-sec .container { position: relative; }
 [data-page="index"] .hm-gov__drop { position: absolute; right: clamp(16px, 4vw, 48px); bottom: 12%; width: clamp(110px, 14vw, 200px); aspect-ratio: 1; }
 @media (max-width: 767px) {
   [data-page="index"].has-scenes .hm-gov-sec.is-scene { justify-content: flex-start; }
@@ -467,7 +466,6 @@ html.reduced [data-page="index"] .hm-turn__h, html.reveal-all [data-page="index"
 @media (max-width: 719px) { [data-page="index"] .hm-people .section-head { display: flex; flex-direction: column; } [data-page="index"] .hm-people .section-head > .hm-people__orbit { position: relative; top: auto; right: auto; order: -1; align-self: center; --da-w: clamp(84px, 22svh, 140px); margin: 0 0 clamp(8px, 2svh, 18px); } }
 @media (max-width: 719px) and (max-height: 780px) { [data-page="index"] .hm-people .section-head > .hm-people__orbit { --da-w: 64px; margin-bottom: 4px; } [data-page="index"] .hm-people .lede { font-size: 15px; line-height: 1.45; } [data-page="index"] .hm-people .logo-panel__grid li { height: 28px; } [data-page="index"] .hm-people .logo-panel { padding-block: 14px; gap: 10px; } }
 
-/* ---------- layout round (2026-10-11) ---------- */
 /* hero on phones: the copy sits a little lower, one calmer CTA, room to breathe */
 @media (max-width: 719px) {
   [data-page="index"].has-scenes .hm-hero { padding-top: calc(var(--nav-h) + clamp(18px, 4.6svh, 44px)); }
@@ -486,7 +484,6 @@ html.reduced [data-page="index"] .hm-turn__h, html.reveal-all [data-page="index"
   [data-page="index"] .hm-guess__map { display: block; width: calc(100% + 24px); margin: 0 -12px clamp(-64px, -7svh, -36px); opacity: .55; pointer-events: none; }
   [data-page="index"] .hm-guess__map + .hm-programs__how { position: relative; z-index: 1; }
 }
-/* ---- liquid round (Oct 11): drop anchors only ---- */
 /* the mission: the liquid hiker. Desktop: in the free space right of the headline; stacked: above the eyebrow */
 [data-page="index"] .hm-code { --da-w: clamp(120px, min(40vw, 22svh), 200px); margin: 0 auto clamp(16px, 3svh, 28px); flex: none; }
 @media (min-width: 720px) {
@@ -1055,7 +1052,7 @@ html.reduced [data-page="index"] .hm-turn__h, html.reveal-all [data-page="index"
     <p class="footer__big" aria-hidden="true" data-reveal="split-chars">Aid, delivered.</p>
     <div class="footer__legal">
       <p>Dynamic Aid Delivery, INC. is a Delaware non-stock corporation.</p>
-      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a></p>
+      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a> · <button class="linkbtn" type="button" data-cookie-settings>Cookie settings</button></p>
     </div>
   </div>
 </footer>

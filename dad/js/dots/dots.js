@@ -1,6 +1,6 @@
 // DAD dot-matrix illustration engine.
 //
-//   import { Dots } from './dots/dots.js?v=7df28338d2';
+//   import { Dots } from './dots/dots.js?v=e238772b0d';
 //   const dots = new Dots({ tier, reduced });
 //   dots.bind(main);            // mounts every <div class="dots" data-dots="<shape>"> in main
 //   dots.unbind();              // tears down everything bound by bind() (or unbind(root) for one root)
@@ -26,7 +26,7 @@
 //   ></div>
 // The element is sized by CSS. If it has no height, an aspect-ratio matching the shape is applied.
 
-import { getShape, SHAPE_NAMES, MAP_SITES, MAP_SITE_CATS, MAP_SITE_NAMES, MAP_HUB } from './shapes.js?v=7df28338d2';
+import { getShape, SHAPE_NAMES, MAP_SITES, MAP_SITE_CATS, MAP_SITE_NAMES, MAP_HUB } from './shapes.js?v=e238772b0d';
 
 const TAU = Math.PI * 2;
 const TIERS = {
@@ -138,7 +138,7 @@ function sampleShape(shape, W, H, opt) {
 
   // offset grid, centred in the box (same lattice as the Open Ledger map)
   const rows = Math.floor(bh / step), cols = Math.floor(bw / step);
-  const gx0 = (bw - (cols - .5) * step) / 2 + step * .0, gy0 = (bh - (rows - 1) * step) / 2;
+  const gx0 = (bw - (cols - .5) * step) / 2, gy0 = (bh - (rows - 1) * step) / 2;
   const drawn = shape.layers.map((L, i) => (L.draw ? i : -1)).filter(i => i >= 0);
   if (drawn.length) {
     const nb = [[step, 0], [-step, 0], [step / 2, step], [-step / 2, step], [step / 2, -step], [-step / 2, -step]];
@@ -273,9 +273,11 @@ class DotField {
       const pi = this.layerPal[i];
       if (pi != null) this.palette[pi] = css(c);
     });
-    this.catCol = {};
-    for (const k in CAT_TOKEN) this.catCol[k] = css(this.token(CAT_TOKEN[k]));
-    this.glowSprites = null; // rebuilt lazily
+    const catCol = {};
+    for (const k in CAT_TOKEN) catCol[k] = css(this.token(CAT_TOKEN[k]));
+    const changed = !this.catCol || Object.keys(catCol).some(k => catCol[k] !== this.catCol[k]);
+    this.catCol = catCol;
+    if (changed) this.glowSprites = null; // rebuilt lazily
   }
   allocPalette() {
     this.layerPal = this.shape.layers.map(() => { this.palette.push('#000'); return this.palette.length - 1; });
@@ -365,7 +367,7 @@ class DotField {
     this.started = true;
     const extra = (parseFloat(this.el.dataset.dotsDelay || '0') || 0) / 1000;
     this.startT = now + extra;
-    const mode = this.shape.kind === 'map' ? 'sweep' : this.shape.kind === 'field' ? 'radial' : 'radial';
+    const mode = this.shape.kind === 'map' ? 'sweep' : 'radial';
     const r = this.rand;
     this.dots.forEach(d => {
       const order = mode === 'sweep' ? (d.hx / this.W) : d.dn;
@@ -554,17 +556,11 @@ class DotField {
       const list = el.dataset.dotsSequence.split(',').map(s => s.trim()).filter(Boolean);
       if (ST && list.length > 1) {
         let cur = 0;
-        this.triggers.push(ST.create({
-          trigger, start: 'top 60%', end: 'bottom 40%',
-          onUpdate: self => {
-            const idx = Math.min(list.length - 1, Math.floor(self.progress * list.length));
-            if (idx !== cur) { cur = idx; this.morph(list[idx]); }
-          },
-          onRefresh: self => {
-            const idx = Math.min(list.length - 1, Math.floor(self.progress * list.length));
-            if (idx !== cur) { cur = idx; this.morph(list[idx]); }
-          }
-        }));
+        const pick = self => {
+          const idx = Math.min(list.length - 1, Math.floor(self.progress * list.length));
+          if (idx !== cur) { cur = idx; this.morph(list[idx]); }
+        };
+        this.triggers.push(ST.create({ trigger, start: 'top 60%', end: 'bottom 40%', onUpdate: pick, onRefresh: pick }));
       }
     }
     if (el.hasAttribute('data-dots-steps')) {
@@ -630,7 +626,7 @@ class DotField {
   frame(t, dt) {
     this.frameN++;
     if (t < this.colorDirtyUntil || t - (this.lastColor || 0) > .5) { this.resolveColors(); this.lastColor = t; }
-    if (!this.reduced) this.step_(t, dt);
+    if (!this.reduced) this.advance(t, dt);
     if (this.tilt || this.shape.kind === 'map') this.updateTilt(this.reduced ? null : dt);
     this.render(t);
   }
@@ -783,7 +779,7 @@ class DotField {
     }
   }
 
-  step_(t, dt) {
+  advance(t, dt) {
     const W = this.W, H = this.H, step = this.step, field = this.shape.kind === 'field';
     // pointer
     const P = this.mgr.pointer;
@@ -1029,17 +1025,19 @@ export class Dots {
       siteScreenPositions: el => this.siteScreenPositions(el), lightSite: (el, i, c) => this.lightSite(el, i, c)
     };
     this._tick = this._tick.bind(this);
+    this._off = [];
+    const on = (target, type, fn, opts) => { target.addEventListener(type, fn, opts); this._off.push(() => target.removeEventListener(type, fn, opts)); };
     injectStyle();
 
     if (!this.reduced && matchMedia('(pointer: fine)').matches) {
-      addEventListener('pointermove', e => { if (e.pointerType === 'mouse' || e.pointerType === 'pen') { this.pointer.x = e.clientX; this.pointer.y = e.clientY; this.pointer.active = true; } }, { passive: true });
-      document.addEventListener('pointerleave', () => { this.pointer.active = false; });
-      addEventListener('blur', () => { this.pointer.active = false; });
+      on(window, 'pointermove', e => { if (e.pointerType === 'mouse' || e.pointerType === 'pen') { this.pointer.x = e.clientX; this.pointer.y = e.clientY; this.pointer.active = true; } }, { passive: true });
+      on(document, 'pointerleave', () => { this.pointer.active = false; });
+      on(window, 'blur', () => { this.pointer.active = false; });
     }
     // CORE tweens the theme vars for ~1s; follow the colours every frame while it does.
     const onTheme = () => this.setTheme();
-    ['themechange', 'dad:theme'].forEach(n => { document.addEventListener(n, onTheme); addEventListener(n, onTheme); });
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) this.items.forEach(it => this.schedule(it)); });
+    ['themechange', 'dad:theme'].forEach(n => { on(document, n, onTheme); on(window, n, onTheme); });
+    on(document, 'visibilitychange', () => { if (!document.hidden) this.items.forEach(it => this.schedule(it)); });
     // the coin landing on a map (or anything dotted) sends a shockwave through it
     let lastLand = 0;
     const onLand = e => {
@@ -1051,9 +1049,9 @@ export class Dots {
         if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) it.ripple(x, y, { amp: 1.2 });
       });
     };
-    document.addEventListener('dollar:land', onLand); addEventListener('dollar:land', onLand);
+    on(document, 'dollar:land', onLand); on(window, 'dollar:land', onLand);
     const mq = matchMedia('(prefers-reduced-motion: reduce)');
-    mq.addEventListener?.('change', () => { this.reduced = mq.matches; this.items.forEach(it => { it.reduced = this.reduced; if (it.reduced) { it.settleAll(); it.render(this.now()); } this.schedule(it); }); });
+    on(mq, 'change', () => { this.reduced = mq.matches; this.items.forEach(it => { it.reduced = this.reduced; if (it.reduced) { it.settleAll(); it.render(this.now()); } this.schedule(it); }); });
   }
 
   now() { return performance.now() / 1000; }
@@ -1131,7 +1129,12 @@ export class Dots {
     if (this.running.size) this.raf = requestAnimationFrame(this._tick);
   }
 
-  destroy() { this.unbind(); cancelAnimationFrame(this.raf); }
+  destroy() {
+    this.unbind();
+    cancelAnimationFrame(this.raf);
+    this._off.forEach(off => off());
+    this._off = [];
+  }
 }
 
 Dots.shapes = SHAPE_NAMES;

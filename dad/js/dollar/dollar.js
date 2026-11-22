@@ -9,8 +9,6 @@
 // engine runs on the main thread. This file is the page side: it reads the DOM once per frame (scroll,
 // the ACTIVE anchor's rect, nothing in loops), posts a destination only when it changed, and applies
 // what the engine reports back (glow, layer, state) after its reads, so it never forces a reflow.
-// A capability probe measures the live frame time (first ~1s, then a rolling window) and logs it
-// (window.__liquidProbe); it does not switch anything yet.
 //
 // Anchors in the page say where the drop should be and what it should become:
 //   <div class="dollar-anchor" data-dollar="spin|rest|leak|exclaim|shocked|logo|underline|recycle|galaxy|…|ambient"
@@ -32,11 +30,12 @@
 // 'underline' is a vector line (SVG): the drop shrinks to a droplet, lands at the start of the text and
 // draws the glossy wavy line as it travels to the end; the line then waves gently.
 //
-// Public API: new Dollar(canvas, {tier, reduced}) · bind(root) · unbind() · flyTo(el, {duration})
+// Public API: new Dollar(canvas, {tier, reduced}) · bind(root) · unbind() · flyTo({duration})
 //             cover() · reveal() · rain(pts, opts) · rainReset() · pour({onCovered, onCleared}) · pour(null)
 //             pourReset() · pourDone() · setTheme('dark'|'light') · intro() · getScreenPosition() · ready · state · dispose()
-import { Engine, TIERS, tierQ, N_PRIMS, SIZES, COVER_IN, dispatch, hostTick, absNow } from './engine.js?v=7df28338d2';
-import { ICON_STATES } from './forms.js?v=7df28338d2';
+import { Engine, TIERS, tierQ, N_PRIMS, SIZES, COVER_IN, dispatch, hostTick, absNow } from './engine.js?v=e238772b0d';
+import { ICON_STATES } from './forms.js?v=e238772b0d';
+import { View } from './gl.js?v=e238772b0d';
 const TICK = { type: 'tick' };
 // WebKit's worker rAF is timer-driven (not display-synced), so there the page paces the worker. ?liqpace=0|1 overrides.
 const PACE_FROM_PAGE = (() => { try { const o = new URLSearchParams(location.search).get('liqpace'); if (o) return o === '1'; return /Apple/.test(navigator.vendor || ''); } catch (e) { return false; } })();
@@ -46,7 +45,6 @@ const ANALYTIC = new Set(['exclaim', 'annoyed', 'shocked', 'frown', 'angry', 'fl
 const ATLAS_STATES = new Set(ICON_STATES.filter((s) => !ANALYTIC.has(s)));
 // phones and tablets get the capped quality (engine.js tierQ)
 const isMobile = () => { try { const o = new URLSearchParams(location.search).get('liqcap'); if (o) return o === '1'; return matchMedia('(hover: none) and (pointer: coarse)').matches || (navigator.maxTouchPoints > 1 && Math.min(screen.width, screen.height) < 820); } catch (e) { return false; } };
-import { View } from './gl.js?v=7df28338d2';
 
 const STATES = new Set(['spin', 'rest', 'underline', 'crack', 'leak', 'reform', 'ring', 'split', 'pool', 'vessel', 'disc', 'network', 'orbit9', 'four', 'galaxy', 'land', 'line', 'hide', 'ambient', 'rain', 'exclaim', 'annoyed', 'shocked', 'frown', 'angry', 'recycle', 'flex', 'people', 'dollar', 'shield', 'point', 'loop', 'logo', 'code', 'hiker']);
 const ALIAS = { pool: 'vessel', hide: 'ambient', land: 'ambient', line: 'ambient' };
@@ -211,33 +209,9 @@ export class Dollar {
       case 'impact': { const rn = this._rainJob; if (rn) { const p = (rn.get() || [])[d]; try { rn.onImpact && rn.onImpact(p, d); } catch (e) { /* ignore */ } } break; }
       case 'rainDone': { const rn = this._rainJob; if (rn) { rn.done = true; rn.resolve(); } break; }
       case 'uline': this._writes.uline = d || 0; break;
-      case 'perf': this._probe(d); break;
       default: break;
     }
     if (this.reduced && (type === 'glow' || type === 'top' || type === 'uline')) this._apply();
-  }
-
-  // ------------------------------------------------------------------ capability probe (log only)
-  // first ~1s of real frames, then a rolling 3s window. p90 > 18ms, or no WebGL2, would mean the
-  // pre-rendered path; for now it is only recorded (window.__liquidProbe) and logged.
-  _probe(ms) {
-    const now = performance.now(), P = this._pb || (this._pb = { t0: now, buf: [], first: null, jank: 0, webgl2: null });
-    for (const v of ms) P.buf.push([now, v]);
-    while (P.buf.length && now - P.buf[0][0] > 3000) P.buf.shift();
-    const p90 = () => { const a = P.buf.map((x) => x[1]).sort((x, y) => x - y); return a.length ? a[Math.floor(a.length * 0.9)] : 0; };
-    if (!P.first && now - P.t0 > 1000 && P.buf.length > 20) {
-      if (P.webgl2 == null) { try { P.webgl2 = sessionStorage.getItem('dad-gl2'); if (P.webgl2 == null) { const g = document.createElement('canvas').getContext('webgl2'); P.webgl2 = g ? '1' : '0'; g && g.getExtension('WEBGL_lose_context')?.loseContext(); sessionStorage.setItem('dad-gl2', P.webgl2); } } catch (e) { P.webgl2 = '?'; } }
-      const v = p90();
-      P.first = { p90: +v.toFixed(1), n: P.buf.length, mode: this.mode, tier: this.tierName, webgl2: P.webgl2 === '1', verdict: v > 18 || P.webgl2 === '0' || this.tierName === 'low' ? 'would use pre-rendered' : 'live' };
-      console.info('[dad:liquid] probe', JSON.stringify(P.first));
-    } else if (P.first && now - (P.lastCheck || 0) > 1000) {
-      P.lastCheck = now;
-      const v = p90();
-      if (v > 22 && P.buf.length > 60) { P.jank++; if (P.jank === 3) console.info('[dad:liquid] sustained jank, p90', v.toFixed(1), 'ms'); } else P.jank = 0;
-      P.rolling = +v.toFixed(1);
-    }
-    window.__liquidProbe = { mode: this.mode, first: P.first, rolling: P.rolling, jank: P.jank };
-    try { if (P.first) sessionStorage.setItem('dad-liquid-probe', JSON.stringify(window.__liquidProbe)); } catch (e) { /* ignore */ }
   }
 
   // ------------------------------------------------------------------ the page-side tick
@@ -672,7 +646,7 @@ export class Dollar {
     return this._cvP;
   }
   reveal() { this._send('reveal'); }
-  flyTo(anchorEl, { duration = 1.1 } = {}) {
+  flyTo({ duration = 1.1 } = {}) {
     if (!this.enabled) return;
     this._send('fly', { duration });
     if (this.reduced) this._still();
@@ -681,7 +655,7 @@ export class Dollar {
   pour(opts) {
     if (!this.enabled) return Promise.resolve();
     if (opts === null) { this._send('pourCancel'); return Promise.resolve(); }
-    if (this._pr && !this._pr.cancelled) return this._pr.promise;
+    if (this._pr) return this._pr.promise;
     const o = opts || {};
     const pr = this._pr = { onCovered: o.onCovered, onCleared: o.onCleared };
     pr.promise = new Promise((r) => { let d = false; pr.res = () => { if (!d) { d = true; r(); } }; });

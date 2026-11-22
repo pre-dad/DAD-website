@@ -6,6 +6,7 @@ dad-site-data-*/
 ds-data-*/
 ds-stage-*/
 api/config.php
+api/config.php.*
 **/stripe.key
 *.sqlite
 *.sqlite3

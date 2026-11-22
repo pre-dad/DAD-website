@@ -5,7 +5,12 @@
 // Never deployed.
 
 $root = $_SERVER['DOCUMENT_ROOT'];
-$uri  = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri  = is_string($path) ? urldecode($path) : '';
+if ($uri === '' || $uri[0] !== '/' || str_contains($uri, "\0")) {
+    http_response_code(404);
+    exit;
+}
 
 // RedirectMatch 301 ^/get-involved/?$ /movement/
 if ($uri === '/get-involved' || $uri === '/get-involved/') {
@@ -14,6 +19,14 @@ if ($uri === '/get-involved' || $uri === '/get-involved/') {
 }
 
 $full = $root . $uri;
+
+// Nothing outside the docroot is ever served, however the path is spelled.
+$real = realpath($full);
+$rootReal = realpath($root);
+if ($real !== false && $rootReal !== false && $real !== $rootReal && !str_starts_with($real, $rootReal . '/')) {
+    http_response_code(404);
+    exit;
+}
 
 // DirectoryIndex index.html index.php
 if (is_dir($full)) {
@@ -28,6 +41,9 @@ if (is_dir($full)) {
 
 // <Files "impactledger"> ForceType text/html
 if (is_file($full) && basename($uri) === 'impactledger') {
+    if (preg_match('/Content-Security-Policy "([^"]+)"/', (string)file_get_contents($root . '/.htaccess'), $m)) {
+        header('Content-Security-Policy: ' . $m[1]);
+    }
     header('Content-Type: text/html; charset=UTF-8');
     readfile($full);
     exit;
@@ -36,8 +52,14 @@ if (is_file($full) && basename($uri) === 'impactledger') {
 // Header always set Content-Security-Policy: pages are served here (not by the built-in server)
 // so the policy from .htaccess applies to them in tests.
 if (is_file($full) && str_ends_with($full, '.html')) {
-    if (!preg_match('#^/(impactledger|on-prem-infra/|map/)#', $uri)
-        && preg_match('/Content-Security-Policy "([^"]+)"/', (string)file_get_contents($root . '/.htaccess'), $m)) {
+    $htaccess = (string)file_get_contents($root . '/.htaccess');
+    if (str_starts_with($uri, '/on-prem-infra/')) {
+        if (preg_match('/=~ m#\^\/on-prem-infra\/#[^\n]*\n\s*Header always set Content-Security-Policy "([^"]+)"/', $htaccess, $m)) {
+            header('Content-Security-Policy: ' . $m[1]);
+        }
+        header('X-Robots-Tag: noindex, nofollow');
+    } elseif (!str_starts_with($uri, '/map/')
+        && preg_match('/Content-Security-Policy "([^"]+)"/', $htaccess, $m)) {
         header('Content-Security-Policy: ' . $m[1]);
     }
     header('Content-Type: text/html; charset=UTF-8');

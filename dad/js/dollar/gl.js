@@ -4,7 +4,7 @@
 // body, seen through a perspective camera. Two cheap extras: a 2D full-screen liquid sheet
 // (page changes, the home flood) and point-sprite droplets (the galaxy). No libraries.
 
-import { ATLAS } from './icons.js?v=7df28338d2';
+import { ATLAS } from './icons.js?v=e238772b0d';
 
 const VS = `
 attribute vec2 aP;
@@ -577,6 +577,7 @@ function loadAtlas() {
       atlasP = fetch(new URL(ATLAS.url, self.location.origin)).then((r) => r.blob()).then((b) => createImageBitmap(b, { premultiplyAlpha: 'none', colorSpaceConversion: 'none' }));
     }
   }
+  atlasP.catch(() => { atlasP = null; });
   return atlasP;
 }
 
@@ -646,7 +647,7 @@ export class View {
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
       this.atlasReady = true;
-    }).catch(() => {}));
+    }).catch(() => { this._atlasReq = null; }));
   }
 
   setSteps(n) {
@@ -713,7 +714,7 @@ export class View {
 
   // the 2D liquid sheet. s: { x, y, R (css px), inside, time, paper, alpha, swirl, warp, light }
   drawSheet(s, keep = false) {
-    if (!this.sh) this.warm();
+    if (!this.sh && !this.sheetFailed) this.warm();
     if (!this.sh) return false;
     const gl = this.gl, u = this.sh.u, W = this.W, H = this.H;
     this._quad(this.sh.p);

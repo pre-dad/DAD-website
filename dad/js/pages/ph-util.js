@@ -103,28 +103,25 @@ export function readText(root, ST, reduced) {
 }
 
 /** Toggle .is-active on each item while it sits across the given viewport line. */
-export function activeOnLine(items, ST, { line = '55%', onActive } = {}) {
+export function activeOnLine(items, ST, { line = '55%' } = {}) {
   if (!ST) { items.forEach((x) => x.classList.add('is-active')); return () => {}; }
-  const sts = items.map((el, i) => {
+  const sts = items.map((el) => {
     const scene = fitScene(el);
     return ST.create({
-    trigger: scene || el,
-    start: scene ? 'top 62%' : `top ${line}`,
-    end: scene ? 'bottom 38%' : `bottom ${line}`,
-    onToggle: (self) => {
-      if (scene) {
-        // scene page: the items in a scene light up one after another as it lands
-        const k = [...scene.querySelectorAll(el.tagName)].filter((x) => items.includes(x)).indexOf(el);
-        clearTimeout(el._phT);
-        el._phT = setTimeout(() => el.classList.toggle('is-active', self.isActive), self.isActive ? 260 + Math.max(0, k) * 300 : 0);
-      } else el.classList.toggle('is-active', self.isActive);
-      if (self.isActive && onActive) onActive(i, el);
-    },
-  });
+      trigger: scene || el,
+      start: scene ? 'top 62%' : `top ${line}`,
+      end: scene ? 'bottom 38%' : `bottom ${line}`,
+      onToggle: (self) => {
+        if (scene) {
+          // scene page: the items in a scene light up one after another as it lands
+          const k = [...scene.querySelectorAll(el.tagName)].filter((x) => items.includes(x)).indexOf(el);
+          clearTimeout(el._phT);
+          el._phT = setTimeout(() => el.classList.toggle('is-active', self.isActive), self.isActive ? 260 + Math.max(0, k) * 300 : 0);
+        } else el.classList.toggle('is-active', self.isActive);
+      },
+    });
   });
   return () => sts.forEach((s) => s.kill());
 }
 
-export const desktopPin = () => {
-  try { return matchMedia('(min-width: 960px) and (hover: hover) and (pointer: fine)').matches; } catch (e) { return false; }
-};
+export const DESKTOP_PIN = '(min-width: 960px) and (hover: hover) and (pointer: fine)';

@@ -1,7 +1,7 @@
 // Forms: <form class="form" data-form="founding|updates|support|volunteer|contact|partner">
 // Progressive enhancement over a normal POST to /api/submit.php. With JS we post
 // JSON, validate inline, keep typed input on error and swap in the success copy.
-import { $, $$, store, id } from './util.js?v=7df28338d2';
+import { $, $$, store, id } from './util.js?v=e238772b0d';
 
 const ENDPOINT = '/api/submit.php';
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/;
@@ -35,6 +35,7 @@ const MSG = {
   message: 'Please add a message.',
   company: 'Please add your company name.',
   network: "We couldn't reach the server. Check your connection and try again.",
+  rate: 'Too many requests. Please wait a moment and try again.',
   generic: 'Something went wrong. Please try again.',
 };
 
@@ -122,29 +123,29 @@ function collect(form) {
   return d;
 }
 
-function input(form, name) { return form.querySelector(`[name="${name}"]`); }
+function byName(form, name) { return form.querySelector(`[name="${name}"]`); }
 
 function validate(form, d) {
   const errs = [];
-  const need = (name, msg) => { const el = input(form, name); if (el && !d[name]) errs.push([el, msg]); };
+  const need = (name, msg) => { const el = byName(form, name); if (el && !d[name]) errs.push([el, msg]); };
   const t = d.type;
   if (t === 'contact' || t === 'partner') need('name', MSG.name); else need('first_name', MSG.first_name);
   if (t === 'support') {
-    const el = input(form, 'email_or_phone') || input(form, 'email') || input(form, 'phone');
+    const el = byName(form, 'email_or_phone') || byName(form, 'email') || byName(form, 'phone');
     if (!d.email && !d.phone) errs.push([el, MSG.contact]);
     else if (d.email && !EMAIL_RE.test(d.email)) errs.push([el, MSG.email_bad]);
     else if (d.phone && (!/^[0-9+().\-\s]{7,25}$/.test(d.phone) || d.phone.replace(/\D/g, '').length < 10 || d.phone.replace(/\D/g, '').length > 15)) errs.push([el, MSG.phone_bad]); // mirrors api/lib/validate.php valid_phone()
-    const z = input(form, 'zip');
+    const z = byName(form, 'zip');
     if (z && !/^\d{5}$/.test(d.zip || '')) errs.push([z, MSG.zip]);
   } else {
-    const el = input(form, 'email');
+    const el = byName(form, 'email');
     if (el && !d.email) errs.push([el, MSG.email]);
     else if (el && !EMAIL_RE.test(d.email)) errs.push([el, MSG.email_bad]);
   }
   if (t === 'volunteer') need('city', MSG.city);
   if (t === 'partner') need('company', MSG.company);
   if (t === 'contact') {
-    const tp = input(form, 'topic');
+    const tp = byName(form, 'topic');
     if (tp && !TOPICS.includes(d.topic)) errs.push([tp, MSG.topic]);
     need('message', MSG.message);
   }
@@ -194,8 +195,19 @@ function captureDonationReference(form) {
   try {
     const url = new URL(location.href);
     const sid = url.searchParams.get('session_id') || '';
-    const h = input(form, 'session_id');
-    if (h && /^cs_(live|test)_[A-Za-z0-9]{10,200}$/.test(sid)) h.value = sid;
+    const h = byName(form, 'session_id');
+    const valid = /^cs_(live|test)_[A-Za-z0-9]{10,200}$/.test(sid);
+    if (h && valid) h.value = sid;
+    // the id is removed from the URL below, so a reload keeps the "gift received" copy via sessionStorage
+    let gift = valid;
+    try {
+      if (valid) sessionStorage.setItem('dad-gift', '1');
+      else gift = sessionStorage.getItem('dad-gift') === '1';
+    } catch (e) { /* storage blocked: only a fresh redirect shows the gift copy */ }
+    const card = form.closest('.pg-formcard');
+    if (card) card.querySelectorAll('[data-gift]').forEach((el) => { el.hidden = (el.dataset.gift === 'yes') !== gift; });
+    const title = card && card.querySelector('[data-gift-title]');
+    if (title && gift) title.textContent = title.dataset.giftTitle;
     if (url.searchParams.has('session_id')) {
       url.searchParams.delete('session_id');
       history.replaceState(history.state, '', url.pathname + url.search + url.hash);
@@ -254,9 +266,9 @@ async function onSubmit(e) {
     btn && (btn.disabled = false);
   };
   let res, body;
+  const ctl = new AbortController();
+  const to = setTimeout(() => ctl.abort(), 15000);
   try {
-    const ctl = new AbortController();
-    const to = setTimeout(() => ctl.abort(), 15000);
     res = await fetch(form.getAttribute('action') || ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -264,19 +276,20 @@ async function onSubmit(e) {
       signal: ctl.signal,
       credentials: 'same-origin',
     });
-    clearTimeout(to);
     body = await res.json().catch(() => ({}));
   } catch (err) {
     done();
     status.textContent = MSG.network;
     return;
+  } finally {
+    clearTimeout(to);
   }
   done();
   if (res.ok && body && body.ok) { showSuccess(form, d.type, body.id); return; }
-  const msg = (body && body.error) || (res.status === 429 ? 'Too many requests' : MSG.generic);
+  const msg = (body && body.error) || (res.status === 429 ? MSG.rate : MSG.generic);
   const fieldName = body && body.field;
-  let target = fieldName ? input(form, fieldName) : null;
-  if (!target && fieldName && (fieldName === 'email' || fieldName === 'phone')) target = input(form, 'email_or_phone');
+  let target = fieldName ? byName(form, fieldName) : null;
+  if (!target && fieldName && (fieldName === 'email' || fieldName === 'phone')) target = byName(form, 'email_or_phone');
   if (target) { setError(target, msg); target.focus(); }
   else status.textContent = msg;
   shake(form);

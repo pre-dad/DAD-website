@@ -24,7 +24,7 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/Inter-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/site.css?v=7df28338d2">
+<link rel="stylesheet" href="/css/site.css?v=e238772b0d">
 <script>
 /* boot flags: runs before first paint */
 (function(){
@@ -40,15 +40,15 @@
   setTimeout(function(){ if(!window.__booted) h.classList.add('reveal-all'); }, 4500);
 })();
 </script>
-<script defer src="/vendor/gsap.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/ScrollTrigger.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/SplitText.min.js?v=7df28338d2"></script>
-<script defer src="/vendor/lenis.min.js?v=7df28338d2"></script>
-<script type="module" src="/js/app.js?v=7df28338d2"></script>
+<script defer src="/vendor/gsap.min.js?v=e238772b0d"></script>
+<script defer src="/vendor/ScrollTrigger.min.js?v=e238772b0d"></script>
+<script defer src="/vendor/SplitText.min.js?v=e238772b0d"></script>
+<script defer src="/vendor/lenis.min.js?v=e238772b0d"></script>
+<script type="module" src="/js/app.js?v=e238772b0d"></script>
 <!-- modulepreload: only util.js, the one third-level hop (app.js -> core/* -> util.js). Measured on
      home at slow 4G + 4x CPU, preloading all 16 modules cost ~450ms of first paint (they crowd the
      fonts and CSS) for no LCP gain; util.js alone removes the extra round trip at no cost. -->
-<link rel="modulepreload" href="/js/core/util.js?v=7df28338d2">
+<link rel="modulepreload" href="/js/core/util.js?v=e238772b0d">
 </head>
 <body data-page="terms" data-mobile-cta="on">
 <a class="skip-link" href="#swap">Skip to content</a>
@@ -106,7 +106,7 @@
   </div>
 </div>
 
-<main id="swap" data-page="terms" data-module="/js/pages/legal.js?v=7df28338d2" tabindex="-1">
+<main id="swap" data-page="terms" data-module="/js/pages/legal.js?v=e238772b0d" tabindex="-1">
 <!-- HERO: ink, compact. -->
 <section class="section pg-hero pg-hero--short lg-hero" data-theme="dark">
   <span class="glow" style="--x:80%;--y:36%;--size:64vmax;--o:.5"></span>
@@ -145,11 +145,11 @@
         <div class="lg-block">
           <p class="lg-lede" data-reveal="split-lines">By using dynamicaid.org you agree to these terms.</p>
         </div>
-        <div class="lg-block" id="t1" data-lg><h2 class="lg-h" data-reveal="fade"><span class="lg-h__n">01</span><span class="sr-only">Clause 1</span></h2><p class="lg-p" data-reveal="up">This site describes an organization in the middle of being built. Plans, dates and programs may change, and when they do we'll say so on <a href="/building-in-public/">Building in Public</a>.</p></div>
-        <div class="lg-block" id="t2" data-lg><h2 class="lg-h" data-reveal="fade"><span class="lg-h__n">02</span><span class="sr-only">Clause 2</span></h2><p class="lg-p" data-reveal="up">Monthly gifts are processed by Stripe and renew each month until you cancel, which you can do any time. Dynamic Aid Delivery, Inc. is a Delaware nonprofit corporation. Our 501(c)(3) application is in progress, and until the IRS issues a determination, tax-deductibility is not guaranteed.</p></div>
-        <div class="lg-block" id="t3" data-lg><h2 class="lg-h" data-reveal="fade"><span class="lg-h__n">03</span><span class="sr-only">Clause 3</span></h2><p class="lg-p" data-reveal="up">Joining the waitlist doesn't commit you to anything or charge you anything. Anyone who joins the waitlist or starts a monthly gift before January 2027 is a Founding Donor.</p></div>
-        <div class="lg-block" id="t4" data-lg><h2 class="lg-h" data-reveal="fade"><span class="lg-h__n">04</span><span class="sr-only">Clause 4</span></h2><p class="lg-p" data-reveal="up">Content on this site belongs to Dynamic Aid Delivery, INC. Share it freely with a link back. Don't pass it off as yours.</p></div>
-        <div class="lg-block" id="t5" data-lg><h2 class="lg-h" data-reveal="fade"><span class="lg-h__n">05</span><span class="sr-only">Clause 5</span></h2><p class="lg-p" data-reveal="up">We work hard to keep every number accurate and sourced. If you spot an error, tell us and we'll fix it publicly.</p></div>
+        <div class="lg-block" id="t1" data-lg><h2 class="lg-h" data-reveal="fade"><span class="lg-h__n" aria-hidden="true">01</span><span class="sr-only">Clause 1</span></h2><p class="lg-p" data-reveal="up">This site describes an organization in the middle of being built. Plans, dates and programs may change, and when they do we'll say so on <a href="/building-in-public/">Building in Public</a>.</p></div>
+        <div class="lg-block" id="t2" data-lg><h2 class="lg-h" data-reveal="fade"><span class="lg-h__n" aria-hidden="true">02</span><span class="sr-only">Clause 2</span></h2><p class="lg-p" data-reveal="up">Monthly gifts are processed by Stripe and renew each month until you cancel, which you can do any time. Dynamic Aid Delivery, Inc. is a Delaware nonprofit corporation. Our 501(c)(3) application is in progress, and until the IRS issues a determination, tax-deductibility is not guaranteed.</p></div>
+        <div class="lg-block" id="t3" data-lg><h2 class="lg-h" data-reveal="fade"><span class="lg-h__n" aria-hidden="true">03</span><span class="sr-only">Clause 3</span></h2><p class="lg-p" data-reveal="up">Joining the waitlist doesn't commit you to anything or charge you anything. Anyone who joins the waitlist or starts a monthly gift before January 2027 is a Founding Donor.</p></div>
+        <div class="lg-block" id="t4" data-lg><h2 class="lg-h" data-reveal="fade"><span class="lg-h__n" aria-hidden="true">04</span><span class="sr-only">Clause 4</span></h2><p class="lg-p" data-reveal="up">Content on this site belongs to Dynamic Aid Delivery, INC. Share it freely with a link back. Don't pass it off as yours.</p></div>
+        <div class="lg-block" id="t5" data-lg><h2 class="lg-h" data-reveal="fade"><span class="lg-h__n" aria-hidden="true">05</span><span class="sr-only">Clause 5</span></h2><p class="lg-p" data-reveal="up">We work hard to keep every number accurate and sourced. If you spot an error, tell us and we'll fix it publicly.</p></div>
         <div class="lg-block" id="questions" data-lg>
           <p class="lg-p" data-reveal="up">Questions: <a class="lg-mail" href="mailto:hello@dynamicaid.org">hello@dynamicaid.org</a></p>
           <p class="lg-meta">Last updated: October 2026</p>
@@ -186,7 +186,7 @@
     <p class="footer__big" aria-hidden="true" data-reveal="split-chars">Aid, delivered.</p>
     <div class="footer__legal">
       <p>Dynamic Aid Delivery, INC. is a Delaware non-stock corporation.</p>
-      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a></p>
+      <p>© 2026 Dynamic Aid Delivery, INC. · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/accessibility/">Accessibility</a> · <button class="linkbtn" type="button" data-cookie-settings>Cookie settings</button></p>
     </div>
   </div>
 </footer>
