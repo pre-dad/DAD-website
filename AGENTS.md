@@ -17,6 +17,7 @@ only adds what they do not say.
 
 ```sh
 npm run check                                  # repo root: generated files are current
+npm test                                       # repo root: map scoring unit tests
 (cd dad/tests-e2e && npm ci && npm run typecheck)
 shellcheck deploy.sh deploy/*.sh dad/tests-e2e/ci-setup-config.sh
 (cd dad && git ls-files -z '*.php' | xargs -0 -n1 php -l > /dev/null)
@@ -25,7 +26,7 @@ cd dad/tests-e2e && npm ci && npx playwright install chromium && npx playwright 
 bash deploy/smoke-test.sh --base-url http://127.0.0.1:8080 --form
 ```
 
-The e2e job needs the local server from the README ("Run it locally"). The first four
+The e2e job needs the local server from the README ("Run it locally"). The first five
 commands are the `checks` job; a missing `shellcheck` on the runner fails it on purpose.
 
 ## Branch and push discipline
